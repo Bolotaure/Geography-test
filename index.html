@@ -659,7 +659,8 @@ async function selectTest(key) {
   test = TESTS[key];
   places = test.places.map(([id, name, abbr, region]) => ({ id, name, abbr, region }));
   store.set("capy-last-test", key);
-  if (location.hash !== "#" + key) history.replaceState(null, "", "#" + key);
+  // Absolute URL: preview hosts such as htmlpreview.github.io add a <base> tag that breaks a bare "#key".
+  if (location.hash !== "#" + key) { try { history.replaceState(null, "", location.href.split("#")[0] + "#" + key); } catch {} }
   S = freshState();
   mapData = null; zoomT = null;
   render();
