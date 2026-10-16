@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Capy's Map Safari</title>
-<meta name="description" content="A fun geography game for kids: help Capy the capybara find all 50 US states or all 18 regions of France, earn streaks and collect squishy rewards.">
+<meta name="description" content="A fun geography game for kids: help Capy the capybara find all 50 US states, the 18 regions of France or the 47 prefectures of Japan, earn streaks and collect squishy rewards.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&display=swap">
@@ -147,7 +147,16 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   background: var(--card); border: 3px solid var(--border); border-radius: 2rem;
   padding: clamp(.5rem, 2vw, 1.25rem); box-shadow: 0 8px oklch(80% .05 220/.6);
 }
-.game-map { width: 100%; height: auto; display: block; touch-action: manipulation; }
+.game-map { width: 100%; height: auto; display: block; touch-action: pan-x pan-y; }
+.game-map.zoomed { touch-action: none; cursor: grab; }
+.map-card { position: relative; overflow: hidden; }
+.zoom-controls { position: absolute; right: 1rem; bottom: 1rem; z-index: 2; display: flex; flex-direction: column; gap: .35rem; }
+.zoom-btn {
+  width: 40px; height: 40px; border-radius: 12px; background: var(--card); border: 2px solid var(--border);
+  font-size: 1.3rem; font-weight: 800; line-height: 1; box-shadow: 0 3px oklch(80% .05 220);
+}
+.zoom-btn:hover { background: var(--muted); }
+.zoom-btn:focus-visible, .mode-btn:focus-visible, .test-tab:focus-visible, .big-btn:focus-visible { outline: 3px solid var(--tangerine); outline-offset: 2px; }
 .map-loading { text-align: center; padding: 4rem 1rem; font-weight: 700; color: var(--muted-foreground); }
 .state-path {
   stroke: #fff; stroke-width: 1.2px; cursor: pointer;
@@ -267,7 +276,13 @@ button:disabled { cursor: not-allowed; opacity: .55; }
     </div>
   </div>
 
-  <div class="map-card"><div id="map"><p class="map-loading">Capy is unrolling the map… 🗺️</p></div></div>
+  <div class="map-card">
+    <div class="zoom-controls" aria-label="Map zoom">
+      <button class="zoom-btn" id="zoomIn" aria-label="Zoom in">+</button>
+      <button class="zoom-btn" id="zoomOut" aria-label="Zoom out">−</button>
+      <button class="zoom-btn" id="zoomReset" aria-label="Show the whole map">⤢</button>
+    </div>
+    <div id="map"><p class="map-loading">Capy is unrolling the map… 🗺️</p></div></div>
 
   <div class="shelf-card">
     <h2 class="shelf-title">🧸 Your Squishy Collection</h2>
@@ -281,6 +296,7 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script src="us-states.js"></script>
 <script src="fr-regions.js"></script>
+<script src="jp-prefectures.js"></script>
 <script>
 "use strict";
 
@@ -316,6 +332,7 @@ function capySVG(opts = {}) {
   const { hat = "", badge = "", tint = "#b97a4a" } = opts;
   const hats = {
     explorer: `<path d="M58 62 Q100 20 142 62 Z" fill="#c9b27a" stroke="#8a7440" stroke-width="3"/><rect x="40" y="58" width="120" height="12" rx="6" fill="#b29a5e" stroke="#8a7440" stroke-width="3"/><rect x="62" y="52" width="76" height="8" fill="#6b8e3a"/>`,
+    headband: `<rect x="50" y="62" width="100" height="12" rx="5" fill="#fff" stroke="#ddd" stroke-width="1.5"/><circle cx="100" cy="68" r="5" fill="#d7263d"/>`,
     beret: `<ellipse cx="96" cy="56" rx="48" ry="16" fill="#2d2f5c"/><circle cx="96" cy="40" r="5" fill="#2d2f5c"/>`,
     chef: `<rect x="70" y="40" width="60" height="26" fill="#fff" stroke="#ddd" stroke-width="2"/><circle cx="78" cy="34" r="16" fill="#fff" stroke="#ddd" stroke-width="2"/><circle cx="100" cy="26" r="18" fill="#fff" stroke="#ddd" stroke-width="2"/><circle cx="122" cy="34" r="16" fill="#fff" stroke="#ddd" stroke-width="2"/>`,
   };
@@ -397,6 +414,70 @@ const FR_WATER = {
 };
 const FR_OVERSEAS = ["01","02","03","04","06"];
 
+const JP_PREFS = [
+  ["01","Hokkaido","HOK","the far north — the big island at the top"],
+  ["02","Aomori","AOM","the very top of Honshu, in Tohoku"],
+  ["03","Iwate","IWA","Tohoku, on the Pacific side"],
+  ["04","Miyagi","MIY","Tohoku, on the Pacific side, home of Sendai"],
+  ["05","Akita","AKI","Tohoku, on the Sea of Japan side"],
+  ["06","Yamagata","YGT","Tohoku, on the Sea of Japan side"],
+  ["07","Fukushima","FKS","the south of Tohoku"],
+  ["08","Ibaraki","IBR","Kanto, northeast of Tokyo"],
+  ["09","Tochigi","TCG","Kanto, north of Tokyo"],
+  ["10","Gunma","GNM","Kanto, northwest of Tokyo, in the mountains"],
+  ["11","Saitama","STM","Kanto, just north of Tokyo"],
+  ["12","Chiba","CHB","Kanto, the peninsula east of Tokyo"],
+  ["13","Tokyo","TKY","Kanto — it's Japan's capital"],
+  ["14","Kanagawa","KNG","Kanto, just south of Tokyo, with Yokohama"],
+  ["15","Niigata","NGT","Chubu, the long coast on the Sea of Japan"],
+  ["16","Toyama","TYM","Chubu, on the Sea of Japan coast"],
+  ["17","Ishikawa","ISK","Chubu, with the Noto peninsula poking into the sea"],
+  ["18","Fukui","FKI","Chubu, on the Sea of Japan coast"],
+  ["19","Yamanashi","YMN","Chubu, on the north side of Mount Fuji"],
+  ["20","Nagano","NGN","the mountainous middle of Japan — the Japanese Alps"],
+  ["21","Gifu","GIF","the middle of Japan, in Chubu"],
+  ["22","Shizuoka","SZO","Chubu, on the Pacific coast below Mount Fuji"],
+  ["23","Aichi","AIC","Chubu, home of Nagoya"],
+  ["24","Mie","MIE","Kansai, on the Pacific, east of Nara"],
+  ["25","Shiga","SHG","Kansai, all around Lake Biwa"],
+  ["26","Kyoto","KYT","Kansai — the old capital"],
+  ["27","Osaka","OSK","Kansai, a small but busy one around Osaka Bay"],
+  ["28","Hyogo","HYG","Kansai, stretching from sea to sea, with Kobe"],
+  ["29","Nara","NAR","Kansai, the city of friendly deer, south of Kyoto"],
+  ["30","Wakayama","WKY","Kansai, the southern tip of the Kii peninsula"],
+  ["31","Tottori","TTR","Chugoku, on the Sea of Japan, with big sand dunes"],
+  ["32","Shimane","SMN","Chugoku, on the Sea of Japan coast"],
+  ["33","Okayama","OKY","Chugoku, on the Seto Inland Sea"],
+  ["34","Hiroshima","HRS","Chugoku, on the Seto Inland Sea"],
+  ["35","Yamaguchi","YGC","the western tip of Honshu"],
+  ["36","Tokushima","TKS","Shikoku, the east side"],
+  ["37","Kagawa","KGW","Shikoku, the northeast — the smallest prefecture"],
+  ["38","Ehime","EHM","Shikoku, the northwest side"],
+  ["39","Kochi","KOC","Shikoku, the long south coast"],
+  ["40","Fukuoka","FKO","the north of Kyushu"],
+  ["41","Saga","SAG","Kyushu, the northwest, between Fukuoka and Nagasaki"],
+  ["42","Nagasaki","NGS","the far west of Kyushu, with lots of islands"],
+  ["43","Kumamoto","KMM","the middle of Kyushu"],
+  ["44","Oita","OIT","Kyushu, the northeast side"],
+  ["45","Miyazaki","MYZ","Kyushu, on the Pacific side"],
+  ["46","Kagoshima","KGS","the southern tip of Kyushu, with a smoking volcano"],
+  ["47","Okinawa","OKN","the far southwest — tropical islands"],
+];
+const JP_WATER = {
+  HOK:"the Sea of Japan, the Pacific Ocean and the Sea of Okhotsk", AOM:"the Pacific Ocean and the Sea of Japan", IWA:"the Pacific Ocean",
+  MIY:"the Pacific Ocean", AKI:"the Sea of Japan", YGT:"the Sea of Japan", FKS:"the Pacific Ocean", IBR:"the Pacific Ocean",
+  CHB:"the Pacific Ocean and Tokyo Bay", TKY:"Tokyo Bay", KNG:"Tokyo Bay and Sagami Bay", NGT:"the Sea of Japan",
+  TYM:"the Sea of Japan (Toyama Bay)", ISK:"the Sea of Japan", FKI:"the Sea of Japan", SZO:"the Pacific Ocean",
+  AIC:"the Pacific Ocean (Ise Bay)", MIE:"the Pacific Ocean (Ise Bay)", KYT:"the Sea of Japan", OSK:"Osaka Bay",
+  HYG:"the Sea of Japan AND the Seto Inland Sea", WKY:"the Pacific Ocean", TTR:"the Sea of Japan", SMN:"the Sea of Japan",
+  OKY:"the Seto Inland Sea", HRS:"the Seto Inland Sea", YGC:"the Sea of Japan and the Seto Inland Sea",
+  TKS:"the Pacific Ocean and the Seto Inland Sea", KGW:"the Seto Inland Sea", EHM:"the Seto Inland Sea", KOC:"the Pacific Ocean",
+  FKO:"the Sea of Japan and the Seto Inland Sea", SAG:"the Sea of Japan and the Ariake Sea", NGS:"the East China Sea",
+  KMM:"the Ariake Sea", OIT:"the Seto Inland Sea", MYZ:"the Pacific Ocean", KGS:"the East China Sea and the Pacific Ocean",
+  OKN:"the East China Sea and the Pacific Ocean — it's surrounded by them",
+  SHG:"Lake Biwa, Japan's biggest lake — but no sea",
+};
+
 const TESTS = {
   us: {
     key: "us", tab: "🇺🇸 US States", menu: "🗺️ Capy's State Safari",
@@ -416,7 +497,7 @@ const TESTS = {
     key: "fr", tab: "🇫🇷 French Regions", menu: "🥖 Capy's Tour de France",
     title: "Capy's Tour de France", subtitle: "Find all 18 regions of France with your capybara pal!",
     noun: "region", nounPl: "regions", whole: "France", perLevel: 3,
-    places: FR_REGIONS, water: FR_WATER, lonely: "It doesn't touch any other French region!",
+    places: FR_REGIONS, water: FR_WATER, lonely: "It doesn't touch any other French region!", winHat: "beret",
     rewards: [
       { level: 1, name: "Baguette Capy", hat: "beret", badge: "🥖", tagline: "Ooh là là, fresh from the boulangerie!" },
       { level: 2, name: "Croissant Capy", hat: "chef", badge: "🥐", tagline: "Flaky, buttery and very clever!" },
@@ -424,6 +505,20 @@ const TESTS = {
       { level: 4, name: "Artist Capy", hat: "beret", badge: "🎨", tint: "#a97a55", tagline: "Paints a masterpiece of a map!" },
       { level: 5, name: "Tour de France Capy", badge: "🚴", tint: "#a26a3c", tagline: "Pedals through every region!" },
       { level: 6, name: "Eiffel Capy", badge: "🗼", tint: "#c69a7a", tagline: "The tallest, proudest squishy of all!" },
+    ],
+  },
+  jp: {
+    key: "jp", tab: "🇯🇵 Japanese Prefectures", menu: "🗾 Capy's Japan Journey",
+    title: "Capy's Japan Journey", subtitle: "Find all 47 prefectures of Japan with your capybara pal!",
+    noun: "prefecture", nounPl: "prefectures", whole: "Japan", perLevel: 8, labelSize: 9, starSize: 10, winHat: "headband", insetCaption: "Southern islands",
+    places: JP_PREFS, water: JP_WATER, lonely: "It doesn't touch any other prefecture!",
+    rewards: [
+      { level: 1, name: "Sushi Capy", hat: "headband", badge: "🍣", tagline: "Rolls up the right answer every time!" },
+      { level: 2, name: "Ninja Capy", badge: "🥷", tint: "#a26a3c", tagline: "Sneaks up on every prefecture!" },
+      { level: 3, name: "Onsen Capy", badge: "♨️", tint: "#c0813f", tagline: "Real capybaras love hot springs too!" },
+      { level: 4, name: "Sakura Capy", badge: "🌸", tint: "#c69a7a", tagline: "Blooming with geography power!" },
+      { level: 5, name: "Ramen Capy", hat: "chef", badge: "🍜", tagline: "Slurps up knowledge, one noodle at a time!" },
+      { level: 6, name: "Fuji Capy", hat: "headband", badge: "🗻", tint: "#a97a55", tagline: "The highest, mightiest squishy of all!" },
     ],
   },
 };
@@ -515,6 +610,28 @@ function buildFR(test) {
   return { width: W, height: H, shapes, insets, neighbours };
 }
 
+function buildJP(test) {
+  const topo = window.JP_PREFS_TOPO;
+  const geoms = topo.objects.prefs.geometries;
+  const pad = id => String(id).padStart(2, "0");
+  const fc = topojson.feature(topo, topo.objects.prefs);
+  fc.features.forEach(f => { f.id = pad(f.id); });
+  const W = 975, H = 820, shapes = [];
+  const main = fc.features.filter(f => f.id !== "47");
+  const proj = d3.geoMercator().fitExtent([[10, 10], [W - 10, H - 10]], { type: "FeatureCollection", features: main });
+  const path = d3.geoPath(proj);
+  main.forEach(f => { const [cx, cy] = path.centroid(f); shapes.push({ id: f.id, d: path(f), cx, cy }); });
+  // Okinawa goes in a box in the empty top-left corner, as on Japanese school maps.
+  const box = { id: "47", x: 10, y: 10, w: 250, h: 190 };
+  const oki = fc.features.find(f => f.id === "47");
+  const op = d3.geoPath(d3.geoMercator().fitExtent([[box.x + 12, box.y + 10], [box.x + box.w - 12, box.y + box.h - 24]], oki));
+  const [cx, cy] = op.centroid(oki);
+  shapes.push({ id: "47", d: op(oki), cx, cy });
+  const nb = topojson.neighbors(geoms), neighbours = new Map();
+  geoms.forEach((g, i) => neighbours.set(pad(g.id), nb[i].map(j => pad(geoms[j].id))));
+  return { width: W, height: H, shapes, insets: [box], neighbours };
+}
+
 /* ---------- Game state ---------- */
 let test, places, mapData, colours;
 let S = {};
@@ -544,11 +661,11 @@ async function selectTest(key) {
   store.set("capy-last-test", key);
   if (location.hash !== "#" + key) history.replaceState(null, "", "#" + key);
   S = freshState();
-  mapData = null;
+  mapData = null; zoomT = null;
   render();
   $("map").innerHTML = `<p class="map-loading">Capy is unrolling the map… 🗺️</p>`;
   try {
-    const data = key === "fr" ? buildFR(test) : buildUS(test);
+    const data = key === "fr" ? buildFR(test) : key === "jp" ? buildJP(test) : buildUS(test);
     if (test.key !== key) return; // switched again while loading
     mapData = data;
     colours = colourise(data.shapes.map(s => s.id), data.neighbours);
@@ -755,7 +872,7 @@ function renderMap() {
   if (!mapData) return;
   const t = current();
   const { width, height, shapes, insets } = mapData;
-  let svg = `<svg viewBox="0 0 ${width} ${height}" class="game-map" role="application" aria-label="Map of ${esc(test.whole)}">`;
+  let svg = `<svg viewBox="0 0 ${width} ${height}" class="game-map" role="application" aria-label="Map of ${esc(test.whole)}"><g class="zoom-layer">`;
   insets.forEach(b => {
     svg += `<rect class="inset-box" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="12"/>`;
   });
@@ -772,17 +889,44 @@ function renderMap() {
   // Tiny islands are hard to tap: the whole inset box counts as a click on that region.
   insets.forEach(b => {
     svg += `<rect class="inset-hit" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="12" data-id="${b.id}" aria-hidden="true"/>`;
-    svg += `<text class="inset-caption" x="${b.x + b.w / 2}" y="${b.y + b.h - 8}" pointer-events="none">${S.tags || S.found.has(b.id) ? esc(byId(b.id).name) : "Overseas"}</text>`;
+    svg += `<text class="inset-caption" x="${b.x + b.w / 2}" y="${b.y + b.h - 8}" pointer-events="none">${S.tags || S.found.has(b.id) ? esc(byId(b.id).name) : (test.insetCaption || "Overseas")}</text>`;
   });
   shapes.forEach(s => {
-    if (S.found.has(s.id)) svg += `<text x="${s.cx}" y="${s.cy}" class="state-star" pointer-events="none">⭐</text>`;
+    if (S.found.has(s.id)) svg += `<text x="${s.cx}" y="${s.cy}" class="state-star" pointer-events="none"${test.starSize ? ` style="font-size:${test.starSize}px"` : ""}>⭐</text>`;
   });
   if (S.tags) shapes.forEach(s => {
-    svg += `<text x="${s.cx}" y="${s.cy + (S.found.has(s.id) ? 14 : 0)}" class="state-label" pointer-events="none">${esc(byId(s.id).abbr)}</text>`;
+    svg += `<text x="${s.cx}" y="${s.cy + (S.found.has(s.id) ? (test.labelSize || 14) : 0)}" class="state-label" pointer-events="none"${test.labelSize ? ` style="font-size:${test.labelSize}px;stroke-width:2px"` : ""}>${esc(byId(s.id).abbr)}</text>`;
   });
-  svg += `</svg>`;
+  svg += `</g></svg>`;
   $("map").innerHTML = svg;
+  attachZoom();
 }
+
+/* Zoom: pinch, ctrl/trackpad-pinch wheel, drag when zoomed in, or the +/− buttons.
+   One finger still scrolls the page while the map is at normal size. */
+let zoomT = null, zoomBehaviour = null;
+function attachZoom() {
+  const svg = d3.select("#map svg"), layer = svg.select(".zoom-layer");
+  const { width, height } = mapData;
+  zoomBehaviour = d3.zoom().scaleExtent([1, 8]).translateExtent([[0, 0], [width, height]])
+    .filter(e => {
+      if (e.type === "wheel") return e.ctrlKey;
+      if (e.type.startsWith("touch")) return e.touches.length > 1 || (zoomT && zoomT.k > 1);
+      if (e.type === "mousedown") return !e.button && zoomT && zoomT.k > 1;
+      return !e.button;
+    })
+    .on("zoom", e => {
+      zoomT = e.transform;
+      layer.attr("transform", zoomT);
+      svg.classed("zoomed", zoomT.k > 1);
+    });
+  svg.call(zoomBehaviour).on("dblclick.zoom", null);
+  svg.call(zoomBehaviour.transform, zoomT || d3.zoomIdentity);
+}
+function zoomBy(f) { if (zoomBehaviour) d3.select("#map svg").transition().duration(250).call(zoomBehaviour.scaleBy, f); }
+$("zoomIn").addEventListener("click", () => zoomBy(1.6));
+$("zoomOut").addEventListener("click", () => zoomBy(1 / 1.6));
+$("zoomReset").addEventListener("click", () => { if (zoomBehaviour) d3.select("#map svg").transition().duration(250).call(zoomBehaviour.transform, d3.zoomIdentity); });
 
 function renderModal() {
   const m = $("modal");
@@ -796,7 +940,7 @@ function renderModal() {
   } else if (S.won) {
     m.innerHTML = `<div class="modal-backdrop"><div class="reward-modal" role="dialog" aria-modal="true">
       <div class="reward-banner">🏆 YOU FOUND ALL ${places.length} ${test.nounPl.toUpperCase()}! 🏆</div>
-      <div class="reward-img capy-party">${capySVG({ hat: test.key === "fr" ? "beret" : "explorer", badge: "🏆" })}</div>
+      <div class="reward-img capy-party">${capySVG({ hat: test.winHat || "explorer", badge: "🏆" })}</div>
       <h3 class="reward-name">Geography Champion!</h3>
       <p class="reward-tagline">Final score: ${S.score} — Capy is SO proud of you!</p>
       <button class="big-btn" data-action="play-again">Play Again! 🔁</button></div></div>`;
