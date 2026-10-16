@@ -17,6 +17,9 @@ Open `index.html` and pick a test with the **🇺🇸 US States / 🇫🇷 Frenc
 - Zoom the map with the **+ / −** buttons, a two-finger pinch, or ctrl + mouse wheel.
 - Score, best score, missed list and squishies are saved per test in the browser.
 
+Libraries in `lib/` (d3, topojson-client, canvas-confetti, all ISC licence) are stored in the repo so the game also runs through
+[htmlpreview.github.io](https://htmlpreview.github.io/?https://github.com/Bolotaure/Geography-test/blob/main/index.html), which only loads scripts kept in GitHub.
+
 US map: `us-states.js`, from `us-atlas`. France map: `fr-regions.js`, simplified from
 [gregoiredavid/france-geojson](https://github.com/gregoiredavid/france-geojson) (Licence Ouverte / Etalab).
 Japan map: `jp-prefectures.js`, simplified from [dataofjapan/land](https://github.com/dataofjapan/land).
