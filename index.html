@@ -1,0 +1,845 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Capy's Map Safari</title>
+<meta name="description" content="A fun geography game for kids: help Capy the capybara find all 50 US states or all 18 regions of France, earn streaks and collect squishy rewards.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&display=swap">
+<style>
+:root {
+  --background: oklch(94% .045 210);
+  --foreground: oklch(32% .06 250);
+  --card: #fff;
+  --muted: oklch(92% .03 210);
+  --muted-foreground: oklch(50% .05 250);
+  --secondary: oklch(90% .09 140);
+  --secondary-foreground: oklch(35% .1 140);
+  --primary: oklch(68% .19 45);
+  --destructive: oklch(63% .22 25);
+  --border: oklch(85% .04 220);
+  --sky-top: oklch(88% .06 220);
+  --sky-bottom: oklch(95% .03 160);
+  --state-a: oklch(88% .08 150);
+  --state-b: oklch(90% .07 90);
+  --state-c: oklch(87% .07 210);
+  --state-d: oklch(90% .06 340);
+  --state-hover: oklch(82% .12 60);
+  --state-found: oklch(72% .17 145);
+  --sunshine: oklch(85% .16 90);
+  --tangerine: oklch(72% .18 50);
+  --berry: oklch(60% .2 350);
+  --font-display: "Baloo 2", "Comic Sans MS", cursive;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--background); color: var(--foreground); font-family: var(--font-display); }
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+button:disabled { cursor: not-allowed; opacity: .55; }
+[hidden] { display: none !important; }
+
+.game-root {
+  background:
+    radial-gradient(circle at 15% 10%, oklch(100% 0 0/.7) 0 6rem, transparent 6.5rem),
+    radial-gradient(circle at 85% 15%, oklch(100% 0 0/.5) 0 4rem, transparent 4.5rem),
+    linear-gradient(180deg, var(--sky-top), var(--sky-bottom));
+  display: flex; flex-direction: column; gap: 1.25rem;
+  max-width: 1100px; min-height: 100vh; margin: 0 auto;
+  padding: 1rem clamp(1rem, 3vw, 2.5rem) 3rem;
+}
+
+/* Header */
+.activity-heading { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.activity-heading > div { min-width: 0; }
+.game-title { color: var(--tangerine); text-shadow: 0 2px oklch(100% 0 0/.8); font-size: 2rem; font-weight: 800; line-height: 1.2; }
+.game-subtitle { color: var(--muted-foreground); font-size: clamp(.9rem, 2.5vw, 1.1rem); font-weight: 600; }
+.activity-menu-wrap { position: relative; flex-shrink: 0; }
+.activity-trigger {
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  min-height: 44px; padding: .4rem 1rem; font-size: 1rem; font-weight: 600;
+  display: flex; align-items: center; gap: .4rem;
+}
+.activity-menu {
+  position: absolute; right: 0; top: calc(100% + 6px); z-index: 40;
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  min-width: 250px; padding: .35rem; box-shadow: 0 10px 25px oklch(30% .05 250/.18);
+}
+.activity-menu[hidden] { display: none; }
+.activity-menu-label { font-size: .8rem; font-weight: 700; color: var(--muted-foreground); padding: .35rem .6rem; }
+.activity-menu hr { border: none; border-top: 1px solid var(--border); margin: .25rem 0; }
+.activity-item {
+  display: flex; align-items: center; gap: .7rem; width: 100%; min-height: 44px;
+  padding: .3rem .6rem; border-radius: 6px; font-size: 1rem; font-weight: 600; text-align: left;
+}
+.activity-item:hover, .activity-item:focus-visible { background: var(--muted); outline: none; }
+.activity-current { color: var(--muted-foreground); margin-left: auto; font-size: .7rem; }
+
+.test-switch { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .9rem; }
+.test-tab {
+  background: var(--card); border: 2px solid var(--border); border-radius: 999px;
+  padding: .35rem 1.1rem; font-size: 1rem; font-weight: 800; box-shadow: 0 3px oklch(80% .05 220);
+  transition: transform .1s, background .15s;
+}
+.test-tab:hover { transform: translateY(-1px); }
+.test-tab[aria-selected="true"] { background: var(--tangerine); border-color: var(--tangerine); color: #fff; box-shadow: 0 3px oklch(55% .15 45); }
+
+.activity-stats {
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  display: flex; flex-wrap: wrap; gap: 1rem 2rem; margin-top: 1rem; padding: .7rem 0;
+}
+.activity-stats > div { display: flex; align-items: baseline; gap: .5rem; }
+.activity-stats dt { color: var(--muted-foreground); font-size: .9rem; font-weight: 600; }
+.activity-stats dd { font-size: 1.2rem; font-weight: 800; }
+
+/* Prompt */
+.prompt-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem; }
+.capy-img { width: clamp(80px, 14vw, 130px); height: auto; filter: drop-shadow(0 6px 6px oklch(50% .08 60/.35)); }
+.capy-bob { animation: bob 2.4s ease-in-out infinite; }
+.capy-party { animation: party .7s ease-in-out infinite; }
+@keyframes bob { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-8px) rotate(2deg); } }
+@keyframes party { 0%, 100% { transform: rotate(-6deg) scale(1.05); } 50% { transform: rotate(6deg) scale(1.12); } }
+.speech-area { display: flex; flex-direction: column; flex: 1; gap: .6rem; min-width: 240px; }
+.speech-bubble {
+  background: var(--card); border: 3px solid var(--tangerine); border-radius: 1.5rem;
+  padding: .9rem 1.25rem; position: relative; box-shadow: 0 4px oklch(72% .18 50/.4);
+}
+.speech-bubble::before {
+  content: ""; position: absolute; bottom: 18px; left: -14px;
+  border: 8px solid transparent; border-right-color: var(--tangerine);
+}
+.bubble-msg { display: block; font-size: clamp(1rem, 2.6vw, 1.2rem); font-weight: 700; }
+.bubble-target { display: block; color: var(--berry); margin-top: .25rem; font-size: clamp(1.2rem, 3.4vw, 1.7rem); }
+.bubble-target strong { background: var(--sunshine); border-radius: .5em; padding: .05em .4em; font-weight: 800; }
+
+.mode-row { display: flex; flex-wrap: wrap; gap: .5rem; }
+.mode-btn {
+  background: var(--card); border: 2px solid var(--border); border-radius: 999px;
+  padding: .4rem 1rem; font-size: .9rem; font-weight: 700;
+  box-shadow: 0 3px oklch(80% .05 220); transition: transform .1s, background .15s;
+}
+.mode-btn:hover:not(:disabled) { transform: translateY(-1px); }
+.mode-btn-active { background: var(--sunshine); border-color: var(--tangerine); color: oklch(40% .1 50); }
+.ask-capy-btn { width: 100%; }
+.ask-capy {
+  background: var(--card); border: 3px dashed var(--primary); border-radius: 1rem;
+  display: flex; flex-direction: column; gap: .5rem; padding: .75rem;
+}
+.ask-capy-quick { display: flex; flex-wrap: wrap; gap: .4rem; }
+.ask-chip { background: var(--secondary); color: var(--secondary-foreground); border-radius: 999px; padding: .3rem .8rem; font-size: .9rem; font-weight: 700; }
+.ask-chip:hover { filter: brightness(.96); }
+.ask-capy-answer { font-size: 1.05rem; font-weight: 700; }
+.ask-close { color: var(--muted-foreground); align-self: flex-end; font-size: .8rem; text-decoration: underline; }
+
+.progress-card {
+  background: var(--card); border: 2px dashed var(--tangerine); border-radius: 1.25rem;
+  display: flex; align-items: center; gap: .75rem; padding: .5rem .9rem;
+}
+.progress-squishy { width: 56px; height: 56px; filter: grayscale(1) opacity(.6); }
+.progress-info { display: flex; flex-direction: column; flex: 1; gap: .2rem; }
+.progress-label, .progress-count { color: var(--muted-foreground); font-size: .85rem; font-weight: 700; }
+.progress-count { font-size: .75rem; }
+.progress-track { background: var(--muted); border-radius: 999px; height: 12px; overflow: hidden; }
+.progress-fill { background: linear-gradient(90deg, var(--tangerine), var(--sunshine)); border-radius: 999px; height: 100%; transition: width .4s; }
+
+/* Map */
+.map-card {
+  background: var(--card); border: 3px solid var(--border); border-radius: 2rem;
+  padding: clamp(.5rem, 2vw, 1.25rem); box-shadow: 0 8px oklch(80% .05 220/.6);
+}
+.game-map { width: 100%; height: auto; display: block; touch-action: manipulation; }
+.map-loading { text-align: center; padding: 4rem 1rem; font-weight: 700; color: var(--muted-foreground); }
+.state-path {
+  stroke: #fff; stroke-width: 1.2px; cursor: pointer;
+  transition: fill .15s; transform-box: fill-box; transform-origin: center;
+  filter: brightness(1.1) drop-shadow(0 3px 4px #00000040);
+}
+.state-a { fill: var(--state-a); } .state-b { fill: var(--state-b); }
+.state-c { fill: var(--state-c); } .state-d { fill: var(--state-d); }
+.state-path:hover { fill: var(--state-hover); }
+.state-found, .state-found:hover { fill: var(--state-found); cursor: default; }
+.state-wrong { animation: shake .45s; fill: var(--destructive) !important; }
+.state-pop { animation: pop .5s; }
+.state-hint { animation: hintPulse 1s ease-in-out infinite; fill: var(--sunshine) !important; }
+.state-peek { animation: pop .4s; fill: oklch(80% .15 320) !important; }
+@keyframes shake { 0%, 100% { transform: translate(0); } 25% { transform: translate(-3px); } 75% { transform: translate(3px); } }
+@keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.12); } 100% { transform: scale(1); } }
+@keyframes hintPulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.25) drop-shadow(0 0 8px oklch(85% .16 90)); } }
+.state-star { text-anchor: middle; dominant-baseline: middle; font-size: 14px; }
+.state-label {
+  text-anchor: middle; dominant-baseline: middle; fill: oklch(40% .06 250);
+  paint-order: stroke; stroke: oklch(100% 0 0/.85); stroke-width: 3px; font-size: 13px; font-weight: 800;
+}
+.inset-box { fill: oklch(97% .02 220); stroke: var(--border); stroke-width: 1.5px; stroke-dasharray: 5 4; }
+.inset-hit { fill: transparent; cursor: pointer; }
+.inset-caption { font-size: 12px; font-weight: 700; fill: var(--muted-foreground); text-anchor: middle; }
+
+/* Shelf */
+.shelf-card {
+  background: var(--card); border: 3px solid var(--border); border-radius: 2rem;
+  padding: 1.25rem; box-shadow: 0 8px oklch(80% .05 220/.6);
+}
+.shelf-title { color: var(--tangerine); margin-bottom: .75rem; font-size: 1.3rem; font-weight: 800; }
+.shelf-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: .75rem; }
+.shelf-item { background: var(--muted); border-radius: 8px; display: flex; flex-direction: column; align-items: center; gap: .35rem; padding: .75rem .5rem; }
+.shelf-item svg { width: 100%; max-width: 110px; height: 110px; }
+.shelf-locked svg { filter: grayscale(1) brightness(.55) opacity(.45); }
+.shelf-owned { background: var(--secondary); border: 2px solid oklch(72% .17 145); animation: pop .5s; }
+.shelf-name { text-align: center; font-size: .8rem; font-weight: 700; }
+
+/* Modals */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 50; background: oklch(30% .05 250/.55);
+  display: flex; justify-content: center; align-items: center; padding: 1rem; animation: fadeIn .25s;
+}
+.reward-modal {
+  background: var(--card); border: 4px solid var(--sunshine); border-radius: 2rem; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: .5rem;
+  width: 100%; max-width: 380px; padding: 1.5rem 2rem 2rem;
+  animation: bounceIn .5s cubic-bezier(.34, 1.56, .64, 1); box-shadow: 0 12px oklch(72% .18 50/.5);
+}
+.reward-banner { color: var(--berry); font-size: 1.1rem; font-weight: 800; }
+.reward-img { width: 200px; height: 200px; animation: bob 2s ease-in-out infinite; }
+.reward-name { color: var(--tangerine); font-size: 1.6rem; font-weight: 800; }
+.reward-tagline { color: var(--muted-foreground); font-size: .95rem; font-weight: 600; }
+.big-btn {
+  background: var(--tangerine); color: #fff; border-radius: 999px; margin-top: .75rem;
+  padding: .7rem 1.8rem; font-size: 1.15rem; font-weight: 800;
+  box-shadow: 0 5px oklch(55% .15 45); transition: transform .1s, box-shadow .1s;
+}
+.big-btn:hover { transform: translateY(-2px); box-shadow: 0 7px oklch(55% .15 45); }
+.big-btn:active { transform: translateY(3px); box-shadow: 0 2px oklch(55% .15 45); }
+@keyframes fadeIn { from { opacity: 0; } }
+@keyframes bounceIn { 0% { opacity: 0; transform: scale(.6); } 100% { opacity: 1; transform: scale(1); } }
+
+@media (max-width: 640px) {
+  .activity-heading { align-items: flex-start; gap: .6rem; }
+  .game-title { font-size: 1.65rem; }
+  .activity-trigger { padding: .4rem .65rem; font-size: .9rem; }
+  .activity-stats { gap: .5rem 1.2rem; }
+  .activity-stats dt { font-size: .8rem; }
+  .activity-stats dd { font-size: 1rem; }
+  .capy-img { width: 65px; }
+  .speech-bubble { padding: .75rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .capy-bob, .capy-party, .shelf-owned, .reward-img { animation: none; }
+}
+</style>
+</head>
+<body>
+<div class="game-root">
+  <header class="activity-header">
+    <div class="activity-heading">
+      <div>
+        <h1 class="game-title" id="title">Capy's Map Safari</h1>
+        <p class="game-subtitle" id="subtitle"></p>
+      </div>
+      <div class="activity-menu-wrap">
+        <button class="activity-trigger" id="menuBtn" aria-haspopup="menu" aria-expanded="false">Activities
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="activity-menu" id="menu" role="menu" hidden>
+          <div class="activity-menu-label">Capy's adventures</div>
+          <hr>
+          <div id="menuItems"></div>
+        </div>
+      </div>
+    </div>
+    <div class="test-switch" role="tablist" aria-label="Choose a test" id="tabs"></div>
+    <dl class="activity-stats" aria-label="Game progress" id="stats"></dl>
+  </header>
+
+  <div class="prompt-row">
+    <div id="capy" class="capy-img capy-bob" role="img" aria-label="Capy the capybara"></div>
+    <div class="speech-area">
+      <div class="speech-bubble" aria-live="polite">
+        <span class="bubble-msg" id="msg"></span>
+        <span class="bubble-target" id="target"></span>
+      </div>
+      <div id="ask"></div>
+      <div class="mode-row">
+        <button class="mode-btn" id="exploreBtn" aria-pressed="false"></button>
+        <button class="mode-btn" id="tagsBtn" aria-pressed="false"></button>
+        <button class="mode-btn" id="practiceBtn" aria-pressed="false"></button>
+      </div>
+      <div class="progress-card" id="progress"></div>
+    </div>
+  </div>
+
+  <div class="map-card"><div id="map"><p class="map-loading">Capy is unrolling the map… 🗺️</p></div></div>
+
+  <div class="shelf-card">
+    <h2 class="shelf-title">🧸 Your Squishy Collection</h2>
+    <div class="shelf-row" id="shelf"></div>
+  </div>
+</div>
+<div id="modal"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script src="us-states.js"></script>
+<script src="fr-regions.js"></script>
+<script>
+"use strict";
+
+/* ---------- Sounds (WebAudio, no files) ---------- */
+let audioCtx = null;
+function ctx() {
+  if (!audioCtx) {
+    const C = window.AudioContext || window.webkitAudioContext;
+    if (!C) return null;
+    audioCtx = new C();
+  }
+  if (audioCtx.state === "suspended") audioCtx.resume();
+  return audioCtx;
+}
+function tone(freq, delay, dur, type = "sine", vol = .22) {
+  const c = ctx(); if (!c) return;
+  const t = c.currentTime + delay, o = c.createOscillator(), g = c.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, t);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .02);
+  g.gain.exponentialRampToValueAtTime(.001, t + dur);
+  o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur + .05);
+}
+const sfx = {
+  correct() { tone(523.25, 0, .15, "triangle"); tone(659.25, .09, .15, "triangle"); tone(783.99, .18, .28, "triangle"); },
+  wrong() { tone(220, 0, .18, "sawtooth", .08); tone(174, .14, .25, "sawtooth", .08); },
+  click() { tone(880, 0, .06, "square", .06); },
+  streak() { [523, 659, 784, 1047].forEach((f, i) => tone(f, i * .07, .18, "triangle")); },
+  levelUp() { [392, 523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, i * .1, .3, "triangle", .25)); tone(1568, .65, .5, "sine", .2); },
+};
+
+/* ---------- Capybara art (inline SVG) ---------- */
+function capySVG(opts = {}) {
+  const { hat = "", badge = "", tint = "#b97a4a" } = opts;
+  const hats = {
+    explorer: `<path d="M58 62 Q100 20 142 62 Z" fill="#c9b27a" stroke="#8a7440" stroke-width="3"/><rect x="40" y="58" width="120" height="12" rx="6" fill="#b29a5e" stroke="#8a7440" stroke-width="3"/><rect x="62" y="52" width="76" height="8" fill="#6b8e3a"/>`,
+    beret: `<ellipse cx="96" cy="56" rx="48" ry="16" fill="#2d2f5c"/><circle cx="96" cy="40" r="5" fill="#2d2f5c"/>`,
+    chef: `<rect x="70" y="40" width="60" height="26" fill="#fff" stroke="#ddd" stroke-width="2"/><circle cx="78" cy="34" r="16" fill="#fff" stroke="#ddd" stroke-width="2"/><circle cx="100" cy="26" r="18" fill="#fff" stroke="#ddd" stroke-width="2"/><circle cx="122" cy="34" r="16" fill="#fff" stroke="#ddd" stroke-width="2"/>`,
+  };
+  return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <ellipse cx="100" cy="188" rx="58" ry="8" fill="#000" opacity=".12"/>
+    <ellipse cx="100" cy="140" rx="62" ry="50" fill="${tint}"/>
+    <ellipse cx="100" cy="150" rx="38" ry="30" fill="#e3b98d"/>
+    <ellipse cx="66" cy="180" rx="16" ry="9" fill="#8a5631"/><ellipse cx="134" cy="180" rx="16" ry="9" fill="#8a5631"/>
+    <ellipse cx="62" cy="62" rx="13" ry="11" fill="#8a5631"/><ellipse cx="138" cy="62" rx="13" ry="11" fill="#8a5631"/>
+    <ellipse cx="62" cy="63" rx="6" ry="5" fill="#d79a86"/><ellipse cx="138" cy="63" rx="6" ry="5" fill="#d79a86"/>
+    <rect x="52" y="54" width="96" height="74" rx="40" fill="${tint}"/>
+    <rect x="70" y="88" width="60" height="38" rx="19" fill="#9b6239"/>
+    <ellipse cx="88" cy="98" rx="4" ry="3" fill="#3b2314"/><ellipse cx="112" cy="98" rx="4" ry="3" fill="#3b2314"/>
+    <path d="M90 112 Q100 120 110 112" stroke="#3b2314" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="78" cy="80" r="7" fill="#2a1a10"/><circle cx="122" cy="80" r="7" fill="#2a1a10"/>
+    <circle cx="80" cy="77" r="2.5" fill="#fff"/><circle cx="124" cy="77" r="2.5" fill="#fff"/>
+    <ellipse cx="64" cy="100" rx="8" ry="5" fill="#f08c8c" opacity=".55"/><ellipse cx="136" cy="100" rx="8" ry="5" fill="#f08c8c" opacity=".55"/>
+    ${hats[hat] || ""}
+    ${badge ? `<text x="150" y="168" font-size="46" text-anchor="middle" dominant-baseline="middle">${badge}</text>` : ""}
+  </svg>`;
+}
+
+/* ---------- Test definitions ---------- */
+const US_STATES = [
+  ["01","Alabama","AL","the Southeast"],["02","Alaska","AK","the far Northwest, way up top"],["04","Arizona","AZ","the Southwest"],
+  ["05","Arkansas","AR","the South"],["06","California","CA","the West Coast"],["08","Colorado","CO","the Rocky Mountains"],
+  ["09","Connecticut","CT","New England, in the Northeast"],["10","Delaware","DE","the East Coast, a tiny one"],
+  ["12","Florida","FL","the Southeast — the peninsula"],["13","Georgia","GA","the Southeast"],["15","Hawaii","HI","the Pacific Ocean — islands"],
+  ["16","Idaho","ID","the Northwest"],["17","Illinois","IL","the Midwest"],["18","Indiana","IN","the Midwest"],["19","Iowa","IA","the Midwest"],
+  ["20","Kansas","KS","the middle of the country"],["21","Kentucky","KY","the South"],["22","Louisiana","LA","the Gulf Coast"],
+  ["23","Maine","ME","the top corner of the Northeast"],["24","Maryland","MD","the East Coast"],["25","Massachusetts","MA","New England, in the Northeast"],
+  ["26","Michigan","MI","the Great Lakes"],["27","Minnesota","MN","the upper Midwest"],["28","Mississippi","MS","the Deep South"],
+  ["29","Missouri","MO","the middle of the country"],["30","Montana","MT","the northern Rocky Mountains"],["31","Nebraska","NE","the Great Plains"],
+  ["32","Nevada","NV","the West"],["33","New Hampshire","NH","New England, in the Northeast"],["34","New Jersey","NJ","the East Coast"],
+  ["35","New Mexico","NM","the Southwest"],["36","New York","NY","the Northeast"],["37","North Carolina","NC","the Southeast coast"],
+  ["38","North Dakota","ND","the northern Great Plains"],["39","Ohio","OH","the Midwest"],["40","Oklahoma","OK","the South Central plains"],
+  ["41","Oregon","OR","the Pacific Northwest"],["42","Pennsylvania","PA","the Northeast"],["44","Rhode Island","RI","New England — the tiniest state"],
+  ["45","South Carolina","SC","the Southeast coast"],["46","South Dakota","SD","the northern Great Plains"],["47","Tennessee","TN","the Southeast"],
+  ["48","Texas","TX","the South — the biggest one down there"],["49","Utah","UT","the West"],["50","Vermont","VT","New England, in the Northeast"],
+  ["51","Virginia","VA","the East Coast"],["53","Washington","WA","the top corner of the Pacific Northwest"],
+  ["54","West Virginia","WV","the Appalachian Mountains"],["55","Wisconsin","WI","the upper Midwest, by the Great Lakes"],["56","Wyoming","WY","the Rocky Mountains"],
+];
+const US_WATER = {
+  AL:"the Gulf of Mexico", AK:"the Pacific and Arctic Oceans", CA:"the Pacific Ocean", CT:"the Atlantic Ocean (Long Island Sound)",
+  DE:"the Atlantic Ocean", FL:"the Atlantic Ocean AND the Gulf of Mexico", GA:"the Atlantic Ocean", HI:"the Pacific Ocean — it's surrounded by it",
+  LA:"the Gulf of Mexico", ME:"the Atlantic Ocean", MD:"the Chesapeake Bay and the Atlantic Ocean", MA:"the Atlantic Ocean",
+  MS:"the Gulf of Mexico", NH:"the Atlantic Ocean", NJ:"the Atlantic Ocean", NY:"the Atlantic Ocean and two Great Lakes",
+  NC:"the Atlantic Ocean", OR:"the Pacific Ocean", RI:"the Atlantic Ocean", SC:"the Atlantic Ocean", TX:"the Gulf of Mexico",
+  VA:"the Atlantic Ocean", WA:"the Pacific Ocean", IL:"Lake Michigan", IN:"Lake Michigan", MI:"four of the Great Lakes",
+  MN:"Lake Superior", OH:"Lake Erie", PA:"Lake Erie", WI:"Lake Michigan and Lake Superior",
+};
+
+const FR_REGIONS = [
+  ["11","Île-de-France","IDF","the north of France, all around Paris"],
+  ["24","Centre-Val de Loire","CVL","the middle of France, along the Loire river"],
+  ["27","Bourgogne-Franche-Comté","BFC","the east of France, next to Switzerland"],
+  ["28","Normandie","NOR","the northwest, along the English Channel"],
+  ["32","Hauts-de-France","HDF","the very top of France, next to Belgium"],
+  ["44","Grand Est","GES","the northeast, next to Germany"],
+  ["52","Pays de la Loire","PDL","the west, on the Atlantic coast"],
+  ["53","Bretagne","BRE","the far west — the pointy peninsula"],
+  ["75","Nouvelle-Aquitaine","NAQ","the southwest — the biggest region"],
+  ["76","Occitanie","OCC","the south, between the Pyrenees and the Mediterranean"],
+  ["84","Auvergne-Rhône-Alpes","ARA","the southeast, with the Alps mountains"],
+  ["93","Provence-Alpes-Côte d'Azur","PACA","the southeast corner, on the sunny Mediterranean coast"],
+  ["94","Corse","COR","the Mediterranean Sea — it's an island"],
+  ["01","Guadeloupe","GUA","the Caribbean Sea — butterfly-shaped islands"],
+  ["02","Martinique","MTQ","the Caribbean Sea, a little south of Guadeloupe"],
+  ["03","Guyane","GUF","South America, next to Brazil"],
+  ["04","La Réunion","REU","the Indian Ocean, east of Madagascar"],
+  ["06","Mayotte","MAY","the Indian Ocean, between Madagascar and Africa"],
+];
+const FR_WATER = {
+  NOR:"the English Channel (la Manche)", HDF:"the English Channel and the North Sea", BRE:"the Atlantic Ocean and the English Channel",
+  PDL:"the Atlantic Ocean", NAQ:"the Atlantic Ocean", OCC:"the Mediterranean Sea", PACA:"the Mediterranean Sea",
+  COR:"the Mediterranean Sea — it's surrounded by it", GUA:"the Caribbean Sea and the Atlantic Ocean", MTQ:"the Caribbean Sea and the Atlantic Ocean",
+  GUF:"the Atlantic Ocean", REU:"the Indian Ocean — it's surrounded by it", MAY:"the Indian Ocean — it's surrounded by it",
+  ARA:"Lake Geneva (Lac Léman) — a big lake, but no sea",
+};
+const FR_OVERSEAS = ["01","02","03","04","06"];
+
+const TESTS = {
+  us: {
+    key: "us", tab: "🇺🇸 US States", menu: "🗺️ Capy's State Safari",
+    title: "Capy's State Safari", subtitle: "Find all 50 states with your capybara pal!",
+    noun: "state", nounPl: "states", whole: "the United States", perLevel: 8,
+    places: US_STATES, water: US_WATER, lonely: "It doesn't touch any other state!",
+    rewards: [
+      { level: 1, name: "Captain Capy", badge: "🦸", tint: "#c0813f", tagline: "Faster than a speeding trivia question!" },
+      { level: 2, name: "Chef Capybaker", hat: "chef", badge: "🧁", tagline: "Cooks up knowledge, serves it hot!" },
+      { level: 3, name: "Astro Capy", badge: "🚀", tint: "#a97a55", tagline: "One small step for capy-kind!" },
+      { level: 4, name: "Mermaid Capy", badge: "🧜", tint: "#9a8070", tagline: "Splashing through the states!" },
+      { level: 5, name: "Pirate Capy", badge: "🏴‍☠️", tint: "#a26a3c", tagline: "Arrr! X marks the state!" },
+      { level: 6, name: "Unicorn Capy", badge: "🦄", tint: "#c69a7a", tagline: "The rarest, most magical squishy of all!" },
+    ],
+  },
+  fr: {
+    key: "fr", tab: "🇫🇷 French Regions", menu: "🥖 Capy's Tour de France",
+    title: "Capy's Tour de France", subtitle: "Find all 18 regions of France with your capybara pal!",
+    noun: "region", nounPl: "regions", whole: "France", perLevel: 3,
+    places: FR_REGIONS, water: FR_WATER, lonely: "It doesn't touch any other French region!",
+    rewards: [
+      { level: 1, name: "Baguette Capy", hat: "beret", badge: "🥖", tagline: "Ooh là là, fresh from the boulangerie!" },
+      { level: 2, name: "Croissant Capy", hat: "chef", badge: "🥐", tagline: "Flaky, buttery and very clever!" },
+      { level: 3, name: "Cheese Capy", badge: "🧀", tint: "#c0813f", tagline: "Knows every fromage in France!" },
+      { level: 4, name: "Artist Capy", hat: "beret", badge: "🎨", tint: "#a97a55", tagline: "Paints a masterpiece of a map!" },
+      { level: 5, name: "Tour de France Capy", badge: "🚴", tint: "#a26a3c", tagline: "Pedals through every region!" },
+      { level: 6, name: "Eiffel Capy", badge: "🗼", tint: "#c69a7a", tagline: "The tallest, proudest squishy of all!" },
+    ],
+  },
+};
+
+const CHEERS = ["CAPY-TASTIC!","You nailed it!","Woohoo! Geography star!","Splish splash, that's a match!","The capybara approves!","Brain power: MAXIMUM!","You're on fire!","Sniffed it out like a pro!"];
+const OOPS = ["So close! Try again!","Hmm, not that one...","The capybara believes in you!","Almost! Keep sniffing!","Nope — but you've got this!"];
+const LEVEL_MSGS = ["LEVEL UP! A new squishy joins your collection!","You did it! Squishy unlocked!","Amazing! Another squishy for the shelf!"];
+
+/* ---------- Helpers ---------- */
+const $ = id => document.getElementById(id);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+function shuffle(a) { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c]); }
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+function listNames(names) {
+  if (names.length <= 1) return names.join("");
+  return names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
+}
+function fireConfetti(big) {
+  if (typeof confetti !== "function") return;
+  confetti({ particleCount: big ? 220 : 70, spread: big ? 120 : 70, origin: { y: .6 }, colors: ["#ff8a3d","#ffd23f","#3fb950","#4cc9f0","#f72585"] });
+  if (big) {
+    later(() => confetti({ particleCount: 150, angle: 60, spread: 80, origin: { x: 0 } }), 300);
+    later(() => confetti({ particleCount: 150, angle: 120, spread: 80, origin: { x: 1 } }), 500);
+  }
+}
+let timers = [];
+function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+
+/* ---------- Map building ---------- */
+
+// Greedy 4-colouring using real neighbours so touching shapes never share a colour.
+function colourise(ids, neighbours) {
+  const classes = ["state-a","state-b","state-c","state-d"], out = new Map();
+  ids.forEach(id => {
+    const used = new Set((neighbours.get(id) || []).map(n => out.get(n)));
+    out.set(id, classes.find(c => !used.has(c)) || classes[0]);
+  });
+  return out;
+}
+
+function buildUS(test) {
+  const topo = window.US_STATES_TOPO;
+  const known = new Set(test.places.map(p => p[0]));
+  const geoms = topo.objects.states.geometries;
+  const fc = topojson.feature(topo, topo.objects.states);
+  const proj = d3.geoAlbersUsa().fitExtent([[10, 10], [965, 600]], fc);
+  const path = d3.geoPath(proj);
+  const shapes = [];
+  fc.features.forEach(f => {
+    const id = String(f.id).padStart(2, "0");
+    if (!known.has(id)) return;
+    const d = path(f); if (!d) return;
+    const [cx, cy] = path.centroid(f);
+    shapes.push({ id, d, cx, cy });
+  });
+  const nb = topojson.neighbors(geoms), neighbours = new Map();
+  geoms.forEach((g, i) => neighbours.set(String(g.id).padStart(2, "0"), nb[i].map(j => String(geoms[j].id).padStart(2, "0")).filter(x => known.has(x))));
+  return { width: 975, height: 610, shapes, insets: [], neighbours };
+}
+
+function buildFR(test) {
+  const topo = window.FR_REGIONS_TOPO;
+  const geoms = topo.objects.regions.geometries;
+  const fc = topojson.feature(topo, topo.objects.regions);
+  const W = 975, H = 700, shapes = [], insets = [];
+  const metro = fc.features.filter(f => !FR_OVERSEAS.includes(f.id));
+  const proj = d3.geoConicConformal().parallels([44, 49]).rotate([-3, 0])
+    .fitExtent([[215, 10], [W - 10, H - 10]], { type: "FeatureCollection", features: metro });
+  const path = d3.geoPath(proj);
+  metro.forEach(f => { const [cx, cy] = path.centroid(f); shapes.push({ id: f.id, d: path(f), cx, cy }); });
+
+  // Overseas regions: one inset box each, stacked down the left side.
+  const boxW = 185, gap = 10, boxH = (H - 20 - gap * 4) / 5;
+  FR_OVERSEAS.forEach((id, i) => {
+    const f = fc.features.find(x => x.id === id);
+    const x0 = 10, y0 = 10 + i * (boxH + gap);
+    const p = d3.geoMercator().fitExtent([[x0 + 12, y0 + 10], [x0 + boxW - 12, y0 + boxH - 24]], f);
+    const ip = d3.geoPath(p);
+    const [cx, cy] = ip.centroid(f);
+    shapes.push({ id, d: ip(f), cx, cy });
+    insets.push({ id, x: x0, y: y0, w: boxW, h: boxH });
+  });
+  const nb = topojson.neighbors(geoms), neighbours = new Map();
+  geoms.forEach((g, i) => neighbours.set(g.id, nb[i].map(j => geoms[j].id)));
+  return { width: W, height: H, shapes, insets, neighbours };
+}
+
+/* ---------- Game state ---------- */
+let test, places, mapData, colours;
+let S = {};
+
+function freshState() {
+  return {
+    queue: shuffle(places.map(p => p.id)), found: new Set(), score: 0, streak: 0, misses: 0,
+    best: store.get(`capy-${test.key}-best`, 0),
+    missed: new Set(store.get(`capy-${test.key}-missed`, []).filter(id => places.some(p => p.id === id))),
+    unlocked: store.get(`capy-${test.key}-unlocked`, []),
+    message: `Hi! I'm Capy! Click the ${test.noun} I name!`,
+    wrongId: null, popId: null, peekId: null,
+    explore: false, tags: false, practice: false, practiceQueue: [],
+    won: false, party: false, reward: null, askOpen: false, askAnswer: null,
+  };
+}
+const byId = id => places.find(p => p.id === id);
+const current = () => S.practice ? byId(S.practiceQueue[0]) : byId(S.queue[0]);
+const saveMissed = () => store.set(`capy-${test.key}-missed`, [...S.missed]);
+const saveUnlocked = () => store.set(`capy-${test.key}-unlocked`, S.unlocked);
+
+async function selectTest(key) {
+  if (!TESTS[key]) key = "us";
+  timers.forEach(clearTimeout); timers = [];
+  test = TESTS[key];
+  places = test.places.map(([id, name, abbr, region]) => ({ id, name, abbr, region }));
+  store.set("capy-last-test", key);
+  if (location.hash !== "#" + key) history.replaceState(null, "", "#" + key);
+  S = freshState();
+  mapData = null;
+  render();
+  $("map").innerHTML = `<p class="map-loading">Capy is unrolling the map… 🗺️</p>`;
+  try {
+    const data = key === "fr" ? buildFR(test) : buildUS(test);
+    if (test.key !== key) return; // switched again while loading
+    mapData = data;
+    colours = colourise(data.shapes.map(s => s.id), data.neighbours);
+    renderMap();
+  } catch (e) {
+    $("map").innerHTML = `<p class="map-loading">Oops, the map didn't load. Refresh the page to try again! 🌐</p>`;
+  }
+}
+
+/* ---------- Game logic ---------- */
+function onPlaceClick(id) {
+  if (S.reward || S.won || !mapData) return;
+  const place = byId(id); if (!place) return;
+  const target = current();
+
+  if (S.explore) {
+    sfx.click();
+    S.peekId = id;
+    S.message = `That's ${place.name}! It's in ${place.region}. 📍`;
+    later(() => { S.peekId = null; renderMap(); }, 1200);
+    return render();
+  }
+
+  if (S.practice) {
+    if (!target) return;
+    if (id === target.id) {
+      const firstTry = S.misses === 0, rest = S.practiceQueue.slice(1);
+      sfx.correct(); fireConfetti(false);
+      S.popId = id; later(() => { S.popId = null; renderMap(); }, 700);
+      S.misses = 0;
+      if (firstTry) { S.missed.delete(id); saveMissed(); } else rest.push(id);
+      if (rest.length === 0) {
+        S.practice = false; S.practiceQueue = [];
+        sfx.levelUp(); fireConfetti(true);
+        const next = byId(S.queue[0]);
+        S.message = `You mastered all your tricky ${test.nounPl}! 🏆 Back to the quest${next ? `: where is ${next.name}?` : "!"}`;
+        return render();
+      }
+      S.practiceQueue = rest;
+      S.message = firstTry ? `${pick(CHEERS)} ${target.name} is off your practice list! ✅` : `Got it! We'll try ${target.name} once more later. 💪`;
+    } else {
+      S.misses++;
+      flashWrong(id); sfx.wrong();
+      S.message = S.misses >= 2
+        ? `That's ${place.name}. ${target.name} is in ${target.region} — follow the sparkly glow! ✨`
+        : `That's ${place.name}! Try again — you've got this. ${pick(OOPS)}`;
+    }
+    return render();
+  }
+
+  if (!target || S.found.has(id)) return;
+  if (id === target.id) {
+    S.found.add(id);
+    const gained = 100 + Math.min(S.streak * 10, 50);
+    S.score += gained; S.streak++; S.misses = 0;
+    S.message = S.streak >= 3 ? `${pick(CHEERS)} 🔥 ${S.streak} in a row!` : pick(CHEERS);
+    if (S.streak % 5 === 0) sfx.streak(); else sfx.correct();
+    fireConfetti(false);
+    if (S.score > S.best) { S.best = S.score; store.set(`capy-${test.key}-best`, S.best); }
+    S.popId = id; later(() => { S.popId = null; renderMap(); }, 700);
+    S.queue = S.queue.slice(1);
+    if (S.queue.length === 0) {
+      // Grant any squishy not yet earned so the shelf is complete on a win.
+      test.rewards.forEach(r => { if (!S.unlocked.includes(r.level)) S.unlocked.push(r.level); });
+      saveUnlocked();
+      S.won = true; S.party = true; sfx.levelUp(); fireConfetti(true);
+      return render();
+    }
+    if (S.found.size % test.perLevel === 0) {
+      const reward = test.rewards.find(r => r.level === S.found.size / test.perLevel);
+      if (reward) {
+        S.party = true;
+        later(() => {
+          S.reward = reward;
+          if (!S.unlocked.includes(reward.level)) { S.unlocked.push(reward.level); saveUnlocked(); }
+          sfx.levelUp(); fireConfetti(true); S.message = pick(LEVEL_MSGS); render();
+        }, 650);
+      }
+    }
+  } else {
+    S.misses++; S.streak = 0;
+    S.missed.add(target.id); saveMissed();
+    flashWrong(id); sfx.wrong();
+    S.message = S.misses >= 2
+      ? `That's ${place.name} — good to know! ${target.name} is in ${target.region}. Watch for the sparkly glow! ✨`
+      : `That's ${place.name}! Not it, but now you know where it is. ${pick(OOPS)}`;
+  }
+  render();
+}
+function flashWrong(id) { S.wrongId = id; later(() => { S.wrongId = null; renderMap(); }, 900); }
+
+function togglePractice() {
+  sfx.click(); S.misses = 0;
+  if (S.practice) {
+    S.practice = false;
+    const t = byId(S.queue[0]);
+    S.message = t ? `Back to the quest! Where is ${t.name}? 🤔` : "Back to the quest!";
+    return render();
+  }
+  const q = shuffle([...S.missed]);
+  if (!q.length) return;
+  S.explore = false; S.practice = true; S.practiceQueue = q;
+  S.message = `Practice time! Let's review the ${q.length} tricky ${q.length > 1 ? test.nounPl : test.noun}. No pressure! 🎯`;
+  render();
+}
+function toggleExplore() {
+  sfx.click();
+  S.explore = !S.explore;
+  if (S.explore) S.practice = false;
+  const t = current();
+  S.message = S.explore
+    ? `Explore mode! Tap any ${test.noun} and I'll tell you its name. No wrong answers here! 🧭`
+    : t ? `Back to the quest! Where is ${t.name}? 🤔` : "Back to the quest!";
+  render();
+}
+function closeReward() {
+  sfx.click(); S.reward = null; S.party = false;
+  const t = current(); if (t) S.message = `Where is ${t.name}? 🤔`;
+  render();
+}
+function playAgain() {
+  sfx.click();
+  const keep = { best: S.best, missed: S.missed, unlocked: S.unlocked, tags: S.tags };
+  S = Object.assign(freshState(), keep, { message: "New adventure! Let's go! 🚀" });
+  render();
+}
+
+/* Built-in hints (no server needed) */
+const HINTS = [
+  { label: "Which direction is it?", answer: t => `${t.name} is in ${t.region}. 🧭` },
+  { label: () => `What's next to it?`, answer: t => {
+      const n = (mapData?.neighbours.get(t.id) || []).map(id => byId(id)?.name).filter(Boolean);
+      return n.length ? `${t.name} touches ${listNames(shuffle(n).slice(0, 3))}${n.length > 3 ? " and more" : ""}! 🤝` : `${test.lonely} Look for it all on its own. 🏝️`;
+    } },
+  { label: "Is it near water?", answer: t => test.water[t.abbr] ? `Yes! ${t.name} is next to ${test.water[t.abbr]}. 🌊` : `Nope — no sea next to ${t.name}. It's landlocked! 🏔️` },
+  { label: "How do you spell it?", answer: t => `It starts with "${t.name[0]}" and ends with "${t.name[t.name.length - 1]}". 🔤` },
+];
+
+/* ---------- Rendering ---------- */
+let lastTarget = null;
+function render() {
+  const t = current();
+  // A hint answer belongs to one target: clear it when the target changes.
+  if ((t?.id ?? null) !== lastTarget) { S.askAnswer = null; lastTarget = t?.id ?? null; }
+  const level = Math.min(Math.floor(S.found.size / test.perLevel) + 1, test.rewards.length);
+  const nextReward = test.rewards.find(r => !S.unlocked.includes(r.level));
+  const inLevel = S.found.size % test.perLevel;
+
+  document.title = test.title;
+  $("title").textContent = test.title;
+  $("subtitle").textContent = test.subtitle;
+  $("tabs").innerHTML = Object.values(TESTS).map(x =>
+    `<button class="test-tab" role="tab" aria-selected="${x.key === test.key}" data-test="${x.key}">${x.tab}</button>`).join("");
+  $("menuItems").innerHTML = Object.values(TESTS).map(x =>
+    `<button class="activity-item" role="menuitem" data-test="${x.key}">${x.menu}${x.key === test.key ? `<span class="activity-current">Playing</span>` : ""}</button>`).join("");
+  $("stats").innerHTML = [["Score", S.score], ["Streak", S.streak > 1 ? `🔥 ${S.streak}` : "—"], ["Level", level], ["Best", S.best], ["Found", `${S.found.size}/${places.length}`]]
+    .map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
+
+  $("capy").className = `capy-img ${S.party ? "capy-party" : "capy-bob"}`;
+  if (!$("capy").innerHTML) $("capy").innerHTML = capySVG({ hat: "explorer" });
+
+  $("msg").textContent = S.message;
+  const showTarget = t && !S.won && !S.explore;
+  $("target").innerHTML = showTarget ? `${S.practice ? `🎯 Practice (${S.practiceQueue.length} left): ` : "Find: "}<strong>${esc(t.name)}</strong>` : "";
+  $("target").hidden = !showTarget;
+
+  if (showTarget) {
+    $("ask").innerHTML = S.askOpen
+      ? `<div class="ask-capy"><div class="ask-capy-quick">${HINTS.map((h, i) => `<button class="ask-chip" data-hint="${i}">${typeof h.label === "function" ? h.label() : h.label}</button>`).join("")}</div>
+         ${S.askAnswer ? `<p class="ask-capy-answer" aria-live="polite">${esc(S.askAnswer)}</p>` : ""}
+         <button class="ask-close" data-ask="close">Close</button></div>`
+      : `<button class="mode-btn ask-capy-btn" data-ask="open">💬 Ask Capy for a hint</button>`;
+  } else $("ask").innerHTML = "";
+
+  const eb = $("exploreBtn"), tb = $("tagsBtn"), pb = $("practiceBtn");
+  eb.className = `mode-btn ${S.explore ? "mode-btn-active" : ""}`; eb.setAttribute("aria-pressed", S.explore);
+  eb.textContent = `🧭 ${S.explore ? "Exploring… tap to quiz again" : "Explore Mode"}`;
+  tb.className = `mode-btn ${S.tags ? "mode-btn-active" : ""}`; tb.setAttribute("aria-pressed", S.tags);
+  tb.textContent = `🏷️ ${S.tags ? "Hide Name Tags" : "Name Tags"}`;
+  pb.className = `mode-btn ${S.practice ? "mode-btn-active" : ""}`; pb.setAttribute("aria-pressed", S.practice);
+  pb.disabled = !S.practice && S.missed.size === 0;
+  pb.title = S.missed.size === 0 ? `${test.nounPl[0].toUpperCase() + test.nounPl.slice(1)} you miss will show up here` : "";
+  pb.textContent = `🎯 ${S.practice ? "Stop practicing" : `Practice Missed (${S.missed.size})`}`;
+
+  const prog = $("progress");
+  if (nextReward && !S.won) {
+    prog.hidden = false;
+    prog.innerHTML = `<div class="progress-squishy">${capySVG(nextReward)}</div>
+      <div class="progress-info"><span class="progress-label">Next squishy: ${esc(nextReward.name)}</span>
+      <div class="progress-track"><div class="progress-fill" style="width:${inLevel / test.perLevel * 100}%"></div></div>
+      <span class="progress-count">${inLevel}/${test.perLevel} ${test.nounPl}</span></div>`;
+  } else prog.hidden = true;
+
+  $("shelf").innerHTML = test.rewards.map(r => {
+    const owned = S.unlocked.includes(r.level);
+    return `<div class="shelf-item ${owned ? "shelf-owned" : "shelf-locked"}">${capySVG(r)}<span class="shelf-name">${owned ? esc(r.name) : `Level ${r.level}`}</span></div>`;
+  }).join("");
+
+  renderModal();
+  renderMap();
+}
+
+function renderMap() {
+  if (!mapData) return;
+  const t = current();
+  const { width, height, shapes, insets } = mapData;
+  let svg = `<svg viewBox="0 0 ${width} ${height}" class="game-map" role="application" aria-label="Map of ${esc(test.whole)}">`;
+  insets.forEach(b => {
+    svg += `<rect class="inset-box" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="12"/>`;
+  });
+  shapes.forEach(s => {
+    const p = byId(s.id);
+    const cls = ["state-path", colours.get(s.id),
+      S.found.has(s.id) ? "state-found" : "",
+      S.wrongId === s.id ? "state-wrong" : "",
+      S.popId === s.id ? "state-pop" : "",
+      !S.explore && S.misses >= 2 && t?.id === s.id ? "state-hint" : "",
+      S.explore && S.peekId === s.id ? "state-peek" : ""].join(" ");
+    svg += `<path d="${s.d}" class="${cls}" data-id="${s.id}" role="button" aria-label="${esc(p.name)}"/>`;
+  });
+  // Tiny islands are hard to tap: the whole inset box counts as a click on that region.
+  insets.forEach(b => {
+    svg += `<rect class="inset-hit" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="12" data-id="${b.id}" aria-hidden="true"/>`;
+    svg += `<text class="inset-caption" x="${b.x + b.w / 2}" y="${b.y + b.h - 8}" pointer-events="none">${S.tags || S.found.has(b.id) ? esc(byId(b.id).name) : "Overseas"}</text>`;
+  });
+  shapes.forEach(s => {
+    if (S.found.has(s.id)) svg += `<text x="${s.cx}" y="${s.cy}" class="state-star" pointer-events="none">⭐</text>`;
+  });
+  if (S.tags) shapes.forEach(s => {
+    svg += `<text x="${s.cx}" y="${s.cy + (S.found.has(s.id) ? 14 : 0)}" class="state-label" pointer-events="none">${esc(byId(s.id).abbr)}</text>`;
+  });
+  svg += `</svg>`;
+  $("map").innerHTML = svg;
+}
+
+function renderModal() {
+  const m = $("modal");
+  if (S.reward) {
+    const r = S.reward;
+    m.innerHTML = `<div class="modal-backdrop" data-close="1"><div class="reward-modal" role="dialog" aria-modal="true">
+      <div class="reward-banner">🎉 LEVEL ${r.level} COMPLETE! 🎉</div>
+      <div class="reward-img">${capySVG(r)}</div>
+      <h3 class="reward-name">${esc(r.name)}</h3><p class="reward-tagline">${esc(r.tagline)}</p>
+      <button class="big-btn" data-action="close-reward">Keep Exploring! 🗺️</button></div></div>`;
+  } else if (S.won) {
+    m.innerHTML = `<div class="modal-backdrop"><div class="reward-modal" role="dialog" aria-modal="true">
+      <div class="reward-banner">🏆 YOU FOUND ALL ${places.length} ${test.nounPl.toUpperCase()}! 🏆</div>
+      <div class="reward-img capy-party">${capySVG({ hat: test.key === "fr" ? "beret" : "explorer", badge: "🏆" })}</div>
+      <h3 class="reward-name">Geography Champion!</h3>
+      <p class="reward-tagline">Final score: ${S.score} — Capy is SO proud of you!</p>
+      <button class="big-btn" data-action="play-again">Play Again! 🔁</button></div></div>`;
+  } else m.innerHTML = "";
+}
+
+/* ---------- Events ---------- */
+$("map").addEventListener("click", e => { const el = e.target.closest("[data-id]"); if (el) onPlaceClick(el.dataset.id); });
+$("exploreBtn").addEventListener("click", toggleExplore);
+$("tagsBtn").addEventListener("click", () => { sfx.click(); S.tags = !S.tags; render(); });
+$("practiceBtn").addEventListener("click", togglePractice);
+$("ask").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  sfx.click();
+  if (b.dataset.ask === "open") S.askOpen = true;
+  else if (b.dataset.ask === "close") { S.askOpen = false; S.askAnswer = null; }
+  else if (b.dataset.hint != null) { const t = current(); if (t) S.askAnswer = HINTS[+b.dataset.hint].answer(t); }
+  render();
+});
+$("modal").addEventListener("click", e => {
+  const a = e.target.closest("[data-action]");
+  if (a?.dataset.action === "close-reward") return closeReward();
+  if (a?.dataset.action === "play-again") return playAgain();
+  if (e.target.dataset.close && S.reward) closeReward();
+});
+function switchTo(key) {
+  closeMenu();
+  if (key === test.key) return;
+  sfx.click(); selectTest(key);
+}
+$("tabs").addEventListener("click", e => { const b = e.target.closest("[data-test]"); if (b) switchTo(b.dataset.test); });
+$("menuItems").addEventListener("click", e => { const b = e.target.closest("[data-test]"); if (b) switchTo(b.dataset.test); });
+function closeMenu() { $("menu").hidden = true; $("menuBtn").setAttribute("aria-expanded", "false"); }
+$("menuBtn").addEventListener("click", e => {
+  e.stopPropagation();
+  const open = $("menu").hidden;
+  $("menu").hidden = !open; $("menuBtn").setAttribute("aria-expanded", String(open));
+});
+document.addEventListener("click", e => { if (!e.target.closest(".activity-menu-wrap")) closeMenu(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") { closeMenu(); if (S.reward) closeReward(); } });
+window.addEventListener("hashchange", () => { const k = location.hash.slice(1); if (TESTS[k] && k !== test.key) selectTest(k); });
+
+selectTest(TESTS[location.hash.slice(1)] ? location.hash.slice(1) : store.get("capy-last-test", "us"));
+</script>
+</body>
+</html>
