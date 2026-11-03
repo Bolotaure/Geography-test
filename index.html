@@ -3,291 +3,372 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Capy's Map Safari</title>
-<meta name="description" content="A fun geography game for kids: help Capy the capybara find all 50 US states, the 18 regions of France or the 47 prefectures of Japan, earn streaks and collect squishy rewards.">
+<title>Wizard's Quiz Academy</title>
+<meta name="description" content="Wizard's Quiz Academy is a quiz for curious minds: US states, French regions, Japanese prefectures, advanced English and French vocabulary, and number-pattern logic. Earn house points and collect magical relics.">
+<meta name="theme-color" content="#1a1024">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231a1024' width='32' height='32' rx='6'/%3E%3Cpath fill='%233a2a66' d='M8 16 L16 4 L24 16 Z'/%3E%3Crect fill='%23e0b84a' x='7' y='15' width='18' height='3' rx='1'/%3E%3Ccircle fill='%23c4a574' cx='16' cy='23' r='6'/%3E%3Ccircle fill='%2324180f' cx='14' cy='22' r='1.4'/%3E%3Ccircle fill='%2324180f' cx='18' cy='22' r='1.4'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Source+Serif+4:opsz,wght@8..60,500;8..60,700&display=swap">
 <style>
 :root {
-  --background: oklch(94% .045 210);
-  --foreground: oklch(32% .06 250);
-  --card: #fff;
-  --muted: oklch(92% .03 210);
-  --muted-foreground: oklch(50% .05 250);
-  --secondary: oklch(90% .09 140);
-  --secondary-foreground: oklch(35% .1 140);
-  --primary: oklch(68% .19 45);
-  --destructive: oklch(63% .22 25);
-  --border: oklch(85% .04 220);
-  --sky-top: oklch(88% .06 220);
-  --sky-bottom: oklch(95% .03 160);
-  --state-a: oklch(88% .08 150);
-  --state-b: oklch(90% .07 90);
-  --state-c: oklch(87% .07 210);
-  --state-d: oklch(90% .06 340);
-  --state-hover: oklch(82% .12 60);
-  --state-found: oklch(72% .17 145);
-  --sunshine: oklch(85% .16 90);
-  --tangerine: oklch(72% .18 50);
-  --berry: oklch(60% .2 350);
-  --font-display: "Baloo 2", "Comic Sans MS", cursive;
+  --night: #140e1c;
+  --night-2: #2a1830;
+  --parchment: #f6ead2;
+  --parchment-deep: #e7d3a4;
+  --ink: #2c2118;
+  --muted: #6d5c48;
+  --gold: #e2b657;
+  --gold-deep: #a67c2d;
+  --candle: #ffd78a;
+  --crimson: #8c1c2c;
+  --emerald: #1f6b4a;
+  --sapphire: #1e4d8c;
+  --amber: #b8860b;
+  --house: #8c1c2c;
+  --house-ink: #fff8ea;
+  --danger: #a32030;
+  --found: #2f8f62;
+  --sky-top: #120c18;
+  --font-display: "Cinzel", Palatino, "Palatino Linotype", Georgia, serif;
+  --font-body: "Source Serif 4", Palatino, Georgia, serif;
+  --state-a: #d7e4cc;
+  --state-b: #f0ddb0;
+  --state-c: #d5e1f0;
+  --state-d: #f0d4cf;
+  --state-hover: #f0c36a;
+  --state-found: #7dba8a;
 }
+:root[data-academy="verdant"] { --house: #1f6b4a; --house-ink: #f4fff8; }
+:root[data-academy="azurequill"] { --house: #1e4d8c; --house-ink: #f3f7ff; }
+:root[data-academy="amberkeep"] { --house: #8a5a08; --house-ink: #fff8e8; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { background: var(--background); color: var(--foreground); font-family: var(--font-display); }
-button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
-button:disabled { cursor: not-allowed; opacity: .55; }
-[hidden] { display: none !important; }
-
-.game-root {
+html, body { min-height: 100%; background: var(--night); color: var(--parchment); font-family: var(--font-body); }
+body {
   background:
-    radial-gradient(circle at 15% 10%, oklch(100% 0 0/.7) 0 6rem, transparent 6.5rem),
-    radial-gradient(circle at 85% 15%, oklch(100% 0 0/.5) 0 4rem, transparent 4.5rem),
-    linear-gradient(180deg, var(--sky-top), var(--sky-bottom));
-  display: flex; flex-direction: column; gap: 1.25rem;
-  max-width: 1100px; min-height: 100vh; margin: 0 auto;
-  padding: 1rem clamp(1rem, 3vw, 2.5rem) 3rem;
+    radial-gradient(circle at 12% 8%, #ffd78a22 0 2px, transparent 3px),
+    radial-gradient(circle at 28% 18%, #fff 0 1px, transparent 2px),
+    radial-gradient(circle at 70% 12%, #fff 0 1.5px, transparent 2px),
+    radial-gradient(circle at 84% 22%, #ffd78a 0 1px, transparent 2px),
+    radial-gradient(circle at 50% 0%, #3a2458 0, transparent 42%),
+    radial-gradient(circle at 80% 0%, #ffd78a18 0 9rem, transparent 10rem),
+    linear-gradient(180deg, var(--sky-top), #241628 55%, #1a120e);
 }
-
-/* Header */
-.activity-heading { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
-.activity-heading > div { min-width: 0; }
-.game-title { color: var(--tangerine); text-shadow: 0 2px oklch(100% 0 0/.8); font-size: 2rem; font-weight: 800; line-height: 1.2; }
-.game-subtitle { color: var(--muted-foreground); font-size: clamp(.9rem, 2.5vw, 1.1rem); font-weight: 600; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+button:disabled { cursor: not-allowed; }
+button:disabled:not(.choice-right):not(.choice-wrong) { opacity: .45; }
+[hidden] { display: none !important; }
+.game-root {
+  max-width: 1100px; min-height: 100vh; margin: 0 auto;
+  padding: 1rem clamp(.8rem, 3vw, 2.2rem) 3rem;
+  display: flex; flex-direction: column; gap: 1.15rem;
+}
+.brand-kicker { letter-spacing: .16em; text-transform: uppercase; font-size: .72rem; color: var(--gold); font-weight: 700; }
+.game-title { font-family: var(--font-display); color: var(--candle); font-size: clamp(1.7rem, 4vw, 2.6rem); font-weight: 800; line-height: 1.15; text-shadow: 0 2px 0 #0006; }
+.game-subtitle { color: #eadcc0; font-size: clamp(.95rem, 2.4vw, 1.12rem); margin-top: .2rem; }
+.activity-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+.back-btn { color: var(--gold); font-weight: 700; min-height: 44px; padding: 0 .2rem .2rem 0; text-decoration: underline; text-underline-offset: 3px; }
 .activity-menu-wrap { position: relative; flex-shrink: 0; }
+.activity-trigger, .mode-btn, .test-tab, .topic-btn, .house-btn, .choice, .zoom-btn {
+  min-height: 44px;
+}
 .activity-trigger {
-  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
-  min-height: 44px; padding: .4rem 1rem; font-size: 1rem; font-weight: 600;
-  display: flex; align-items: center; gap: .4rem;
+  background: var(--parchment); color: var(--ink); border: 1px solid var(--gold-deep); border-radius: 8px;
+  padding: .4rem 1rem; font-weight: 700; display: flex; align-items: center; gap: .4rem;
 }
 .activity-menu {
   position: absolute; right: 0; top: calc(100% + 6px); z-index: 40;
-  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-  min-width: 250px; padding: .35rem; box-shadow: 0 10px 25px oklch(30% .05 250/.18);
+  background: var(--parchment); color: var(--ink); border: 1px solid var(--gold-deep); border-radius: 12px;
+  min-width: 250px; padding: .35rem; box-shadow: 0 16px 40px #0008;
 }
-.activity-menu[hidden] { display: none; }
-.activity-menu-label { font-size: .8rem; font-weight: 700; color: var(--muted-foreground); padding: .35rem .6rem; }
-.activity-menu hr { border: none; border-top: 1px solid var(--border); margin: .25rem 0; }
+.activity-menu-label { font-size: .78rem; font-weight: 700; color: var(--muted); padding: .35rem .6rem; letter-spacing: .04em; text-transform: uppercase; }
+.activity-menu hr { border: none; border-top: 1px solid #e0cfaa; margin: .25rem 0; }
 .activity-item {
   display: flex; align-items: center; gap: .7rem; width: 100%; min-height: 44px;
-  padding: .3rem .6rem; border-radius: 6px; font-size: 1rem; font-weight: 600; text-align: left;
+  padding: .3rem .6rem; border-radius: 8px; font-weight: 700; text-align: left;
 }
-.activity-item:hover, .activity-item:focus-visible { background: var(--muted); outline: none; }
-.activity-current { color: var(--muted-foreground); margin-left: auto; font-size: .7rem; }
-
-.test-switch { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .9rem; }
+.activity-item:hover, .activity-item:focus-visible { background: #efe0c2; outline: none; }
+.activity-current { color: var(--muted); margin-left: auto; font-size: .72rem; }
+.test-switch { display: flex; gap: .45rem; flex-wrap: wrap; }
 .test-tab {
-  background: var(--card); border: 2px solid var(--border); border-radius: 999px;
-  padding: .35rem 1.1rem; font-size: 1rem; font-weight: 800; box-shadow: 0 3px oklch(80% .05 220);
-  transition: transform .1s, background .15s;
+  background: #2a2033; color: var(--parchment); border: 2px solid #5c4a32; border-radius: 999px;
+  padding: .35rem .9rem; font-weight: 700;
 }
-.test-tab:hover { transform: translateY(-1px); }
-.test-tab[aria-selected="true"] { background: var(--tangerine); border-color: var(--tangerine); color: #fff; box-shadow: 0 3px oklch(55% .15 45); }
-
+.test-tab[aria-selected="true"] { background: var(--house); border-color: var(--gold); color: var(--house-ink); }
 .activity-stats {
-  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-  display: flex; flex-wrap: wrap; gap: 1rem 2rem; margin-top: 1rem; padding: .7rem 0;
+  background: var(--parchment); color: var(--ink); border-radius: 14px;
+  display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; padding: .65rem 1rem; border: 2px solid var(--gold-deep);
 }
-.activity-stats > div { display: flex; align-items: baseline; gap: .5rem; }
-.activity-stats dt { color: var(--muted-foreground); font-size: .9rem; font-weight: 600; }
-.activity-stats dd { font-size: 1.2rem; font-weight: 800; }
-
-/* Prompt */
-.prompt-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem; }
-.capy-img { width: clamp(80px, 14vw, 130px); height: auto; filter: drop-shadow(0 6px 6px oklch(50% .08 60/.35)); }
-.capy-bob { animation: bob 2.4s ease-in-out infinite; }
-.capy-party { animation: party .7s ease-in-out infinite; }
+.activity-stats > div { display: flex; align-items: baseline; gap: .45rem; }
+.activity-stats dt { color: var(--muted); font-size: .85rem; font-weight: 700; }
+.activity-stats dd { font-family: var(--font-display); font-size: 1.15rem; font-weight: 800; color: var(--house); }
+.hero { text-align: center; display: flex; flex-direction: column; align-items: center; gap: .35rem; padding-top: .4rem; }
+.hero-lead { max-width: 38rem; color: #eadcc0; }
+.home-owl, .mascot { width: clamp(96px, 18vw, 150px); height: auto; filter: drop-shadow(0 8px 10px #0008); }
+.mascot { width: clamp(84px, 16vw, 130px); }
+.mascot-bob, .home-owl { animation: bob 3s ease-in-out infinite; }
+.mascot-party { animation: party .7s ease-in-out infinite; }
 @keyframes bob { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-8px) rotate(2deg); } }
-@keyframes party { 0%, 100% { transform: rotate(-6deg) scale(1.05); } 50% { transform: rotate(6deg) scale(1.12); } }
-.speech-area { display: flex; flex-direction: column; flex: 1; gap: .6rem; min-width: 240px; }
+@keyframes party { 0%, 100% { transform: rotate(-6deg) scale(1.04); } 50% { transform: rotate(6deg) scale(1.1); } }
+.house-picker { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin-top: .8rem; }
+.house-btn {
+  background: #241828; border: 2px solid #5c4a32; color: var(--parchment); border-radius: 999px;
+  padding: .35rem .85rem; font-weight: 700; display: flex; align-items: center; gap: .45rem;
+}
+.house-btn .swatch { width: .8rem; height: .8rem; border-radius: 50%; box-shadow: 0 0 0 1px #0006; }
+.house-on { border-color: var(--gold); background: #3a2a22; box-shadow: 0 0 0 2px var(--gold); }
+.topic-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+.topic-card {
+  background: var(--parchment); color: var(--ink); border-radius: 1.4rem; padding: 1.1rem 1.15rem 1.2rem;
+  border: 3px solid var(--gold-deep); box-shadow: 0 10px 0 #0004;
+  display: flex; flex-direction: column; gap: .45rem;
+}
+.topic-card h2 { font-family: var(--font-display); font-size: 1.45rem; }
+.topic-kicker { color: var(--house); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: .75rem; }
+.topic-card p { color: #4d3d2e; }
+.topic-actions { display: flex; flex-direction: column; gap: .45rem; margin-top: .35rem; }
+.topic-btn {
+  background: #fffaf0; border: 2px solid #c8b48a; border-radius: 12px; color: var(--ink);
+  padding: .55rem .8rem; font-weight: 700; text-align: left; display: flex; justify-content: space-between; gap: .5rem; align-items: center;
+}
+.topic-btn:hover { border-color: var(--house); background: #fff; }
+.best { color: var(--muted); font-size: .8rem; font-weight: 700; }
+.castle { width: 100%; height: 90px; display: block; margin-top: .4rem; opacity: .85; }
+.prompt-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem; }
+.speech-area { display: flex; flex-direction: column; flex: 1; gap: .6rem; min-width: min(100%, 240px); }
 .speech-bubble {
-  background: var(--card); border: 3px solid var(--tangerine); border-radius: 1.5rem;
-  padding: .9rem 1.25rem; position: relative; box-shadow: 0 4px oklch(72% .18 50/.4);
+  background: var(--parchment); color: var(--ink); border: 3px solid var(--gold); border-radius: 1.4rem;
+  padding: .9rem 1.15rem; position: relative; box-shadow: 0 4px 0 #0003;
 }
 .speech-bubble::before {
   content: ""; position: absolute; bottom: 18px; left: -14px;
-  border: 8px solid transparent; border-right-color: var(--tangerine);
+  border: 8px solid transparent; border-right-color: var(--gold);
 }
-.bubble-msg { display: block; font-size: clamp(1rem, 2.6vw, 1.2rem); font-weight: 700; }
-.bubble-target { display: block; color: var(--berry); margin-top: .25rem; font-size: clamp(1.2rem, 3.4vw, 1.7rem); }
-.bubble-target strong { background: var(--sunshine); border-radius: .5em; padding: .05em .4em; font-weight: 800; }
-
-.mode-row { display: flex; flex-wrap: wrap; gap: .5rem; }
+.bubble-msg { display: block; font-size: clamp(1rem, 2.5vw, 1.15rem); font-weight: 700; }
+.bubble-target { display: block; color: var(--house); margin-top: .25rem; font-size: clamp(1.15rem, 3vw, 1.55rem); }
+.bubble-target strong { background: var(--candle); border-radius: .45em; padding: .02em .35em; color: var(--ink); }
+.mode-row { display: flex; flex-wrap: wrap; gap: .45rem; }
 .mode-btn {
-  background: var(--card); border: 2px solid var(--border); border-radius: 999px;
-  padding: .4rem 1rem; font-size: .9rem; font-weight: 700;
-  box-shadow: 0 3px oklch(80% .05 220); transition: transform .1s, background .15s;
+  background: #2a2033; color: var(--parchment); border: 2px solid #5c4a32; border-radius: 999px;
+  padding: .35rem .9rem; font-weight: 700;
 }
-.mode-btn:hover:not(:disabled) { transform: translateY(-1px); }
-.mode-btn-active { background: var(--sunshine); border-color: var(--tangerine); color: oklch(40% .1 50); }
-.ask-capy-btn { width: 100%; }
-.ask-capy {
-  background: var(--card); border: 3px dashed var(--primary); border-radius: 1rem;
+.mode-btn-active { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+.ask-row { width: 100%; }
+.ask-panel {
+  background: #2a2033; border: 2px dashed var(--gold); border-radius: 1rem;
   display: flex; flex-direction: column; gap: .5rem; padding: .75rem;
 }
-.ask-capy-quick { display: flex; flex-wrap: wrap; gap: .4rem; }
-.ask-chip { background: var(--secondary); color: var(--secondary-foreground); border-radius: 999px; padding: .3rem .8rem; font-size: .9rem; font-weight: 700; }
-.ask-chip:hover { filter: brightness(.96); }
-.ask-capy-answer { font-size: 1.05rem; font-weight: 700; }
-.ask-close { color: var(--muted-foreground); align-self: flex-end; font-size: .8rem; text-decoration: underline; }
-
+.ask-quick { display: flex; flex-wrap: wrap; gap: .4rem; }
+.ask-chip { background: var(--parchment); color: var(--ink); border-radius: 999px; padding: .35rem .8rem; font-weight: 700; min-height: 44px; }
+.ask-answer { font-weight: 700; }
+.ask-close { color: #eadcc0; align-self: flex-end; text-decoration: underline; min-height: 44px; }
 .progress-card {
-  background: var(--card); border: 2px dashed var(--tangerine); border-radius: 1.25rem;
-  display: flex; align-items: center; gap: .75rem; padding: .5rem .9rem;
+  background: var(--parchment); color: var(--ink); border: 2px dashed var(--gold-deep); border-radius: 1.1rem;
+  display: flex; align-items: center; gap: .75rem; padding: .45rem .8rem;
 }
-.progress-squishy { width: 56px; height: 56px; filter: grayscale(1) opacity(.6); }
+.progress-relic { width: 56px; height: 56px; flex: 0 0 56px; }
+.progress-relic svg { width: 56px; height: 56px; filter: grayscale(1) opacity(.7); }
 .progress-info { display: flex; flex-direction: column; flex: 1; gap: .2rem; }
-.progress-label, .progress-count { color: var(--muted-foreground); font-size: .85rem; font-weight: 700; }
-.progress-count { font-size: .75rem; }
-.progress-track { background: var(--muted); border-radius: 999px; height: 12px; overflow: hidden; }
-.progress-fill { background: linear-gradient(90deg, var(--tangerine), var(--sunshine)); border-radius: 999px; height: 100%; transition: width .4s; }
-
-/* Map */
-.map-card {
-  background: var(--card); border: 3px solid var(--border); border-radius: 2rem;
-  padding: clamp(.5rem, 2vw, 1.25rem); box-shadow: 0 8px oklch(80% .05 220/.6);
+.progress-label, .progress-count { color: var(--muted); font-size: .85rem; font-weight: 700; }
+.progress-track { background: #e5d7b8; border-radius: 999px; height: 12px; overflow: hidden; }
+.progress-fill { background: linear-gradient(90deg, var(--house), var(--gold)); border-radius: 999px; height: 100%; transition: width .4s; }
+.map-card, .quiz-card, .shelf-card {
+  background: var(--parchment); color: var(--ink); border: 3px solid #c8b48a; border-radius: 1.6rem;
+  padding: clamp(.6rem, 2vw, 1.15rem); box-shadow: 0 10px 0 #0003; position: relative;
 }
+.map-card { overflow: hidden; }
 .game-map { width: 100%; height: auto; display: block; touch-action: pan-x pan-y; }
 .game-map.zoomed { touch-action: none; cursor: grab; }
-.map-card { position: relative; overflow: hidden; }
-.zoom-controls { position: absolute; right: 1rem; bottom: 1rem; z-index: 2; display: flex; flex-direction: column; gap: .35rem; }
+.zoom-controls { position: absolute; right: .8rem; bottom: .8rem; z-index: 2; display: flex; flex-direction: column; gap: .35rem; }
 .zoom-btn {
-  width: 40px; height: 40px; border-radius: 12px; background: var(--card); border: 2px solid var(--border);
-  font-size: 1.3rem; font-weight: 800; line-height: 1; box-shadow: 0 3px oklch(80% .05 220);
+  width: 44px; height: 44px; border-radius: 12px; background: #fffaf0; color: var(--ink);
+  border: 2px solid #c8b48a; font-size: 1.25rem; font-weight: 800;
 }
-.zoom-btn:hover { background: var(--muted); }
-.zoom-btn:focus-visible, .mode-btn:focus-visible, .test-tab:focus-visible, .big-btn:focus-visible { outline: 3px solid var(--tangerine); outline-offset: 2px; }
-.map-loading { text-align: center; padding: 4rem 1rem; font-weight: 700; color: var(--muted-foreground); }
+.map-loading { text-align: center; padding: 4rem 1rem; font-weight: 700; color: var(--muted); }
 .state-path {
-  stroke: #fff; stroke-width: 1.2px; cursor: pointer;
+  stroke: #fffaf0; stroke-width: 1.2px; cursor: pointer;
   transition: fill .15s; transform-box: fill-box; transform-origin: center;
-  filter: brightness(1.1) drop-shadow(0 3px 4px #00000040);
 }
 .state-a { fill: var(--state-a); } .state-b { fill: var(--state-b); }
 .state-c { fill: var(--state-c); } .state-d { fill: var(--state-d); }
 .state-path:hover { fill: var(--state-hover); }
 .state-found, .state-found:hover { fill: var(--state-found); cursor: default; }
-.state-wrong { animation: shake .45s; fill: var(--destructive) !important; }
+.state-wrong { animation: shake .45s; fill: var(--danger) !important; }
 .state-pop { animation: pop .5s; }
-.state-hint { animation: hintPulse 1s ease-in-out infinite; fill: var(--sunshine) !important; }
-.state-peek { animation: pop .4s; fill: oklch(80% .15 320) !important; }
+.state-hint { animation: hintPulse 1s ease-in-out infinite; fill: var(--candle) !important; }
+.state-peek { animation: pop .4s; fill: #e7b3d8 !important; }
 @keyframes shake { 0%, 100% { transform: translate(0); } 25% { transform: translate(-3px); } 75% { transform: translate(3px); } }
 @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.12); } 100% { transform: scale(1); } }
-@keyframes hintPulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.25) drop-shadow(0 0 8px oklch(85% .16 90)); } }
-.state-star { text-anchor: middle; dominant-baseline: middle; font-size: 14px; }
+@keyframes hintPulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.2) drop-shadow(0 0 6px var(--gold)); } }
+.state-star { text-anchor: middle; dominant-baseline: middle; fill: #a67c2d; font-size: 15px; }
 .state-label {
-  text-anchor: middle; dominant-baseline: middle; fill: oklch(40% .06 250);
-  paint-order: stroke; stroke: oklch(100% 0 0/.85); stroke-width: 3px; font-size: 13px; font-weight: 800;
+  text-anchor: middle; dominant-baseline: middle; fill: var(--ink);
+  paint-order: stroke; stroke: #fffaf0; stroke-width: 3px; font-size: 13px; font-weight: 800;
 }
-.inset-box { fill: oklch(97% .02 220); stroke: var(--border); stroke-width: 1.5px; stroke-dasharray: 5 4; }
+.inset-box { fill: #fffaf0; stroke: #c8b48a; stroke-width: 1.5px; stroke-dasharray: 5 4; }
 .inset-hit { fill: transparent; cursor: pointer; }
-.inset-caption { font-size: 12px; font-weight: 700; fill: var(--muted-foreground); text-anchor: middle; }
-
-/* Shelf */
-.shelf-card {
-  background: var(--card); border: 3px solid var(--border); border-radius: 2rem;
-  padding: 1.25rem; box-shadow: 0 8px oklch(80% .05 220/.6);
+.inset-caption { font-size: 12px; font-weight: 700; fill: var(--muted); text-anchor: middle; }
+.quiz-kicker { color: var(--house); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: .78rem; }
+.quiz-word { font-family: var(--font-display); font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.15; margin: .25rem 0 .15rem; }
+.quiz-ask { color: #4d3d2e; font-size: 1.05rem; margin-bottom: .8rem; }
+.seq-line { font-variant-numeric: tabular-nums; letter-spacing: .01em; }
+.seq-q { color: var(--house); }
+.choice-grid { display: grid; grid-template-columns: 1fr; gap: .55rem; }
+@media (min-width: 720px) { .choice-grid { grid-template-columns: 1fr 1fr; } }
+.choice {
+  background: #fffaf0; border: 2px solid #c8b48a; border-radius: 14px; color: var(--ink);
+  padding: .7rem .85rem; font-size: 1.05rem; font-weight: 700; text-align: left;
+  display: flex; gap: .7rem; align-items: center;
 }
-.shelf-title { color: var(--tangerine); margin-bottom: .75rem; font-size: 1.3rem; font-weight: 800; }
-.shelf-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: .75rem; }
-.shelf-item { background: var(--muted); border-radius: 8px; display: flex; flex-direction: column; align-items: center; gap: .35rem; padding: .75rem .5rem; }
-.shelf-item svg { width: 100%; max-width: 110px; height: 110px; }
-.shelf-locked svg { filter: grayscale(1) brightness(.55) opacity(.45); }
-.shelf-owned { background: var(--secondary); border: 2px solid oklch(72% .17 145); animation: pop .5s; }
+.choice:hover:not(:disabled) { border-color: var(--house); transform: translateY(-1px); }
+.choice-key { font-family: var(--font-display); color: var(--muted); width: 1.2rem; }
+.choice-right { background: #d9f0e2; border-color: var(--found); }
+.choice-wrong { background: #f8d4d4; border-color: var(--danger); }
+.choice-dim { opacity: .55; }
+.quiz-explain { margin-top: .9rem; border-radius: 14px; padding: .85rem 1rem; background: #fffaf0; border: 2px solid var(--gold-deep); }
+.explain-ok { border-color: var(--found); }
+.explain-no { border-color: var(--danger); }
+.explain-kicker { font-family: var(--font-display); font-weight: 800; margin-bottom: .25rem; }
+.shelf-title { font-family: var(--font-display); color: var(--gold-deep); margin-bottom: .7rem; font-size: 1.3rem; }
+.shelf-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: .7rem; }
+.shelf-item { background: #efe4cc; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: .3rem; padding: .7rem .4rem; }
+.shelf-item svg { width: 100%; max-width: 110px; height: auto; }
+.shelf-locked svg { filter: grayscale(1) brightness(.6) opacity(.45); }
+.shelf-owned { background: #e5f3e4; border: 2px solid var(--found); animation: pop .5s; }
 .shelf-name { text-align: center; font-size: .8rem; font-weight: 700; }
-
-/* Modals */
 .modal-backdrop {
-  position: fixed; inset: 0; z-index: 50; background: oklch(30% .05 250/.55);
-  display: flex; justify-content: center; align-items: center; padding: 1rem; animation: fadeIn .25s;
+  position: fixed; inset: 0; z-index: 50; background: #140e1ccc;
+  display: flex; justify-content: center; align-items: center; padding: 1rem;
 }
 .reward-modal {
-  background: var(--card); border: 4px solid var(--sunshine); border-radius: 2rem; text-align: center;
-  display: flex; flex-direction: column; align-items: center; gap: .5rem;
-  width: 100%; max-width: 380px; padding: 1.5rem 2rem 2rem;
-  animation: bounceIn .5s cubic-bezier(.34, 1.56, .64, 1); box-shadow: 0 12px oklch(72% .18 50/.5);
+  background: var(--parchment); color: var(--ink); border: 4px solid var(--gold); border-radius: 1.6rem; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: .45rem;
+  width: 100%; max-width: 420px; padding: 1.4rem 1.5rem 1.6rem;
+  box-shadow: 0 16px 0 #0005;
 }
-.reward-banner { color: var(--berry); font-size: 1.1rem; font-weight: 800; }
-.reward-img { width: 200px; height: 200px; animation: bob 2s ease-in-out infinite; }
-.reward-name { color: var(--tangerine); font-size: 1.6rem; font-weight: 800; }
-.reward-tagline { color: var(--muted-foreground); font-size: .95rem; font-weight: 600; }
+.reward-banner { color: var(--house); font-family: var(--font-display); font-weight: 800; }
+.reward-img svg { width: min(200px, 60vw); height: auto; }
+.reward-name { font-family: var(--font-display); font-size: 1.5rem; color: var(--gold-deep); }
+.reward-tagline { color: var(--muted); font-weight: 700; }
 .big-btn {
-  background: var(--tangerine); color: #fff; border-radius: 999px; margin-top: .75rem;
-  padding: .7rem 1.8rem; font-size: 1.15rem; font-weight: 800;
-  box-shadow: 0 5px oklch(55% .15 45); transition: transform .1s, box-shadow .1s;
+  background: var(--house); color: var(--house-ink); border-radius: 999px; margin-top: .6rem;
+  padding: .7rem 1.5rem; font-size: 1.05rem; font-weight: 800; min-height: 48px;
+  box-shadow: 0 4px 0 #0004;
 }
-.big-btn:hover { transform: translateY(-2px); box-shadow: 0 7px oklch(55% .15 45); }
-.big-btn:active { transform: translateY(3px); box-shadow: 0 2px oklch(55% .15 45); }
-@keyframes fadeIn { from { opacity: 0; } }
-@keyframes bounceIn { 0% { opacity: 0; transform: scale(.6); } 100% { opacity: 1; transform: scale(1); } }
-
+.big-btn:hover { transform: translateY(-1px); }
+button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 @media (max-width: 640px) {
-  .activity-heading { align-items: flex-start; gap: .6rem; }
-  .game-title { font-size: 1.65rem; }
-  .activity-trigger { padding: .4rem .65rem; font-size: .9rem; }
-  .activity-stats { gap: .5rem 1.2rem; }
-  .activity-stats dt { font-size: .8rem; }
-  .activity-stats dd { font-size: 1rem; }
-  .capy-img { width: 65px; }
-  .speech-bubble { padding: .75rem; }
+  .game-title { font-size: 1.55rem; }
+  .activity-stats { gap: .35rem .8rem; }
+  .home-owl { width: 96px; }
+  .speech-bubble::before { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .capy-bob, .capy-party, .shelf-owned, .reward-img { animation: none; }
+  .mascot-bob, .mascot-party, .home-owl, .shelf-owned { animation: none; }
 }
 </style>
 </head>
 <body>
 <div class="game-root">
-  <header class="activity-header">
+  <header>
     <div class="activity-heading">
       <div>
-        <h1 class="game-title" id="title">Capy's Map Safari</h1>
-        <p class="game-subtitle" id="subtitle"></p>
+        <button class="back-btn" id="backBtn" type="button" hidden>← Academy</button>
+        <p class="brand-kicker" id="brand">Candlelight &amp; questions</p>
+        <h1 class="game-title" id="title">Wizard's Quiz Academy</h1>
+        <p class="game-subtitle" id="subtitle">A castle of maps, words, and number-charms.</p>
       </div>
       <div class="activity-menu-wrap">
-        <button class="activity-trigger" id="menuBtn" aria-haspopup="menu" aria-expanded="false">Activities
+        <button class="activity-trigger" id="menuBtn" type="button" aria-haspopup="menu" aria-expanded="false">Subjects
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="activity-menu" id="menu" role="menu" hidden>
-          <div class="activity-menu-label">Capy's adventures</div>
+          <div class="activity-menu-label">Subjects</div>
           <hr>
           <div id="menuItems"></div>
         </div>
       </div>
     </div>
-    <div class="test-switch" role="tablist" aria-label="Choose a test" id="tabs"></div>
-    <dl class="activity-stats" aria-label="Game progress" id="stats"></dl>
+    <div class="test-switch" role="tablist" aria-label="Choose a quiz" id="tabs" hidden></div>
+    <dl class="activity-stats" aria-label="Quiz progress" id="stats" hidden></dl>
   </header>
 
-  <div class="prompt-row">
-    <div id="capy" class="capy-img capy-bob" role="img" aria-label="Capy the capybara"></div>
-    <div class="speech-area">
-      <div class="speech-bubble" aria-live="polite">
-        <span class="bubble-msg" id="msg"></span>
-        <span class="bubble-target" id="target"></span>
+  <section id="home" aria-label="Choose a subject">
+    <div class="hero">
+      <div class="home-owl" id="homeOwl" role="img" aria-label="Rowan the academy owl"></div>
+      <p class="hero-lead">Rowan the owl keeps the night watch. Pick a subject, earn house points, and fill the relic shelf.</p>
+      <div class="house-picker" role="radiogroup" aria-label="Choose a house">
+        <button class="house-btn" type="button" role="radio" data-house="emberwyck" aria-checked="false"><span class="swatch" style="background:#8c1c2c"></span>Emberwyck</button>
+        <button class="house-btn" type="button" role="radio" data-house="verdant" aria-checked="false"><span class="swatch" style="background:#1f6b4a"></span>Verdant Hollow</button>
+        <button class="house-btn" type="button" role="radio" data-house="azurequill" aria-checked="false"><span class="swatch" style="background:#1e4d8c"></span>Azure Quill</button>
+        <button class="house-btn" type="button" role="radio" data-house="amberkeep" aria-checked="false"><span class="swatch" style="background:#b8860b"></span>Amberkeep</button>
       </div>
-      <div id="ask"></div>
-      <div class="mode-row">
-        <button class="mode-btn" id="exploreBtn" aria-pressed="false"></button>
-        <button class="mode-btn" id="tagsBtn" aria-pressed="false"></button>
-        <button class="mode-btn" id="practiceBtn" aria-pressed="false"></button>
+    </div>
+    <div class="topic-grid">
+      <article class="topic-card">
+        <p class="topic-kicker">Geography</p>
+        <h2>Living maps</h2>
+        <p>Tap the place Rowan names. Streaks add house points. Two misses light the answer.</p>
+        <div class="topic-actions">
+          <button class="topic-btn" type="button" data-test="us">🇺🇸 US States <span class="best" data-best="us"></span></button>
+          <button class="topic-btn" type="button" data-test="fr">🇫🇷 French Regions <span class="best" data-best="fr"></span></button>
+          <button class="topic-btn" type="button" data-test="jp">🇯🇵 Japanese Prefectures <span class="best" data-best="jp"></span></button>
+        </div>
+      </article>
+      <article class="topic-card">
+        <p class="topic-kicker">Vocabulary</p>
+        <h2>Words of power</h2>
+        <p>An advanced word, four choices, one true synonym. Pick English or French.</p>
+        <div class="topic-actions">
+          <button class="topic-btn" type="button" data-test="vocab-en">📖 English words <span class="best" data-best="vocab-en"></span></button>
+          <button class="topic-btn" type="button" data-test="vocab-fr">📘 Mots français <span class="best" data-best="vocab-fr"></span></button>
+        </div>
+      </article>
+      <article class="topic-card">
+        <p class="topic-kicker">Logic</p>
+        <h2>Number charms</h2>
+        <p>Sequences in the style of a high-ceiling puzzle test. Name the next number. The rule appears after you answer.</p>
+        <div class="topic-actions">
+          <button class="topic-btn" type="button" data-test="logic">🔢 100 patterns <span class="best" data-best="logic"></span></button>
+        </div>
+      </article>
+    </div>
+    <svg class="castle" viewBox="0 0 1200 160" preserveAspectRatio="none" aria-hidden="true">
+      <path fill="#100a14" d="M0 160V100h40V60h30V28l20-18 20 18v32h40v20h50V48h30V20l20 28h20v32h70V55l30-28 30 28v40h80V68l40-32 40 32v36h80V78l40-36 40 36v28h100V70l40-34 40 34v28h80V58l40-30 40 30v42h80V78h60V160Z"/>
+    </svg>
+  </section>
+
+  <section id="play" hidden>
+    <div class="prompt-row">
+      <div id="mascot" class="mascot mascot-bob" role="img" aria-label="Rowan the academy owl"></div>
+      <div class="speech-area">
+        <div class="speech-bubble" aria-live="polite">
+          <span class="bubble-msg" id="msg"></span>
+          <span class="bubble-target" id="target"></span>
+        </div>
+        <div id="ask"></div>
+        <div class="mode-row">
+          <button class="mode-btn" id="exploreBtn" type="button" aria-pressed="false"></button>
+          <button class="mode-btn" id="tagsBtn" type="button" aria-pressed="false"></button>
+          <button class="mode-btn" id="practiceBtn" type="button" aria-pressed="false"></button>
+        </div>
+        <div class="progress-card" id="progress"></div>
       </div>
-      <div class="progress-card" id="progress"></div>
     </div>
-  </div>
-
-  <div class="map-card">
-    <div class="zoom-controls" aria-label="Map zoom">
-      <button class="zoom-btn" id="zoomIn" aria-label="Zoom in">+</button>
-      <button class="zoom-btn" id="zoomOut" aria-label="Zoom out">−</button>
-      <button class="zoom-btn" id="zoomReset" aria-label="Show the whole map">⤢</button>
+    <div class="map-card" id="mapCard">
+      <div class="zoom-controls" aria-label="Map zoom">
+        <button class="zoom-btn" id="zoomIn" type="button" aria-label="Zoom in">+</button>
+        <button class="zoom-btn" id="zoomOut" type="button" aria-label="Zoom out">−</button>
+        <button class="zoom-btn" id="zoomReset" type="button" aria-label="Show the whole map">⤢</button>
+      </div>
+      <div id="map"><p class="map-loading">Rowan is unrolling the map…</p></div>
     </div>
-    <div id="map"><p class="map-loading">Capy is unrolling the map… 🗺️</p></div></div>
-
-  <div class="shelf-card">
-    <h2 class="shelf-title">🧸 Your Squishy Collection</h2>
-    <div class="shelf-row" id="shelf"></div>
-  </div>
+    <div class="quiz-card" id="quizCard" hidden></div>
+    <div class="shelf-card">
+      <h2 class="shelf-title">Your relic shelf</h2>
+      <div class="shelf-row" id="shelf"></div>
+    </div>
+  </section>
 </div>
 <div id="modal"></div>
 
@@ -297,6 +378,9 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 <script src="us-states.js"></script>
 <script src="fr-regions.js"></script>
 <script src="jp-prefectures.js"></script>
+<script src="vocab-en.js"></script>
+<script src="vocab-fr.js"></script>
+<script src="logic.js"></script>
 <script>
 "use strict";
 
@@ -327,35 +411,120 @@ const sfx = {
   levelUp() { [392, 523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, i * .1, .3, "triangle", .25)); tone(1568, .65, .5, "sine", .2); },
 };
 
-/* ---------- Capybara art (inline SVG) ---------- */
-function capySVG(opts = {}) {
-  const { hat = "", badge = "", tint = "#b97a4a" } = opts;
-  const hats = {
-    explorer: `<path d="M58 62 Q100 20 142 62 Z" fill="#c9b27a" stroke="#8a7440" stroke-width="3"/><rect x="40" y="58" width="120" height="12" rx="6" fill="#b29a5e" stroke="#8a7440" stroke-width="3"/><rect x="62" y="52" width="76" height="8" fill="#6b8e3a"/>`,
-    headband: `<rect x="50" y="62" width="100" height="12" rx="5" fill="#fff" stroke="#ddd" stroke-width="1.5"/><circle cx="100" cy="68" r="5" fill="#d7263d"/>`,
-    beret: `<ellipse cx="96" cy="56" rx="48" ry="16" fill="#2d2f5c"/><circle cx="96" cy="40" r="5" fill="#2d2f5c"/>`,
-    chef: `<rect x="70" y="40" width="60" height="26" fill="#fff" stroke="#ddd" stroke-width="2"/><circle cx="78" cy="34" r="16" fill="#fff" stroke="#ddd" stroke-width="2"/><circle cx="100" cy="26" r="18" fill="#fff" stroke="#ddd" stroke-width="2"/><circle cx="122" cy="34" r="16" fill="#fff" stroke="#ddd" stroke-width="2"/>`,
-  };
-  return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <ellipse cx="100" cy="188" rx="58" ry="8" fill="#000" opacity=".12"/>
-    <ellipse cx="100" cy="140" rx="62" ry="50" fill="${tint}"/>
-    <ellipse cx="100" cy="150" rx="38" ry="30" fill="#e3b98d"/>
-    <ellipse cx="66" cy="180" rx="16" ry="9" fill="#8a5631"/><ellipse cx="134" cy="180" rx="16" ry="9" fill="#8a5631"/>
-    <ellipse cx="62" cy="62" rx="13" ry="11" fill="#8a5631"/><ellipse cx="138" cy="62" rx="13" ry="11" fill="#8a5631"/>
-    <ellipse cx="62" cy="63" rx="6" ry="5" fill="#d79a86"/><ellipse cx="138" cy="63" rx="6" ry="5" fill="#d79a86"/>
-    <rect x="52" y="54" width="96" height="74" rx="40" fill="${tint}"/>
-    <rect x="70" y="88" width="60" height="38" rx="19" fill="#9b6239"/>
-    <ellipse cx="88" cy="98" rx="4" ry="3" fill="#3b2314"/><ellipse cx="112" cy="98" rx="4" ry="3" fill="#3b2314"/>
-    <path d="M90 112 Q100 120 110 112" stroke="#3b2314" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <circle cx="78" cy="80" r="7" fill="#2a1a10"/><circle cx="122" cy="80" r="7" fill="#2a1a10"/>
-    <circle cx="80" cy="77" r="2.5" fill="#fff"/><circle cx="124" cy="77" r="2.5" fill="#fff"/>
-    <ellipse cx="64" cy="100" rx="8" ry="5" fill="#f08c8c" opacity=".55"/><ellipse cx="136" cy="100" rx="8" ry="5" fill="#f08c8c" opacity=".55"/>
-    ${hats[hat] || ""}
-    ${badge ? `<text x="150" y="168" font-size="46" text-anchor="middle" dominant-baseline="middle">${badge}</text>` : ""}
+/* ---------- Original owl art (not a film character) ---------- */
+function owlSVG(opts = {}) {
+  const scarf = opts.scarf || "#8c1c2c";
+  const gold = "#e0b84a";
+  return `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <ellipse cx="100" cy="208" rx="54" ry="7" fill="#000" opacity=".18"/>
+    <ellipse cx="100" cy="150" rx="62" ry="50" fill="#c4a574"/>
+    <ellipse cx="100" cy="158" rx="36" ry="34" fill="#f6ead2"/>
+    <path d="M48 148c-10 16-4 38 12 42 6-16 4-30-4-42z" fill="#8d6239"/>
+    <path d="M152 148c10 16 4 38-12 42-6-16-4-30 4-42z" fill="#8d6239"/>
+    <path d="M68 96 L82 54 L98 94 Z" fill="#8d6239"/>
+    <path d="M132 96 L118 54 L102 94 Z" fill="#8d6239"/>
+    <circle cx="78" cy="128" r="22" fill="#fbf6ea"/>
+    <circle cx="122" cy="128" r="22" fill="#fbf6ea"/>
+    <circle cx="80" cy="130" r="10" fill="#24180f"/>
+    <circle cx="124" cy="130" r="10" fill="#24180f"/>
+    <circle cx="83" cy="127" r="3.2" fill="#fff"/>
+    <circle cx="127" cy="127" r="3.2" fill="#fff"/>
+    <path d="M100 132 L93 144 L100 150 L107 144 Z" fill="${gold}"/>
+    <path d="M70 86 L100 16 L130 86 Z" fill="#3a2a66"/>
+    <rect x="56" y="80" width="88" height="14" rx="6" fill="#3a2a66"/>
+    <rect x="56" y="86" width="88" height="6" fill="${scarf}"/>
+    <circle cx="100" cy="40" r="3.6" fill="${gold}"/>
+    <path d="M158 150 l20 6 -4 8 -16-4 z" fill="#d7b48a"/>
+    <path d="M176 146 l26 -34" stroke="${gold}" stroke-width="3" stroke-linecap="round"/>
+    <path d="M200 108 l6 8 -10 2 z" fill="${gold}"/>
+    <path d="M78 188 l-8 14 M78 188 l0 16 M78 188 l8 14" stroke="${gold}" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M122 188 l-8 14 M122 188 l0 16 M122 188 l8 14" stroke="${gold}" stroke-width="3" fill="none" stroke-linecap="round"/>
   </svg>`;
 }
 
-/* ---------- Test definitions ---------- */
+function relicSVG(kind, accent = "#a67c2d") {
+  const ink = "#2c2118";
+  const paper = "#f6ead2";
+  const icons = {
+    compass: `<circle cx="60" cy="62" r="28" fill="none" stroke="${ink}" stroke-width="4"/><polygon points="60,38 66,62 60,56 54,62" fill="${accent}"/><polygon points="60,86 54,62 60,68 66,62" fill="${ink}"/><circle cx="60" cy="62" r="3.5" fill="${accent}"/>`,
+    lantern: `<rect x="44" y="40" width="32" height="40" rx="6" fill="${accent}" stroke="${ink}" stroke-width="3"/><path d="M52 40 V32 H68 V40" fill="none" stroke="${ink}" stroke-width="3"/><rect x="56" y="28" width="8" height="6" fill="${ink}"/><path d="M60 80 V96" stroke="${ink}" stroke-width="3"/>`,
+    quill: `<path d="M40 96 C70 40 90 30 108 24" fill="none" stroke="${ink}" stroke-width="4" stroke-linecap="round"/><path d="M78 48 l18 -8 -6 16 z" fill="${accent}"/><path d="M40 96 l8 -4" stroke="${accent}" stroke-width="3"/>`,
+    atlas: `<path d="M34 40 h22 v48 h-22 z M56 40 h22 v48 h-22 z" fill="${paper}" stroke="${ink}" stroke-width="3"/><path d="M40 52 h10 M40 62 h12 M64 52 h8 M64 64 h10" stroke="${accent}" stroke-width="2"/>`,
+    gem: `<polygon points="60,34 86,54 74,92 46,92 34,54" fill="${accent}" stroke="${ink}" stroke-width="3"/><path d="M34 54 H86 M48 54 L60 92 L72 54" fill="none" stroke="${ink}" stroke-width="2"/>`,
+    globe: `<circle cx="60" cy="64" r="28" fill="#d5e1f0" stroke="${ink}" stroke-width="3"/><ellipse cx="60" cy="64" rx="12" ry="28" fill="none" stroke="${accent}" stroke-width="2"/><path d="M34 64 H86 M40 50 H80 M40 78 H80" fill="none" stroke="${ink}" stroke-width="2"/>`,
+    wand: `<path d="M36 96 L100 28" stroke="${ink}" stroke-width="5" stroke-linecap="round"/><path d="M36 96 L100 28" stroke="${accent}" stroke-width="2"/><circle cx="104" cy="26" r="6" fill="${accent}" stroke="${ink}" stroke-width="2"/>`,
+    book: `<path d="M32 40 h26 c6 8 6 28 0 40 H32 z M88 40 H62 c-6 8-6 28 0 40 H88 z" fill="${accent}" stroke="${ink}" stroke-width="3"/><path d="M58 40 V84" stroke="${ink}" stroke-width="3"/>`,
+    ink: `<path d="M44 70 h32 l-4 22 H48 z" fill="${accent}" stroke="${ink}" stroke-width="3"/><rect x="50" y="48" width="20" height="22" rx="3" fill="${paper}" stroke="${ink}" stroke-width="3"/><path d="M60 48 V40" stroke="${ink}" stroke-width="3"/>`,
+    rune: `<rect x="38" y="36" width="44" height="52" rx="6" fill="${paper}" stroke="${ink}" stroke-width="3"/><path d="M52 50 h16 M60 50 v24 M52 74 h16" stroke="${accent}" stroke-width="3" stroke-linecap="round"/>`,
+    circlet: `<ellipse cx="60" cy="70" rx="30" ry="14" fill="none" stroke="${accent}" stroke-width="6"/><polygon points="60,40 66,56 54,56" fill="${ink}"/>`,
+    feather: `<path d="M78 96 C40 70 36 40 60 28 C70 50 74 70 78 96 Z" fill="${accent}" stroke="${ink}" stroke-width="3"/><path d="M60 36 L74 90" stroke="${ink}" stroke-width="2"/>`,
+    hourglass: `<path d="M40 36 H80 L62 64 L80 92 H40 L58 64 Z" fill="${accent}" stroke="${ink}" stroke-width="3"/>`,
+    gear: `<circle cx="60" cy="64" r="16" fill="none" stroke="${ink}" stroke-width="6"/><circle cx="60" cy="64" r="5" fill="${accent}"/><path d="M60 36 V46 M60 82 V92 M32 64 H42 M78 64 H88 M40 44 L47 51 M73 77 L80 84 M40 84 L47 77 M73 51 L80 44" stroke="${accent}" stroke-width="4" stroke-linecap="round"/>`,
+    key: `<circle cx="48" cy="52" r="14" fill="none" stroke="${ink}" stroke-width="4"/><path d="M60 58 L92 90 M78 76 L90 72 M78 86 L88 92" stroke="${accent}" stroke-width="4" stroke-linecap="round"/>`,
+    prism: `<polygon points="60,30 92,90 28,90" fill="${paper}" stroke="${ink}" stroke-width="3"/><path d="M48 90 L70 48" stroke="${accent}" stroke-width="3"/>`,
+    mirror: `<ellipse cx="60" cy="58" rx="26" ry="32" fill="#d5e1f0" stroke="${ink}" stroke-width="4"/><path d="M60 90 V104" stroke="${accent}" stroke-width="4"/><path d="M46 104 H74" stroke="${ink}" stroke-width="4" stroke-linecap="round"/>`,
+    bookmark: `<path d="M42 34 H78 V96 L60 80 L42 96 Z" fill="${accent}" stroke="${ink}" stroke-width="3"/>`,
+    abacus: `<rect x="32" y="36" width="56" height="52" rx="4" fill="${paper}" stroke="${ink}" stroke-width="3"/><path d="M40 50 H80 M40 64 H80 M40 78 H80" stroke="${ink}" stroke-width="2"/><circle cx="50" cy="50" r="4" fill="${accent}"/><circle cx="66" cy="64" r="4" fill="${accent}"/><circle cx="54" cy="78" r="4" fill="${accent}"/>`,
+  };
+  return `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="60" cy="60" r="54" fill="${paper}" stroke="${accent}" stroke-width="4"/>${icons[kind] || icons.gem}</svg>`;
+}
+
+const HOUSES = {
+  emberwyck: { name: "Emberwyck", scarf: "#8c1c2c" },
+  verdant: { name: "Verdant Hollow", scarf: "#1f6b4a" },
+  azurequill: { name: "Azure Quill", scarf: "#1e4d8c" },
+  amberkeep: { name: "Amberkeep", scarf: "#b8860b" },
+};
+let currentHouse = "emberwyck";
+let view = "home";
+
+const $ = id => document.getElementById(id);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+function shuffle(a) { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c]); }
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+function listNames(names) {
+  if (names.length <= 1) return names.join("");
+  return names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
+}
+function fireConfetti(big) {
+  if (typeof confetti !== "function") return;
+  const colors = ["#e2b657", "#8c1c2c", "#1f6b4a", "#1e4d8c", "#ffd78a"];
+  confetti({ particleCount: big ? 180 : 60, spread: big ? 110 : 70, origin: { y: .6 }, colors });
+  if (big) {
+    later(() => confetti({ particleCount: 80, angle: 60, spread: 70, origin: { x: 0 }, colors }), 280);
+    later(() => confetti({ particleCount: 80, angle: 120, spread: 70, origin: { x: 1 }, colors }), 460);
+  }
+}
+let timers = [];
+function later(fn, ms) { timers.push(setTimeout(() => { if (view === "play") fn(); }, ms)); }
+function paintMascots() {
+  const svg = owlSVG({ scarf: HOUSES[currentHouse].scarf });
+  $("homeOwl").innerHTML = svg;
+  $("mascot").innerHTML = svg;
+}
+function applyHouse(id) {
+  if (!HOUSES[id]) id = "emberwyck";
+  currentHouse = id;
+  document.documentElement.dataset.academy = id;
+  store.set("wqa-house", id);
+  document.querySelectorAll("[data-house]").forEach(btn => {
+    const on = btn.dataset.house === id;
+    btn.setAttribute("aria-checked", String(on));
+    btn.classList.toggle("house-on", on);
+  });
+  paintMascots();
+}
+function refreshBests() {
+  document.querySelectorAll("[data-best]").forEach(el => {
+    const n = store.get("wqa-" + el.dataset.best + "-best", 0);
+    el.textContent = n ? "Best " + n : "";
+  });
+}
+
 const US_STATES = [
   ["01","Alabama","AL","the Southeast"],["02","Alaska","AK","the far Northwest, way up top"],["04","Arizona","AZ","the Southwest"],
   ["05","Arkansas","AR","the South"],["06","California","CA","the West Coast"],["08","Colorado","CO","the Rocky Mountains"],
@@ -478,82 +647,113 @@ const JP_WATER = {
   SHG:"Lake Biwa, Japan's biggest lake — but no sea",
 };
 
+const CHEERS = ["The spell holds!", "Brilliant casting!", "House points to you!", "Lumina — that's the one!", "The candle flares gold!", "Well conjured!", "Rowan approves!", "A spark of true magic!"];
+const OOPS = ["The spell fizzled.", "Not that rune.", "Rowan tilts his head.", "A misfire — the magic is still in you.", "The candle flickers. Look again."];
+const LEVEL_MSGS = ["A new relic shimmers onto your shelf!", "House points surge — relic unlocked!", "The castle grants you a treasure!"];
+
+function R(level, name, kind, tagline, accent) { return { level, name, kind, tagline, accent }; }
 const TESTS = {
   us: {
-    key: "us", tab: "🇺🇸 US States", menu: "🗺️ Capy's State Safari",
-    title: "Capy's State Safari", subtitle: "Find all 50 states with your capybara pal!",
+    key: "us", kind: "map", tab: "🇺🇸 States", menu: "🗺️ US States",
+    title: "State Atlas", subtitle: "Find all 50 states. Streaks kindle bonus house points.",
     noun: "state", nounPl: "states", whole: "the United States", perLevel: 8,
     places: US_STATES, water: US_WATER, lonely: "It doesn't touch any other state!",
+    welcome: "Rowan unrolls the states. Tap the one he names.",
+    champion: "Atlas Champion",
     rewards: [
-      { level: 1, name: "Captain Capy", badge: "🦸", tint: "#c0813f", tagline: "Faster than a speeding trivia question!" },
-      { level: 2, name: "Chef Capybaker", hat: "chef", badge: "🧁", tagline: "Cooks up knowledge, serves it hot!" },
-      { level: 3, name: "Astro Capy", badge: "🚀", tint: "#a97a55", tagline: "One small step for capy-kind!" },
-      { level: 4, name: "Mermaid Capy", badge: "🧜", tint: "#9a8070", tagline: "Splashing through the states!" },
-      { level: 5, name: "Pirate Capy", badge: "🏴‍☠️", tint: "#a26a3c", tagline: "Arrr! X marks the state!" },
-      { level: 6, name: "Unicorn Capy", badge: "🦄", tint: "#c69a7a", tagline: "The rarest, most magical squishy of all!" },
+      R(1, "Brass Compass", "compass", "Points true on every border.", "#a67c2d"),
+      R(2, "Ranger's Lantern", "lantern", "Lights the coast you just learned.", "#c47b17"),
+      R(3, "Cartographer's Quill", "quill", "Draws rivers in gold ink.", "#5c3d8a"),
+      R(4, "Star Atlas", "atlas", "The pages turn themselves at dusk.", "#1e4d8c"),
+      R(5, "Border Stone", "gem", "Warm from the places you have found.", "#8c1c2c"),
+      R(6, "Globe of the Realm", "globe", "The whole country, spinning in your palm.", "#1f6b4a"),
     ],
   },
   fr: {
-    key: "fr", tab: "🇫🇷 French Regions", menu: "🥖 Capy's Tour de France",
-    title: "Capy's Tour de France", subtitle: "Find all 18 regions of France with your capybara pal!",
+    key: "fr", kind: "map", tab: "🇫🇷 France", menu: "🗼 French Regions",
+    title: "Regions of France", subtitle: "Find all 18 regions, mainland and overseas.",
     noun: "region", nounPl: "regions", whole: "France", perLevel: 3,
-    places: FR_REGIONS, water: FR_WATER, lonely: "It doesn't touch any other French region!", winHat: "beret",
+    places: FR_REGIONS, water: FR_WATER, lonely: "It doesn't touch any other French region!",
+    welcome: "Rowan spreads the map of France. Tap the region he names.",
+    champion: "Atlas Champion",
     rewards: [
-      { level: 1, name: "Baguette Capy", hat: "beret", badge: "🥖", tagline: "Ooh là là, fresh from the boulangerie!" },
-      { level: 2, name: "Croissant Capy", hat: "chef", badge: "🥐", tagline: "Flaky, buttery and very clever!" },
-      { level: 3, name: "Cheese Capy", badge: "🧀", tint: "#c0813f", tagline: "Knows every fromage in France!" },
-      { level: 4, name: "Artist Capy", hat: "beret", badge: "🎨", tint: "#a97a55", tagline: "Paints a masterpiece of a map!" },
-      { level: 5, name: "Tour de France Capy", badge: "🚴", tint: "#a26a3c", tagline: "Pedals through every region!" },
-      { level: 6, name: "Eiffel Capy", badge: "🗼", tint: "#c69a7a", tagline: "The tallest, proudest squishy of all!" },
+      R(1, "Silver Compass", "compass", "Steady over every département.", "#8a9bb0"),
+      R(2, "River Lantern", "lantern", "Follows the Loire after dark.", "#1e4d8c"),
+      R(3, "Quill of the Loire", "quill", "Writes coastlines without a blot.", "#1f6b4a"),
+      R(4, "Hexagon Atlas", "atlas", "Knows the shape of the whole country.", "#5c3d8a"),
+      R(5, "Coastal Crystal", "gem", "Holds a little Mediterranean light.", "#8c1c2c"),
+      R(6, "Crown of Regions", "circlet", "Eighteen lights, one circlet.", "#a67c2d"),
     ],
   },
   jp: {
-    key: "jp", tab: "🇯🇵 Japanese Prefectures", menu: "🗾 Capy's Japan Journey",
-    title: "Capy's Japan Journey", subtitle: "Find all 47 prefectures of Japan with your capybara pal!",
-    noun: "prefecture", nounPl: "prefectures", whole: "Japan", perLevel: 8, labelSize: 9, starSize: 10, winHat: "headband", insetCaption: "Southern islands",
+    key: "jp", kind: "map", tab: "🇯🇵 Japan", menu: "🗾 Japanese Prefectures",
+    title: "Prefectures of Japan", subtitle: "Find all 47 prefectures. Okinawa sits in its own box.",
+    noun: "prefecture", nounPl: "prefectures", whole: "Japan", perLevel: 8, labelSize: 9, starSize: 10, insetCaption: "Southern islands",
     places: JP_PREFS, water: JP_WATER, lonely: "It doesn't touch any other prefecture!",
+    welcome: "Rowan opens the map of Japan. Tap the prefecture he names.",
+    champion: "Atlas Champion",
     rewards: [
-      { level: 1, name: "Sushi Capy", hat: "headband", badge: "🍣", tagline: "Rolls up the right answer every time!" },
-      { level: 2, name: "Ninja Capy", badge: "🥷", tint: "#a26a3c", tagline: "Sneaks up on every prefecture!" },
-      { level: 3, name: "Onsen Capy", badge: "♨️", tint: "#c0813f", tagline: "Real capybaras love hot springs too!" },
-      { level: 4, name: "Sakura Capy", badge: "🌸", tint: "#c69a7a", tagline: "Blooming with geography power!" },
-      { level: 5, name: "Ramen Capy", hat: "chef", badge: "🍜", tagline: "Slurps up knowledge, one noodle at a time!" },
-      { level: 6, name: "Fuji Capy", hat: "headband", badge: "🗻", tint: "#a97a55", tagline: "The highest, mightiest squishy of all!" },
+      R(1, "Island Compass", "compass", "Finds north even among the islands.", "#8c1c2c"),
+      R(2, "Paper Lantern", "lantern", "A warm square of light for the coast.", "#c47b17"),
+      R(3, "Tide Quill", "quill", "Writes the names the sea almost hides.", "#1e4d8c"),
+      R(4, "Isle Atlas", "atlas", "Every prefecture has a page.", "#1f6b4a"),
+      R(5, "Volcano Glass", "gem", "Dark, bright, and older than the ink.", "#5c3d8a"),
+      R(6, "Dawn Globe", "globe", "The archipelago turns toward morning.", "#a67c2d"),
+    ],
+  },
+  "vocab-en": {
+    key: "vocab-en", kind: "mcq", tab: "📖 English", menu: "📖 English vocabulary",
+    title: "English Vocabulary", subtitle: "Advanced words. Choose the real synonym.",
+    noun: "word", nounPl: "words", perLevel: 15, contentLang: "en",
+    ask: "Which word is closest in meaning?",
+    welcome: "Rowan opens the lexicon. One of these words truly matches.",
+    champion: "Word Champion",
+    questions: window.VOCAB_EN,
+    rewards: [
+      R(1, "Oak Wand", "wand", "A steady wand for a steady definition.", "#5c3d8a"),
+      R(2, "Scholar's Lexicon", "book", "The margins are full of synonyms.", "#8c1c2c"),
+      R(3, "Gold Inkpot", "ink", "Never runs dry on a hard word.", "#a67c2d"),
+      R(4, "Speaking Stone", "rune", "Whispers the meaning if you listen.", "#1e4d8c"),
+      R(5, "Wordweave Circlet", "circlet", "Holds a hundred definitions at once.", "#1f6b4a"),
+      R(6, "Phoenix Quill", "feather", "Writes a word and its true twin.", "#c47b17"),
+    ],
+  },
+  "vocab-fr": {
+    key: "vocab-fr", kind: "mcq", tab: "📘 Français", menu: "📘 Vocabulaire français",
+    title: "Vocabulaire français", subtitle: "Mots avancés. Trouvez le vrai synonyme.",
+    noun: "word", nounPl: "words", perLevel: 15, contentLang: "fr",
+    ask: "Quel est le synonyme le plus proche ?",
+    welcome: "Rowan ouvre le grimoire. Un seul mot est le vrai synonyme.",
+    champion: "Word Champion",
+    questions: window.VOCAB_FR,
+    rewards: [
+      R(1, "Willow Wand", "wand", "Bends, then points at the right word.", "#1f6b4a"),
+      R(2, "Blue Grimoire", "book", "French in the margins, gold on the spine.", "#1e4d8c"),
+      R(3, "Indigo Inkpot", "ink", "Dark enough for a difficult synonym.", "#5c3d8a"),
+      R(4, "Rune Stone", "rune", "A letter that remembers its twin.", "#8c1c2c"),
+      R(5, "Velvet Bookmark", "bookmark", "Keeps your place in the hard chapter.", "#a67c2d"),
+      R(6, "Moon Quill", "feather", "Writes clearest after dusk.", "#c47b17"),
+    ],
+  },
+  logic: {
+    key: "logic", kind: "mcq", tab: "🔢 Logic", menu: "🔢 Number patterns",
+    title: "Number Charms", subtitle: "Find the next number. The rule is revealed after you answer.",
+    noun: "puzzle", nounPl: "puzzles", perLevel: 15, contentLang: "en",
+    ask: "What number comes next?",
+    welcome: "Rowan sets a number charm on the desk. What comes next?",
+    champion: "Pattern Champion",
+    questions: window.LOGIC_QUESTIONS,
+    rewards: [
+      R(1, "Crystal Abacus", "abacus", "Beads that click in the right order.", "#1e4d8c"),
+      R(2, "Gear of Reason", "gear", "Turns once for every true pattern.", "#a67c2d"),
+      R(3, "Puzzle Hourglass", "hourglass", "Sand enough for a hard sequence.", "#c47b17"),
+      R(4, "Puzzle Key", "key", "Opens the next locked pattern.", "#8c1c2c"),
+      R(5, "Star Prism", "prism", "Splits one rule into a clear beam.", "#5c3d8a"),
+      R(6, "Infinity Mirror", "mirror", "Shows the number that had to follow.", "#1f6b4a"),
     ],
   },
 };
 
-const CHEERS = ["CAPY-TASTIC!","You nailed it!","Woohoo! Geography star!","Splish splash, that's a match!","The capybara approves!","Brain power: MAXIMUM!","You're on fire!","Sniffed it out like a pro!"];
-const OOPS = ["So close! Try again!","Hmm, not that one...","The capybara believes in you!","Almost! Keep sniffing!","Nope — but you've got this!"];
-const LEVEL_MSGS = ["LEVEL UP! A new squishy joins your collection!","You did it! Squishy unlocked!","Amazing! Another squishy for the shelf!"];
-
-/* ---------- Helpers ---------- */
-const $ = id => document.getElementById(id);
-const pick = a => a[Math.floor(Math.random() * a.length)];
-function shuffle(a) { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
-function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c]); }
-const store = {
-  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
-};
-function listNames(names) {
-  if (names.length <= 1) return names.join("");
-  return names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
-}
-function fireConfetti(big) {
-  if (typeof confetti !== "function") return;
-  confetti({ particleCount: big ? 220 : 70, spread: big ? 120 : 70, origin: { y: .6 }, colors: ["#ff8a3d","#ffd23f","#3fb950","#4cc9f0","#f72585"] });
-  if (big) {
-    later(() => confetti({ particleCount: 150, angle: 60, spread: 80, origin: { x: 0 } }), 300);
-    later(() => confetti({ particleCount: 150, angle: 120, spread: 80, origin: { x: 1 } }), 500);
-  }
-}
-let timers = [];
-function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
-
-/* ---------- Map building ---------- */
-
-// Greedy 4-colouring using real neighbours so touching shapes never share a colour.
 function colourise(ids, neighbours) {
   const classes = ["state-a","state-b","state-c","state-d"], out = new Map();
   ids.forEach(id => {
@@ -632,64 +832,113 @@ function buildJP(test) {
   return { width: W, height: H, shapes, insets: [box], neighbours };
 }
 
-/* ---------- Game state ---------- */
 let test, places, mapData, colours;
 let S = {};
 
 function freshState() {
   return {
     queue: shuffle(places.map(p => p.id)), found: new Set(), score: 0, streak: 0, misses: 0,
-    best: store.get(`capy-${test.key}-best`, 0),
-    missed: new Set(store.get(`capy-${test.key}-missed`, []).filter(id => places.some(p => p.id === id))),
-    unlocked: store.get(`capy-${test.key}-unlocked`, []),
-    message: `Hi! I'm Capy! Click the ${test.noun} I name!`,
+    best: store.get(`wqa-${test.key}-best`, 0),
+    missed: new Set(store.get(`wqa-${test.key}-missed`, []).filter(id => places.some(p => p.id === id))),
+    unlocked: store.get(`wqa-${test.key}-unlocked`, []),
+    message: test.welcome,
     wrongId: null, popId: null, peekId: null,
     explore: false, tags: false, practice: false, practiceQueue: [],
     won: false, party: false, reward: null, askOpen: false, askAnswer: null,
+    choiceFor: null, choiceOrder: null, locked: false, picked: null, hintHide: null,
+    pendingReward: null, firstTry: true,
   };
 }
 const byId = id => places.find(p => p.id === id);
 const current = () => S.practice ? byId(S.practiceQueue[0]) : byId(S.queue[0]);
-const saveMissed = () => store.set(`capy-${test.key}-missed`, [...S.missed]);
-const saveUnlocked = () => store.set(`capy-${test.key}-unlocked`, S.unlocked);
+const saveMissed = () => store.set(`wqa-${test.key}-missed`, [...S.missed]);
+const saveUnlocked = () => store.set(`wqa-${test.key}-unlocked`, S.unlocked);
 
-async function selectTest(key) {
-  if (!TESTS[key]) key = "us";
+function showHome() {
+  timers.forEach(clearTimeout); timers = [];
+  view = "home";
+  test = null;
+  const hash = location.hash.slice(1);
+  if (hash !== "home") {
+    try { history.replaceState(null, "", location.href.split("#")[0] + "#home"); } catch {}
+  }
+  document.title = "Wizard's Quiz Academy";
+  $("brand").textContent = "Candlelight & questions";
+  $("title").textContent = "Wizard's Quiz Academy";
+  $("subtitle").textContent = "A castle of maps, words, and number-charms.";
+  $("backBtn").hidden = true;
+  $("tabs").hidden = true;
+  $("stats").hidden = true;
+  $("home").hidden = false;
+  $("play").hidden = true;
+  $("modal").innerHTML = "";
+  refreshBests();
+  closeMenu();
+}
+
+function selectTest(key) {
+  if (!TESTS[key]) return showHome();
   timers.forEach(clearTimeout); timers = [];
   test = TESTS[key];
-  places = test.places.map(([id, name, abbr, region]) => ({ id, name, abbr, region }));
-  store.set("capy-last-test", key);
-  // Absolute URL: preview hosts such as htmlpreview.github.io add a <base> tag that breaks a bare "#key".
-  if (location.hash !== "#" + key) { try { history.replaceState(null, "", location.href.split("#")[0] + "#" + key); } catch {} }
+  if (test.kind === "map") {
+    places = test.places.map(([id, name, abbr, region]) => ({ id, name, abbr, region }));
+  } else {
+    const bank = test.questions;
+    if (!bank || !bank.length) {
+      $("play").hidden = false;
+      $("home").hidden = true;
+      $("quizCard").hidden = false;
+      $("quizCard").innerHTML = `<p class="map-loading">The question chest did not open. Reload the page.</p>`;
+      return;
+    }
+    places = bank.map(q => ({
+      id: q.id,
+      name: q.word || q.seq.join(", "),
+      word: q.word || null,
+      seq: q.seq || null,
+      choices: q.choices,
+      answer: String(q.answer),
+      explain: q.explain || q.gloss || "",
+      level: q.level || "",
+    }));
+  }
+  view = "play";
+  if (location.hash !== "#" + key) {
+    try { history.replaceState(null, "", location.href.split("#")[0] + "#" + key); } catch {}
+  }
   S = freshState();
   mapData = null; zoomT = null;
+  $("home").hidden = true;
+  $("play").hidden = false;
+  $("backBtn").hidden = false;
+  $("tabs").hidden = false;
+  $("stats").hidden = false;
   render();
-  $("map").innerHTML = `<p class="map-loading">Capy is unrolling the map… 🗺️</p>`;
-  try {
-    const data = key === "fr" ? buildFR(test) : key === "jp" ? buildJP(test) : buildUS(test);
-    if (test.key !== key) return; // switched again while loading
-    mapData = data;
-    colours = colourise(data.shapes.map(s => s.id), data.neighbours);
-    renderMap();
-  } catch (e) {
-    $("map").innerHTML = `<p class="map-loading">Oops, the map didn't load. Refresh the page to try again! 🌐</p>`;
+  if (test.kind === "map") {
+    $("map").innerHTML = `<p class="map-loading">Rowan is unrolling the map…</p>`;
+    try {
+      const data = key === "fr" ? buildFR(test) : key === "jp" ? buildJP(test) : buildUS(test);
+      if (!test || test.key !== key) return;
+      mapData = data;
+      colours = colourise(data.shapes.map(s => s.id), data.neighbours);
+      renderMap();
+    } catch (e) {
+      $("map").innerHTML = `<p class="map-loading">The map didn't unfurl. Refresh the page to try again.</p>`;
+    }
   }
 }
 
-/* ---------- Game logic ---------- */
 function onPlaceClick(id) {
   if (S.reward || S.won || !mapData) return;
   const place = byId(id); if (!place) return;
   const target = current();
-
   if (S.explore) {
     sfx.click();
     S.peekId = id;
-    S.message = `That's ${place.name}! It's in ${place.region}. 📍`;
+    S.message = `That's ${place.name}. It sits in ${place.region}.`;
     later(() => { S.peekId = null; renderMap(); }, 1200);
     return render();
   }
-
   if (S.practice) {
     if (!target) return;
     if (id === target.id) {
@@ -702,34 +951,32 @@ function onPlaceClick(id) {
         S.practice = false; S.practiceQueue = [];
         sfx.levelUp(); fireConfetti(true);
         const next = byId(S.queue[0]);
-        S.message = `You mastered all your tricky ${test.nounPl}! 🏆 Back to the quest${next ? `: where is ${next.name}?` : "!"}`;
+        S.message = `You cleared the tricky ${test.nounPl}.${next ? ` Back to the quest: where is ${next.name}?` : ""}`;
         return render();
       }
       S.practiceQueue = rest;
-      S.message = firstTry ? `${pick(CHEERS)} ${target.name} is off your practice list! ✅` : `Got it! We'll try ${target.name} once more later. 💪`;
+      S.message = firstTry ? `${pick(CHEERS)} ${target.name} leaves the review list.` : `Noted. We'll try ${target.name} once more later.`;
     } else {
       S.misses++;
       flashWrong(id); sfx.wrong();
       S.message = S.misses >= 2
-        ? `That's ${place.name}. ${target.name} is in ${target.region} — follow the sparkly glow! ✨`
-        : `That's ${place.name}! Try again — you've got this. ${pick(OOPS)}`;
+        ? `That's ${place.name}. ${target.name} is in ${target.region} — follow the glow.`
+        : `That's ${place.name}. ${pick(OOPS)}`;
     }
     return render();
   }
-
   if (!target || S.found.has(id)) return;
   if (id === target.id) {
     S.found.add(id);
     const gained = 100 + Math.min(S.streak * 10, 50);
     S.score += gained; S.streak++; S.misses = 0;
-    S.message = S.streak >= 3 ? `${pick(CHEERS)} 🔥 ${S.streak} in a row!` : pick(CHEERS);
+    S.message = S.streak >= 3 ? `${pick(CHEERS)} ${S.streak} in a row.` : pick(CHEERS);
     if (S.streak % 5 === 0) sfx.streak(); else sfx.correct();
     fireConfetti(false);
-    if (S.score > S.best) { S.best = S.score; store.set(`capy-${test.key}-best`, S.best); }
+    if (S.score > S.best) { S.best = S.score; store.set(`wqa-${test.key}-best`, S.best); }
     S.popId = id; later(() => { S.popId = null; renderMap(); }, 700);
     S.queue = S.queue.slice(1);
     if (S.queue.length === 0) {
-      // Grant any squishy not yet earned so the shelf is complete on a win.
       test.rewards.forEach(r => { if (!S.unlocked.includes(r.level)) S.unlocked.push(r.level); });
       saveUnlocked();
       S.won = true; S.party = true; sfx.levelUp(); fireConfetti(true);
@@ -751,126 +998,290 @@ function onPlaceClick(id) {
     S.missed.add(target.id); saveMissed();
     flashWrong(id); sfx.wrong();
     S.message = S.misses >= 2
-      ? `That's ${place.name} — good to know! ${target.name} is in ${target.region}. Watch for the sparkly glow! ✨`
-      : `That's ${place.name}! Not it, but now you know where it is. ${pick(OOPS)}`;
+      ? `That's ${place.name}. ${target.name} is in ${target.region}. Watch for the glow.`
+      : `That's ${place.name}. ${pick(OOPS)}`;
   }
   render();
 }
 function flashWrong(id) { S.wrongId = id; later(() => { S.wrongId = null; renderMap(); }, 900); }
 
+function ensureChoices() {
+  const q = current();
+  if (!q || test.kind !== "mcq") return;
+  if (S.choiceFor !== q.id) {
+    S.choiceFor = q.id;
+    S.choiceOrder = shuffle(q.choices);
+    S.locked = false;
+    S.picked = null;
+    S.hintHide = null;
+    S.firstTry = true;
+  }
+}
+function onChoice(choice) {
+  if (!test || test.kind !== "mcq" || S.locked || S.reward || S.won) return;
+  if (!choice || choice === S.hintHide) return;
+  const q = current();
+  if (!q) return;
+  S.locked = true;
+  S.picked = choice;
+  const ok = choice === q.answer;
+  if (S.practice) {
+    if (ok) {
+      sfx.correct(); fireConfetti(false);
+      if (S.firstTry) { S.missed.delete(q.id); saveMissed(); }
+      S.message = S.firstTry ? `${pick(CHEERS)} Cleared from review.` : `Right on the review.`;
+    } else {
+      S.firstTry = false;
+      sfx.wrong();
+      S.message = `The charm slips. The true match was ${q.answer}.`;
+    }
+    return render();
+  }
+  if (ok) {
+    S.found.add(q.id);
+    const gained = 100 + Math.min(S.streak * 10, 50);
+    S.score += gained; S.streak++;
+    S.message = S.streak >= 3 ? `${pick(CHEERS)} ${S.streak} in a row — house points flare.` : pick(CHEERS);
+    if (S.streak % 5 === 0) sfx.streak(); else sfx.correct();
+    fireConfetti(false);
+    if (S.score > S.best) { S.best = S.score; store.set(`wqa-${test.key}-best`, S.best); }
+    if (S.found.size % test.perLevel === 0) {
+      const reward = test.rewards.find(r => r.level === S.found.size / test.perLevel);
+      if (reward && !S.unlocked.includes(reward.level)) S.pendingReward = reward;
+    }
+  } else {
+    S.streak = 0;
+    S.missed.add(q.id); saveMissed();
+    sfx.wrong();
+    S.message = `The spell fizzles. ${q.answer} was the true match.`;
+  }
+  render();
+}
+function advanceAfterLock() {
+  S.locked = false;
+  S.picked = null;
+  S.choiceFor = null;
+  S.hintHide = null;
+  S.pendingReward = null;
+  if (S.practice) {
+    S.practiceQueue = S.practiceQueue.slice(1);
+    if (!S.practiceQueue.length) {
+      S.practice = false;
+      S.message = "Review complete. Back to the quest.";
+      return render();
+    }
+    S.message = "Another one from the review pile.";
+    return render();
+  }
+  S.queue = S.queue.slice(1);
+  if (!S.queue.length) {
+    S.won = true; S.party = true; sfx.levelUp(); fireConfetti(true);
+    return render();
+  }
+  S.message = "Onward, apprentice.";
+  render();
+}
+function continueQuestion() {
+  if (!S.locked || S.reward) return;
+  if (S.pendingReward) {
+    const reward = S.pendingReward;
+    S.pendingReward = null;
+    S.reward = reward;
+    S.party = true;
+    if (!S.unlocked.includes(reward.level)) { S.unlocked.push(reward.level); saveUnlocked(); }
+    sfx.levelUp(); fireConfetti(true);
+    S.message = pick(LEVEL_MSGS);
+    return render();
+  }
+  advanceAfterLock();
+}
+function vanishOne() {
+  const q = current();
+  if (!q || S.locked || S.hintHide) return;
+  const wrong = (S.choiceOrder || []).filter(c => c !== q.answer);
+  if (!wrong.length) return;
+  S.hintHide = wrong[Math.floor(Math.random() * wrong.length)];
+  sfx.click();
+  S.message = "Rowan brushes one false answer aside.";
+  render();
+}
+
 function togglePractice() {
-  sfx.click(); S.misses = 0;
+  if (!test || S.reward || S.won) return;
+  sfx.click();
+  S.misses = 0;
+  S.locked = false; S.picked = null; S.choiceFor = null;
   if (S.practice) {
     S.practice = false;
     const t = byId(S.queue[0]);
-    S.message = t ? `Back to the quest! Where is ${t.name}? 🤔` : "Back to the quest!";
+    S.message = t && test.kind === "map" ? `Back to the quest. Where is ${t.name}?` : "Back to the quest.";
     return render();
   }
   const q = shuffle([...S.missed]);
   if (!q.length) return;
   S.explore = false; S.practice = true; S.practiceQueue = q;
-  S.message = `Practice time! Let's review the ${q.length} tricky ${q.length > 1 ? test.nounPl : test.noun}. No pressure! 🎯`;
+  const noun = q.length > 1 ? test.nounPl : test.noun;
+  S.message = `Practice time. ${q.length} tricky ${noun} to review.`;
   render();
 }
 function toggleExplore() {
+  if (!test || test.kind !== "map") return;
   sfx.click();
   S.explore = !S.explore;
   if (S.explore) S.practice = false;
   const t = current();
   S.message = S.explore
-    ? `Explore mode! Tap any ${test.noun} and I'll tell you its name. No wrong answers here! 🧭`
-    : t ? `Back to the quest! Where is ${t.name}? 🤔` : "Back to the quest!";
+    ? `Explore. Tap any ${test.noun} and Rowan will name it.`
+    : t ? `Back to the quest. Where is ${t.name}?` : "Back to the quest.";
   render();
 }
 function closeReward() {
-  sfx.click(); S.reward = null; S.party = false;
-  const t = current(); if (t) S.message = `Where is ${t.name}? 🤔`;
+  sfx.click();
+  const mcq = test && test.kind === "mcq";
+  S.reward = null; S.party = false;
+  if (mcq && S.locked) return advanceAfterLock();
+  const t = current();
+  if (t && test && test.kind === "map") S.message = `Where is ${t.name}?`;
   render();
 }
 function playAgain() {
   sfx.click();
   const keep = { best: S.best, missed: S.missed, unlocked: S.unlocked, tags: S.tags };
-  S = Object.assign(freshState(), keep, { message: "New adventure! Let's go! 🚀" });
+  S = Object.assign(freshState(), keep, { message: "A fresh quest. The castle is watching." });
   render();
 }
 
-/* Built-in hints (no server needed) */
 const HINTS = [
-  { label: "Which direction is it?", answer: t => `${t.name} is in ${t.region}. 🧭` },
-  { label: () => `What's next to it?`, answer: t => {
+  { label: "Which direction is it?", answer: t => `${t.name} is in ${t.region}.` },
+  { label: "What's next to it?", answer: t => {
       const n = (mapData?.neighbours.get(t.id) || []).map(id => byId(id)?.name).filter(Boolean);
-      return n.length ? `${t.name} touches ${listNames(shuffle(n).slice(0, 3))}${n.length > 3 ? " and more" : ""}! 🤝` : `${test.lonely} Look for it all on its own. 🏝️`;
+      return n.length ? `${t.name} touches ${listNames(shuffle(n).slice(0, 3))}${n.length > 3 ? " and more" : ""}.` : `${test.lonely} Look for it on its own.`;
     } },
-  { label: "Is it near water?", answer: t => test.water[t.abbr] ? `Yes! ${t.name} is next to ${test.water[t.abbr]}. 🌊` : `Nope — no sea next to ${t.name}. It's landlocked! 🏔️` },
-  { label: "How do you spell it?", answer: t => `It starts with "${t.name[0]}" and ends with "${t.name[t.name.length - 1]}". 🔤` },
+  { label: "Is it near water?", answer: t => test.water[t.abbr] ? `Yes. ${t.name} is next to ${test.water[t.abbr]}.` : `No sea touches ${t.name}. It is landlocked.` },
+  { label: "How do you spell it?", answer: t => `It starts with "${t.name[0]}" and ends with "${t.name[t.name.length - 1]}".` },
 ];
 
-/* ---------- Rendering ---------- */
 let lastTarget = null;
 function render() {
+  if (!test) return;
   const t = current();
-  // A hint answer belongs to one target: clear it when the target changes.
   if ((t?.id ?? null) !== lastTarget) { S.askAnswer = null; lastTarget = t?.id ?? null; }
+  if (test.kind === "mcq") ensureChoices();
   const level = Math.min(Math.floor(S.found.size / test.perLevel) + 1, test.rewards.length);
   const nextReward = test.rewards.find(r => !S.unlocked.includes(r.level));
   const inLevel = S.found.size % test.perLevel;
+  const house = HOUSES[currentHouse].name;
 
-  document.title = test.title;
+  document.title = test.title + " · Wizard's Quiz Academy";
+  $("brand").textContent = "Wizard's Quiz Academy";
   $("title").textContent = test.title;
   $("subtitle").textContent = test.subtitle;
   $("tabs").innerHTML = Object.values(TESTS).map(x =>
-    `<button class="test-tab" role="tab" aria-selected="${x.key === test.key}" data-test="${x.key}">${x.tab}</button>`).join("");
-  $("menuItems").innerHTML = Object.values(TESTS).map(x =>
-    `<button class="activity-item" role="menuitem" data-test="${x.key}">${x.menu}${x.key === test.key ? `<span class="activity-current">Playing</span>` : ""}</button>`).join("");
-  $("stats").innerHTML = [["Score", S.score], ["Streak", S.streak > 1 ? `🔥 ${S.streak}` : "—"], ["Level", level], ["Best", S.best], ["Found", `${S.found.size}/${places.length}`]]
-    .map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
+    `<button class="test-tab" type="button" role="tab" aria-selected="${x.key === test.key}" data-test="${x.key}">${x.tab}</button>`).join("");
+  $("menuItems").innerHTML = `<button class="activity-item" type="button" role="menuitem" data-test="home">🏰 Academy doors</button>` +
+    Object.values(TESTS).map(x =>
+      `<button class="activity-item" type="button" role="menuitem" data-test="${x.key}">${x.menu}${x.key === test.key ? `<span class="activity-current">Playing</span>` : ""}</button>`).join("");
+  const foundLabel = test.kind === "map" ? "Found" : "Correct";
+  $("stats").innerHTML = [["Points", S.score], ["Streak", S.streak > 1 ? "✦ " + S.streak : "—"], ["Level", level], ["Best", S.best], [foundLabel, `${S.found.size}/${places.length}`]]
+    .map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("") + `<div><dt>House</dt><dd>${esc(house)}</dd></div>`;
 
-  $("capy").className = `capy-img ${S.party ? "capy-party" : "capy-bob"}`;
-  if (!$("capy").innerHTML) $("capy").innerHTML = capySVG({ hat: "explorer" });
-
+  $("mascot").className = `mascot ${S.party ? "mascot-party" : "mascot-bob"}`;
   $("msg").textContent = S.message;
-  const showTarget = t && !S.won && !S.explore;
-  $("target").innerHTML = showTarget ? `${S.practice ? `🎯 Practice (${S.practiceQueue.length} left): ` : "Find: "}<strong>${esc(t.name)}</strong>` : "";
+  const showTarget = test.kind === "map" && t && !S.won && !S.explore;
+  $("target").innerHTML = showTarget ? `${S.practice ? `Practice (${S.practiceQueue.length} left): ` : "Find: "}<strong>${esc(t.name)}</strong>` : "";
   $("target").hidden = !showTarget;
 
-  if (showTarget) {
+  if (test.kind === "map" && showTarget) {
     $("ask").innerHTML = S.askOpen
-      ? `<div class="ask-capy"><div class="ask-capy-quick">${HINTS.map((h, i) => `<button class="ask-chip" data-hint="${i}">${typeof h.label === "function" ? h.label() : h.label}</button>`).join("")}</div>
-         ${S.askAnswer ? `<p class="ask-capy-answer" aria-live="polite">${esc(S.askAnswer)}</p>` : ""}
-         <button class="ask-close" data-ask="close">Close</button></div>`
-      : `<button class="mode-btn ask-capy-btn" data-ask="open">💬 Ask Capy for a hint</button>`;
+      ? `<div class="ask-panel"><div class="ask-quick">${HINTS.map((h, i) => `<button class="ask-chip" type="button" data-hint="${i}">${h.label}</button>`).join("")}</div>
+         ${S.askAnswer ? `<p class="ask-answer" aria-live="polite">${esc(S.askAnswer)}</p>` : ""}
+         <button class="ask-close" type="button" data-ask="close">Close</button></div>`
+      : `<button class="mode-btn ask-row" type="button" data-ask="open">Ask Rowan for a hint</button>`;
+  } else if (test.kind === "mcq" && t && !S.won && !S.locked) {
+    $("ask").innerHTML = S.hintHide
+      ? ""
+      : `<button class="mode-btn ask-row" type="button" data-action="vanish">Vanish one wrong answer</button>`;
   } else $("ask").innerHTML = "";
 
   const eb = $("exploreBtn"), tb = $("tagsBtn"), pb = $("practiceBtn");
-  eb.className = `mode-btn ${S.explore ? "mode-btn-active" : ""}`; eb.setAttribute("aria-pressed", S.explore);
-  eb.textContent = `🧭 ${S.explore ? "Exploring… tap to quiz again" : "Explore Mode"}`;
-  tb.className = `mode-btn ${S.tags ? "mode-btn-active" : ""}`; tb.setAttribute("aria-pressed", S.tags);
-  tb.textContent = `🏷️ ${S.tags ? "Hide Name Tags" : "Name Tags"}`;
-  pb.className = `mode-btn ${S.practice ? "mode-btn-active" : ""}`; pb.setAttribute("aria-pressed", S.practice);
+  eb.hidden = test.kind !== "map";
+  tb.hidden = test.kind !== "map";
+  eb.className = `mode-btn ${S.explore ? "mode-btn-active" : ""}`;
+  eb.setAttribute("aria-pressed", String(S.explore));
+  eb.textContent = S.explore ? "Exploring… tap to quiz" : "Explore";
+  tb.className = `mode-btn ${S.tags ? "mode-btn-active" : ""}`;
+  tb.setAttribute("aria-pressed", String(S.tags));
+  tb.textContent = S.tags ? "Hide name tags" : "Name tags";
+  pb.className = `mode-btn ${S.practice ? "mode-btn-active" : ""}`;
+  pb.setAttribute("aria-pressed", String(S.practice));
   pb.disabled = !S.practice && S.missed.size === 0;
-  pb.title = S.missed.size === 0 ? `${test.nounPl[0].toUpperCase() + test.nounPl.slice(1)} you miss will show up here` : "";
-  pb.textContent = `🎯 ${S.practice ? "Stop practicing" : `Practice Missed (${S.missed.size})`}`;
+  pb.textContent = S.practice ? "Stop practice" : `Practice missed (${S.missed.size})`;
 
   const prog = $("progress");
   if (nextReward && !S.won) {
     prog.hidden = false;
-    prog.innerHTML = `<div class="progress-squishy">${capySVG(nextReward)}</div>
-      <div class="progress-info"><span class="progress-label">Next squishy: ${esc(nextReward.name)}</span>
+    prog.innerHTML = `<div class="progress-relic">${relicSVG(nextReward.kind, nextReward.accent)}</div>
+      <div class="progress-info"><span class="progress-label">Next relic: ${esc(nextReward.name)}</span>
       <div class="progress-track"><div class="progress-fill" style="width:${inLevel / test.perLevel * 100}%"></div></div>
-      <span class="progress-count">${inLevel}/${test.perLevel} ${test.nounPl}</span></div>`;
+      <span class="progress-count">${inLevel}/${test.perLevel} ${esc(test.nounPl)}</span></div>`;
   } else prog.hidden = true;
 
   $("shelf").innerHTML = test.rewards.map(r => {
     const owned = S.unlocked.includes(r.level);
-    return `<div class="shelf-item ${owned ? "shelf-owned" : "shelf-locked"}">${capySVG(r)}<span class="shelf-name">${owned ? esc(r.name) : `Level ${r.level}`}</span></div>`;
+    return `<div class="shelf-item ${owned ? "shelf-owned" : "shelf-locked"}">${relicSVG(r.kind, r.accent)}<span class="shelf-name">${owned ? esc(r.name) : "Level " + r.level}</span></div>`;
   }).join("");
 
   renderModal();
-  renderMap();
+  renderStage();
+}
+
+function renderStage() {
+  if (test.kind === "map") {
+    $("mapCard").hidden = false;
+    $("quizCard").hidden = true;
+    renderMap();
+  } else {
+    $("mapCard").hidden = true;
+    $("quizCard").hidden = false;
+    renderQuiz();
+  }
+}
+function renderQuiz() {
+  const q = current();
+  const card = $("quizCard");
+  if (!q) { card.innerHTML = ""; return; }
+  const lang = test.contentLang === "fr" ? ` lang="fr"` : "";
+  let head;
+  if (q.seq) {
+    const levelName = q.level === "archmage" ? "Archmage" : q.level === "scholar" ? "Scholar" : "Apprentice";
+    head = `<p class="quiz-kicker">${levelName} pattern</p>
+      <h2 class="quiz-word seq-line">${q.seq.join(", ")}, <span class="seq-q">?</span></h2>`;
+  } else {
+    head = `<p class="quiz-kicker">${S.practice ? "Review" : "Synonym"}</p><h2 class="quiz-word"${lang}>${esc(q.word)}</h2>`;
+  }
+  const choices = (S.choiceOrder || q.choices).map((c, i) => {
+    const gone = S.hintHide === c;
+    const cls = ["choice"];
+    if (S.locked && c === q.answer) cls.push("choice-right");
+    else if (S.locked && c === S.picked) cls.push("choice-wrong");
+    else if (S.locked) cls.push("choice-dim");
+    if (gone) cls.push("choice-dim");
+    return `<button class="${cls.join(" ")}" type="button" data-choice="${i}"${S.locked || gone ? " disabled" : ""}><span class="choice-key">${i + 1}</span><span${lang}>${esc(c)}</span></button>`;
+  }).join("");
+  let explain = "";
+  if (S.locked) {
+    const ok = S.picked === q.answer;
+    explain = `<div class="quiz-explain ${ok ? "explain-ok" : "explain-no"}" aria-live="polite">
+      <p class="explain-kicker">${ok ? "The spell holds" : "The true match"}</p>
+      <p>${esc(q.explain)}</p>
+      <button class="big-btn" type="button" data-action="next-q">Continue</button>
+    </div>`;
+  }
+  card.innerHTML = `${head}<p class="quiz-ask">${esc(test.ask)}</p><div class="choice-grid">${choices}</div>${explain}`;
 }
 
 function renderMap() {
-  if (!mapData) return;
+  if (!mapData || !test || test.kind !== "map") return;
   const t = current();
   const { width, height, shapes, insets } = mapData;
   let svg = `<svg viewBox="0 0 ${width} ${height}" class="game-map" role="application" aria-label="Map of ${esc(test.whole)}"><g class="zoom-layer">`;
@@ -887,13 +1298,12 @@ function renderMap() {
       S.explore && S.peekId === s.id ? "state-peek" : ""].join(" ");
     svg += `<path d="${s.d}" class="${cls}" data-id="${s.id}" role="button" aria-label="${esc(p.name)}"/>`;
   });
-  // Tiny islands are hard to tap: the whole inset box counts as a click on that region.
   insets.forEach(b => {
     svg += `<rect class="inset-hit" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="12" data-id="${b.id}" aria-hidden="true"/>`;
     svg += `<text class="inset-caption" x="${b.x + b.w / 2}" y="${b.y + b.h - 8}" pointer-events="none">${S.tags || S.found.has(b.id) ? esc(byId(b.id).name) : (test.insetCaption || "Overseas")}</text>`;
   });
   shapes.forEach(s => {
-    if (S.found.has(s.id)) svg += `<text x="${s.cx}" y="${s.cy}" class="state-star" pointer-events="none"${test.starSize ? ` style="font-size:${test.starSize}px"` : ""}>⭐</text>`;
+    if (S.found.has(s.id)) svg += `<text x="${s.cx}" y="${s.cy}" class="state-star" pointer-events="none"${test.starSize ? ` style="font-size:${test.starSize}px"` : ""}>✦</text>`;
   });
   if (S.tags) shapes.forEach(s => {
     svg += `<text x="${s.cx}" y="${s.cy + (S.found.has(s.id) ? (test.labelSize || 14) : 0)}" class="state-label" pointer-events="none"${test.labelSize ? ` style="font-size:${test.labelSize}px;stroke-width:2px"` : ""}>${esc(byId(s.id).abbr)}</text>`;
@@ -903,8 +1313,6 @@ function renderMap() {
   attachZoom();
 }
 
-/* Zoom: pinch, ctrl/trackpad-pinch wheel, drag when zoomed in, or the +/− buttons.
-   One finger still scrolls the page while the map is at normal size. */
 let zoomT = null, zoomBehaviour = null;
 function attachZoom() {
   const svg = d3.select("#map svg"), layer = svg.select(".zoom-layer");
@@ -925,41 +1333,55 @@ function attachZoom() {
   svg.call(zoomBehaviour.transform, zoomT || d3.zoomIdentity);
 }
 function zoomBy(f) { if (zoomBehaviour) d3.select("#map svg").transition().duration(250).call(zoomBehaviour.scaleBy, f); }
-$("zoomIn").addEventListener("click", () => zoomBy(1.6));
-$("zoomOut").addEventListener("click", () => zoomBy(1 / 1.6));
-$("zoomReset").addEventListener("click", () => { if (zoomBehaviour) d3.select("#map svg").transition().duration(250).call(zoomBehaviour.transform, d3.zoomIdentity); });
 
 function renderModal() {
   const m = $("modal");
+  if (!test) { m.innerHTML = ""; return; }
   if (S.reward) {
     const r = S.reward;
-    m.innerHTML = `<div class="modal-backdrop" data-close="1"><div class="reward-modal" role="dialog" aria-modal="true">
-      <div class="reward-banner">🎉 LEVEL ${r.level} COMPLETE! 🎉</div>
-      <div class="reward-img">${capySVG(r)}</div>
-      <h3 class="reward-name">${esc(r.name)}</h3><p class="reward-tagline">${esc(r.tagline)}</p>
-      <button class="big-btn" data-action="close-reward">Keep Exploring! 🗺️</button></div></div>`;
+    m.innerHTML = `<div class="modal-backdrop" data-close="1"><div class="reward-modal" role="dialog" aria-modal="true" aria-labelledby="rewardName">
+      <div class="reward-banner">Level ${r.level} complete</div>
+      <div class="reward-img">${relicSVG(r.kind, r.accent)}</div>
+      <h3 class="reward-name" id="rewardName">${esc(r.name)}</h3><p class="reward-tagline">${esc(r.tagline)}</p>
+      <button class="big-btn" type="button" data-action="close-reward">Onward</button></div></div>`;
   } else if (S.won) {
-    m.innerHTML = `<div class="modal-backdrop"><div class="reward-modal" role="dialog" aria-modal="true">
-      <div class="reward-banner">🏆 YOU FOUND ALL ${places.length} ${test.nounPl.toUpperCase()}! 🏆</div>
-      <div class="reward-img capy-party">${capySVG({ hat: test.winHat || "explorer", badge: "🏆" })}</div>
-      <h3 class="reward-name">Geography Champion!</h3>
-      <p class="reward-tagline">Final score: ${S.score} — Capy is SO proud of you!</p>
-      <button class="big-btn" data-action="play-again">Play Again! 🔁</button></div></div>`;
+    const scoreLine = test.kind === "map"
+      ? `You found all ${places.length} ${test.nounPl}.`
+      : `You matched ${S.found.size} of ${places.length}.`;
+    m.innerHTML = `<div class="modal-backdrop"><div class="reward-modal" role="dialog" aria-modal="true" aria-labelledby="winName">
+      <div class="reward-banner">${esc(test.champion)}</div>
+      <div class="reward-img">${owlSVG({ scarf: HOUSES[currentHouse].scarf })}</div>
+      <h3 class="reward-name" id="winName">${esc(HOUSES[currentHouse].name)} earns ${S.score}</h3>
+      <p class="reward-tagline">${scoreLine} Rowan is proud.</p>
+      <button class="big-btn" type="button" data-action="play-again">Play again</button></div></div>`;
   } else m.innerHTML = "";
 }
 
-/* ---------- Events ---------- */
+function menuHTMLHome() {
+  return `<button class="activity-item" type="button" role="menuitem" data-test="home">🏰 Academy doors <span class="activity-current">Here</span></button>` +
+    Object.values(TESTS).map(x => `<button class="activity-item" type="button" role="menuitem" data-test="${x.key}">${x.menu}</button>`).join("");
+}
+
 $("map").addEventListener("click", e => { const el = e.target.closest("[data-id]"); if (el) onPlaceClick(el.dataset.id); });
 $("exploreBtn").addEventListener("click", toggleExplore);
-$("tagsBtn").addEventListener("click", () => { sfx.click(); S.tags = !S.tags; render(); });
+$("tagsBtn").addEventListener("click", () => { if (!test || test.kind !== "map") return; sfx.click(); S.tags = !S.tags; render(); });
 $("practiceBtn").addEventListener("click", togglePractice);
 $("ask").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.action === "vanish") return vanishOne();
   sfx.click();
   if (b.dataset.ask === "open") S.askOpen = true;
   else if (b.dataset.ask === "close") { S.askOpen = false; S.askAnswer = null; }
   else if (b.dataset.hint != null) { const t = current(); if (t) S.askAnswer = HINTS[+b.dataset.hint].answer(t); }
   render();
+});
+$("quizCard").addEventListener("click", e => {
+  const vanish = e.target.closest("[data-action='vanish']");
+  if (vanish) return vanishOne();
+  const next = e.target.closest("[data-action='next-q']");
+  if (next) return continueQuestion();
+  const choiceBtn = e.target.closest("[data-choice]");
+  if (choiceBtn && !choiceBtn.disabled) onChoice(S.choiceOrder[+choiceBtn.dataset.choice]);
 });
 $("modal").addEventListener("click", e => {
   const a = e.target.closest("[data-action]");
@@ -969,22 +1391,58 @@ $("modal").addEventListener("click", e => {
 });
 function switchTo(key) {
   closeMenu();
-  if (key === test.key) return;
-  sfx.click(); selectTest(key);
+  if (key === "home") {
+    if (view !== "home") { sfx.click(); showHome(); }
+    return;
+  }
+  if (!TESTS[key]) return;
+  if (test && key === test.key && view === "play") return;
+  sfx.click();
+  selectTest(key);
 }
-$("tabs").addEventListener("click", e => { const b = e.target.closest("[data-test]"); if (b) switchTo(b.dataset.test); });
-$("menuItems").addEventListener("click", e => { const b = e.target.closest("[data-test]"); if (b) switchTo(b.dataset.test); });
+function onTestClick(e) {
+  const b = e.target.closest("[data-test]");
+  if (b) switchTo(b.dataset.test);
+}
+$("home").addEventListener("click", e => {
+  const h = e.target.closest("button[data-house]");
+  if (h) { sfx.click(); applyHouse(h.dataset.house); return; }
+  onTestClick(e);
+});
+$("tabs").addEventListener("click", onTestClick);
+$("menuItems").addEventListener("click", onTestClick);
+$("backBtn").addEventListener("click", () => switchTo("home"));
+$("zoomIn").addEventListener("click", () => zoomBy(1.6));
+$("zoomOut").addEventListener("click", () => zoomBy(1 / 1.6));
+$("zoomReset").addEventListener("click", () => { if (zoomBehaviour) d3.select("#map svg").transition().duration(250).call(zoomBehaviour.transform, d3.zoomIdentity); });
 function closeMenu() { $("menu").hidden = true; $("menuBtn").setAttribute("aria-expanded", "false"); }
 $("menuBtn").addEventListener("click", e => {
   e.stopPropagation();
+  if (view === "home") $("menuItems").innerHTML = menuHTMLHome();
   const open = $("menu").hidden;
-  $("menu").hidden = !open; $("menuBtn").setAttribute("aria-expanded", String(open));
+  $("menu").hidden = !open;
+  $("menuBtn").setAttribute("aria-expanded", String(open));
 });
 document.addEventListener("click", e => { if (!e.target.closest(".activity-menu-wrap")) closeMenu(); });
-document.addEventListener("keydown", e => { if (e.key === "Escape") { closeMenu(); if (S.reward) closeReward(); } });
-window.addEventListener("hashchange", () => { const k = location.hash.slice(1); if (TESTS[k] && k !== test.key) selectTest(k); });
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") { closeMenu(); if (S.reward) closeReward(); }
+  if (!test || test.kind !== "mcq" || S.reward || S.won) return;
+  if (!S.locked && /^[1-4]$/.test(e.key)) {
+    const choice = S.choiceOrder && S.choiceOrder[Number(e.key) - 1];
+    if (choice) onChoice(choice);
+  } else if (e.key === "Enter" && S.locked) continueQuestion();
+});
+window.addEventListener("hashchange", () => {
+  const k = location.hash.slice(1);
+  if (!k || k === "home") { if (view !== "home") showHome(); return; }
+  if (TESTS[k] && (!test || k !== test.key || view !== "play")) selectTest(k);
+});
 
-selectTest(TESTS[location.hash.slice(1)] ? location.hash.slice(1) : store.get("capy-last-test", "us"));
+applyHouse(store.get("wqa-house", "emberwyck"));
+refreshBests();
+const boot = location.hash.slice(1);
+if (TESTS[boot]) selectTest(boot);
+else showHome();
 </script>
 </body>
 </html>
