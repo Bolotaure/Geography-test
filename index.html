@@ -215,6 +215,19 @@ button:disabled:not(.choice-right):not(.choice-wrong) { opacity: .45; }
 .seq-q { color: var(--house); }
 .choice-grid { display: grid; grid-template-columns: 1fr; gap: .55rem; }
 @media (min-width: 720px) { .choice-grid { grid-template-columns: 1fr 1fr; } }
+.choice-wrap { min-width: 0; }
+.choice-line { display: flex; gap: .4rem; align-items: stretch; }
+.choice-line .choice { flex: 1; min-width: 0; }
+.info-btn {
+  width: 44px; min-width: 44px; border-radius: 12px; border: 2px solid #c8b48a;
+  background: #fffaf0; color: var(--ink); font-family: var(--font-display); font-weight: 800; font-size: 1.05rem;
+}
+.info-pop {
+  margin-top: .4rem; background: #fffaf0; border: 2px solid var(--gold-deep); border-radius: 12px;
+  padding: .7rem .8rem; color: var(--ink); text-align: left; box-shadow: 0 8px 18px #0003;
+}
+.info-word { font-family: var(--font-display); font-weight: 800; margin-bottom: .2rem; }
+.info-ex { font-style: italic; margin-top: .35rem; color: #5c4630; }
 .choice {
   background: #fffaf0; border: 2px solid #c8b48a; border-radius: 14px; color: var(--ink);
   padding: .7rem .85rem; font-size: 1.05rem; font-weight: 700; text-align: left;
@@ -279,17 +292,16 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
         <p class="game-subtitle" id="subtitle">A castle of maps, words, and number-charms.</p>
       </div>
       <div class="activity-menu-wrap">
-        <button class="activity-trigger" id="menuBtn" type="button" aria-haspopup="menu" aria-expanded="false">Subjects
+        <button class="activity-trigger" id="menuBtn" type="button" aria-haspopup="menu" aria-expanded="false">Choose a quiz
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="activity-menu" id="menu" role="menu" hidden>
-          <div class="activity-menu-label">Subjects</div>
+          <div class="activity-menu-label">Choose a quiz</div>
           <hr>
           <div id="menuItems"></div>
         </div>
       </div>
     </div>
-    <div class="test-switch" role="tablist" aria-label="Choose a quiz" id="tabs" hidden></div>
     <dl class="activity-stats" aria-label="Quiz progress" id="stats" hidden></dl>
   </header>
 
@@ -308,31 +320,30 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
       <article class="topic-card">
         <p class="topic-kicker">Geography</p>
         <h2>Living maps</h2>
-        <p>Tap the place Rowan names. Streaks add house points. Two misses light the answer.</p>
-        <div class="topic-actions">
-          <button class="topic-btn" type="button" data-test="us">🇺🇸 US States <span class="best" data-best="us"></span></button>
-          <button class="topic-btn" type="button" data-test="fr">🇫🇷 French Regions <span class="best" data-best="fr"></span></button>
-          <button class="topic-btn" type="button" data-test="jp">🇯🇵 Japanese Prefectures <span class="best" data-best="jp"></span></button>
-        </div>
+        <p>Tap the place Rowan names. Streaks add house points. Two misses light the answer. US states, French regions, and Japanese prefectures each keep their own progress.</p>
       </article>
       <article class="topic-card">
         <p class="topic-kicker">Vocabulary</p>
         <h2>Words of power</h2>
-        <p>An advanced word, four choices, one true synonym. Pick English or French.</p>
-        <div class="topic-actions">
-          <button class="topic-btn" type="button" data-test="vocab-en">📖 English words <span class="best" data-best="vocab-en"></span></button>
-          <button class="topic-btn" type="button" data-test="vocab-fr">📘 Mots français <span class="best" data-best="vocab-fr"></span></button>
-        </div>
+        <p>An advanced word, four choices, one true synonym. After you answer, each choice has an info mark with its definition and an example.</p>
       </article>
       <article class="topic-card">
         <p class="topic-kicker">Logic</p>
         <h2>Number charms</h2>
         <p>Sequences in the style of a high-ceiling puzzle test. Name the next number. The rule appears after you answer.</p>
-        <div class="topic-actions">
-          <button class="topic-btn" type="button" data-test="logic">🔢 100 patterns <span class="best" data-best="logic"></span></button>
-        </div>
+      </article>
+      <article class="topic-card">
+        <p class="topic-kicker">Conjugation</p>
+        <h2>French verbs</h2>
+        <p>Présent, futur, imparfait, passé composé, infinitif, and participe passé. Regular -er and -ir verbs sit beside the common irregulars.</p>
+      </article>
+      <article class="topic-card">
+        <p class="topic-kicker">Mixed</p>
+        <h2>One quest, four arts</h2>
+        <p>French words, number charms, US states, and French regions, one after another. The desk changes from card to map as the question changes.</p>
       </article>
     </div>
+    <p class="hero-lead" style="margin-top:.2rem">Open <strong>Choose a quiz</strong> to begin. Each quiz remembers its own score, streak, and relics.</p>
     <svg class="castle" viewBox="0 0 1200 160" preserveAspectRatio="none" aria-hidden="true">
       <path fill="#100a14" d="M0 160V100h40V60h30V28l20-18 20 18v32h40v20h50V48h30V20l20 28h20v32h70V55l30-28 30 28v40h80V68l40-32 40 32v36h80V78l40-36 40 36v28h100V70l40-34 40 34v28h80V58l40-30 40 30v42h80V78h60V160Z"/>
     </svg>
@@ -381,6 +392,10 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
 <script src="vocab-en.js"></script>
 <script src="vocab-fr.js"></script>
 <script src="logic.js"></script>
+<script src="conj-fr.js"></script>
+<script src="vocab-en-lex.js"></script>
+<script src="vocab-fr-lex.js"></script>
+<script src="relics.js"></script>
 <script>
 "use strict";
 
@@ -440,33 +455,6 @@ function owlSVG(opts = {}) {
     <path d="M78 188 l-8 14 M78 188 l0 16 M78 188 l8 14" stroke="${gold}" stroke-width="3" fill="none" stroke-linecap="round"/>
     <path d="M122 188 l-8 14 M122 188 l0 16 M122 188 l8 14" stroke="${gold}" stroke-width="3" fill="none" stroke-linecap="round"/>
   </svg>`;
-}
-
-function relicSVG(kind, accent = "#a67c2d") {
-  const ink = "#2c2118";
-  const paper = "#f6ead2";
-  const icons = {
-    compass: `<circle cx="60" cy="62" r="28" fill="none" stroke="${ink}" stroke-width="4"/><polygon points="60,38 66,62 60,56 54,62" fill="${accent}"/><polygon points="60,86 54,62 60,68 66,62" fill="${ink}"/><circle cx="60" cy="62" r="3.5" fill="${accent}"/>`,
-    lantern: `<rect x="44" y="40" width="32" height="40" rx="6" fill="${accent}" stroke="${ink}" stroke-width="3"/><path d="M52 40 V32 H68 V40" fill="none" stroke="${ink}" stroke-width="3"/><rect x="56" y="28" width="8" height="6" fill="${ink}"/><path d="M60 80 V96" stroke="${ink}" stroke-width="3"/>`,
-    quill: `<path d="M40 96 C70 40 90 30 108 24" fill="none" stroke="${ink}" stroke-width="4" stroke-linecap="round"/><path d="M78 48 l18 -8 -6 16 z" fill="${accent}"/><path d="M40 96 l8 -4" stroke="${accent}" stroke-width="3"/>`,
-    atlas: `<path d="M34 40 h22 v48 h-22 z M56 40 h22 v48 h-22 z" fill="${paper}" stroke="${ink}" stroke-width="3"/><path d="M40 52 h10 M40 62 h12 M64 52 h8 M64 64 h10" stroke="${accent}" stroke-width="2"/>`,
-    gem: `<polygon points="60,34 86,54 74,92 46,92 34,54" fill="${accent}" stroke="${ink}" stroke-width="3"/><path d="M34 54 H86 M48 54 L60 92 L72 54" fill="none" stroke="${ink}" stroke-width="2"/>`,
-    globe: `<circle cx="60" cy="64" r="28" fill="#d5e1f0" stroke="${ink}" stroke-width="3"/><ellipse cx="60" cy="64" rx="12" ry="28" fill="none" stroke="${accent}" stroke-width="2"/><path d="M34 64 H86 M40 50 H80 M40 78 H80" fill="none" stroke="${ink}" stroke-width="2"/>`,
-    wand: `<path d="M36 96 L100 28" stroke="${ink}" stroke-width="5" stroke-linecap="round"/><path d="M36 96 L100 28" stroke="${accent}" stroke-width="2"/><circle cx="104" cy="26" r="6" fill="${accent}" stroke="${ink}" stroke-width="2"/>`,
-    book: `<path d="M32 40 h26 c6 8 6 28 0 40 H32 z M88 40 H62 c-6 8-6 28 0 40 H88 z" fill="${accent}" stroke="${ink}" stroke-width="3"/><path d="M58 40 V84" stroke="${ink}" stroke-width="3"/>`,
-    ink: `<path d="M44 70 h32 l-4 22 H48 z" fill="${accent}" stroke="${ink}" stroke-width="3"/><rect x="50" y="48" width="20" height="22" rx="3" fill="${paper}" stroke="${ink}" stroke-width="3"/><path d="M60 48 V40" stroke="${ink}" stroke-width="3"/>`,
-    rune: `<rect x="38" y="36" width="44" height="52" rx="6" fill="${paper}" stroke="${ink}" stroke-width="3"/><path d="M52 50 h16 M60 50 v24 M52 74 h16" stroke="${accent}" stroke-width="3" stroke-linecap="round"/>`,
-    circlet: `<ellipse cx="60" cy="70" rx="30" ry="14" fill="none" stroke="${accent}" stroke-width="6"/><polygon points="60,40 66,56 54,56" fill="${ink}"/>`,
-    feather: `<path d="M78 96 C40 70 36 40 60 28 C70 50 74 70 78 96 Z" fill="${accent}" stroke="${ink}" stroke-width="3"/><path d="M60 36 L74 90" stroke="${ink}" stroke-width="2"/>`,
-    hourglass: `<path d="M40 36 H80 L62 64 L80 92 H40 L58 64 Z" fill="${accent}" stroke="${ink}" stroke-width="3"/>`,
-    gear: `<circle cx="60" cy="64" r="16" fill="none" stroke="${ink}" stroke-width="6"/><circle cx="60" cy="64" r="5" fill="${accent}"/><path d="M60 36 V46 M60 82 V92 M32 64 H42 M78 64 H88 M40 44 L47 51 M73 77 L80 84 M40 84 L47 77 M73 51 L80 44" stroke="${accent}" stroke-width="4" stroke-linecap="round"/>`,
-    key: `<circle cx="48" cy="52" r="14" fill="none" stroke="${ink}" stroke-width="4"/><path d="M60 58 L92 90 M78 76 L90 72 M78 86 L88 92" stroke="${accent}" stroke-width="4" stroke-linecap="round"/>`,
-    prism: `<polygon points="60,30 92,90 28,90" fill="${paper}" stroke="${ink}" stroke-width="3"/><path d="M48 90 L70 48" stroke="${accent}" stroke-width="3"/>`,
-    mirror: `<ellipse cx="60" cy="58" rx="26" ry="32" fill="#d5e1f0" stroke="${ink}" stroke-width="4"/><path d="M60 90 V104" stroke="${accent}" stroke-width="4"/><path d="M46 104 H74" stroke="${ink}" stroke-width="4" stroke-linecap="round"/>`,
-    bookmark: `<path d="M42 34 H78 V96 L60 80 L42 96 Z" fill="${accent}" stroke="${ink}" stroke-width="3"/>`,
-    abacus: `<rect x="32" y="36" width="56" height="52" rx="4" fill="${paper}" stroke="${ink}" stroke-width="3"/><path d="M40 50 H80 M40 64 H80 M40 78 H80" stroke="${ink}" stroke-width="2"/><circle cx="50" cy="50" r="4" fill="${accent}"/><circle cx="66" cy="64" r="4" fill="${accent}"/><circle cx="54" cy="78" r="4" fill="${accent}"/>`,
-  };
-  return `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="60" cy="60" r="54" fill="${paper}" stroke="${accent}" stroke-width="4"/>${icons[kind] || icons.gem}</svg>`;
 }
 
 const HOUSES = {
@@ -752,6 +740,39 @@ const TESTS = {
       R(6, "Infinity Mirror", "mirror", "Shows the number that had to follow.", "#1f6b4a"),
     ],
   },
+  conj: {
+    key: "conj", kind: "mcq", tab: "✍️ Conjugaison", menu: "✍️ French conjugation",
+    title: "French Conjugation", subtitle: "Présent, futur, imparfait, passé composé, infinitif, participe passé.",
+    noun: "verb", nounPl: "verbs", perLevel: 15, contentLang: "fr",
+    ask: "Quelle est la forme correcte ?",
+    welcome: "Rowan opens the verb book. Choose the form that fits.",
+    champion: "Conjugation Champion",
+    questions: window.CONJ_FR,
+    rewards: [
+      R(1, "Grammar Quill", "quill", "The nib knows every ending.", "#5c3d8a"),
+      R(2, "Verb Scroll", "bookmark", "A tense for every line.", "#8c1c2c"),
+      R(3, "Tense Bell", "bell", "It rings when the ending is true.", "#a67c2d"),
+      R(4, "Agreement Mirror", "mirror", "Shows the participle its subject.", "#1e4d8c"),
+      R(5, "Wax Seal", "seal", "Stamps the infinitive in red.", "#1f6b4a"),
+      R(6, "Chorus Lyre", "lyre", "Six persons, one song.", "#c47b17"),
+    ],
+  },
+  mixed: {
+    key: "mixed", kind: "mixed", tab: "✨ Mixed", menu: "✨ Mixed quest",
+    title: "Mixed Quest", subtitle: "French words, number charms, US states, and French regions, in turn.",
+    noun: "question", nounPl: "questions", perLevel: 40, whole: "the realm",
+    ask: "Your move.",
+    welcome: "Four arts, one quest. A French word, a number, a state, a region — then round again.",
+    champion: "Quest Champion",
+    rewards: [
+      R(1, "Quest Cauldron", "cauldron", "Words and maps simmer together.", "#1f6b4a"),
+      R(2, "Wayfinder", "compass", "Points from a word to a border.", "#a67c2d"),
+      R(3, "Twin Lexicon", "book", "French on the left, numbers on the right.", "#8c1c2c"),
+      R(4, "Pattern Glass", "hourglass", "The next number falls like sand.", "#1e4d8c"),
+      R(5, "Border Key", "key", "Opens both coasts.", "#5c3d8a"),
+      R(6, "Crown of Quests", "circlet", "Four subjects, one circlet.", "#c47b17"),
+    ],
+  },
 };
 
 function colourise(ids, neighbours) {
@@ -834,27 +855,116 @@ function buildJP(test) {
 
 let test, places, mapData, colours;
 let S = {};
+const mapPacks = {};
+let shownMap = null;
 
-function freshState() {
-  return {
-    queue: shuffle(places.map(p => p.id)), found: new Set(), score: 0, streak: 0, misses: 0,
-    best: store.get(`wqa-${test.key}-best`, 0),
-    missed: new Set(store.get(`wqa-${test.key}-missed`, []).filter(id => places.some(p => p.id === id))),
-    unlocked: store.get(`wqa-${test.key}-unlocked`, []),
-    message: test.welcome,
-    wrongId: null, popId: null, peekId: null,
-    explore: false, tags: false, practice: false, practiceQueue: [],
-    won: false, party: false, reward: null, askOpen: false, askAnswer: null,
-    choiceFor: null, choiceOrder: null, locked: false, picked: null, hintHide: null,
-    pendingReward: null, firstTry: true,
-  };
+function questionKind() {
+  if (!test) return null;
+  if (test.kind === "mixed") return current()?.kind || null;
+  return test.kind;
+}
+function activeMapKey() {
+  if (test?.kind === "mixed") return current()?.map || null;
+  if (test?.kind === "map") return test.key;
+  return null;
+}
+function hintContext() {
+  if (test?.kind === "mixed" && current()?.kind === "map") return TESTS[current().map];
+  return test;
 }
 const byId = id => places.find(p => p.id === id);
 const current = () => S.practice ? byId(S.practiceQueue[0]) : byId(S.queue[0]);
-const saveMissed = () => store.set(`wqa-${test.key}-missed`, [...S.missed]);
-const saveUnlocked = () => store.set(`wqa-${test.key}-unlocked`, S.unlocked);
+function geoPlace(geoId) {
+  if (!test || test.kind !== "mixed") return byId(geoId);
+  const map = activeMapKey();
+  return places.find(p => p.kind === "map" && p.map === map && p.geoId === geoId);
+}
+function shapeFound(geoId) {
+  if (!test || test.kind !== "mixed") return S.found.has(geoId);
+  const map = activeMapKey();
+  return places.some(p => p.kind === "map" && p.map === map && p.geoId === geoId && S.found.has(p.id));
+}
+function isTargetGeo(geoId) {
+  const t = current();
+  if (!t) return false;
+  if (test.kind !== "mixed") return t.id === geoId;
+  return t.kind === "map" && t.geoId === geoId;
+}
+
+function freshQueue() {
+  if (test.kind !== "mixed") return shuffle(places.map(p => p.id));
+  const groups = ["vocab-fr", "logic", "us", "fr"].map(src => shuffle(places.filter(p => p.source === src).map(p => p.id)));
+  const out = [];
+  while (groups.some(g => g.length)) groups.forEach(g => { if (g.length) out.push(g.shift()); });
+  return out;
+}
+function blankSession() {
+  return {
+    queue: freshQueue(), found: [], score: 0, streak: 0, misses: 0,
+    missed: (store.get(`wqa-${test.key}-missed`, []) || []).filter(id => places.some(p => p.id === id)),
+    unlocked: store.get(`wqa-${test.key}-unlocked`, []) || [],
+    best: store.get(`wqa-${test.key}-best`, 0) || 0,
+    won: false, tags: false, lock: null,
+  };
+}
+function readSession() {
+  const known = new Set(places.map(p => p.id));
+  const saved = store.get(`wqa-${test.key}-session`, null);
+  if (!saved || !Array.isArray(saved.queue)) return blankSession();
+  const found = (saved.found || []).filter(id => known.has(id));
+  let queue = (saved.queue || []).filter(id => known.has(id));
+  const seen = new Set(queue.concat(found));
+  if (!saved.won) {
+    const extras = shuffle(places.map(p => p.id).filter(id => !seen.has(id)));
+    queue = queue.concat(extras);
+  }
+  if (!(saved.lock && saved.lock.id === queue[0])) {
+    while (queue.length && found.includes(queue[0])) queue.shift();
+  }
+  return {
+    queue, found, score: saved.score || 0, streak: saved.streak || 0, misses: saved.misses || 0,
+    missed: (saved.missed || []).filter(id => known.has(id)),
+    unlocked: saved.unlocked || store.get(`wqa-${test.key}-unlocked`, []) || [],
+    best: Math.max(saved.best || 0, store.get(`wqa-${test.key}-best`, 0) || 0),
+    won: !!saved.won && queue.length === 0,
+    tags: !!saved.tags,
+    lock: saved.lock && saved.lock.id === queue[0] ? saved.lock : null,
+  };
+}
+function sessionToState(p, message) {
+  S = {
+    queue: p.queue, found: new Set(p.found), score: p.score, streak: p.streak, misses: p.misses,
+    best: p.best, missed: new Set(p.missed), unlocked: p.unlocked,
+    message: message || (p.won ? "The quest is already complete." : (p.found.length ? "Welcome back. Your quest continues." : test.welcome)),
+    wrongId: null, popId: null, peekId: null,
+    explore: false, tags: !!p.tags, practice: false, practiceQueue: [],
+    won: !!p.won, party: false, reward: null, askOpen: false, askAnswer: null,
+    choiceFor: p.lock ? p.lock.id : null,
+    choiceOrder: p.lock ? p.lock.order : null,
+    locked: !!(p.lock && p.lock.picked),
+    picked: p.lock ? p.lock.picked : null,
+    hintHide: p.lock ? p.lock.hintHide : null,
+    pendingReward: null, firstTry: true,
+  };
+}
+function persist() {
+  if (!test || !S || !Array.isArray(S.queue)) return;
+  const t = current();
+  const data = {
+    queue: S.queue, found: [...S.found], score: S.score, streak: S.streak, misses: S.misses,
+    missed: [...S.missed], unlocked: S.unlocked, best: S.best, won: !!S.won, tags: !!S.tags,
+    lock: S.locked && t ? { id: t.id, picked: S.picked, order: S.choiceOrder, hintHide: S.hintHide } : null,
+  };
+  store.set(`wqa-${test.key}-session`, data);
+  store.set(`wqa-${test.key}-best`, S.best);
+  store.set(`wqa-${test.key}-unlocked`, S.unlocked);
+  store.set(`wqa-${test.key}-missed`, [...S.missed]);
+}
+const saveMissed = () => persist();
+const saveUnlocked = () => persist();
 
 function showHome() {
+  if (test && S && Array.isArray(S.queue)) persist();
   timers.forEach(clearTimeout); timers = [];
   view = "home";
   test = null;
@@ -867,7 +977,6 @@ function showHome() {
   $("title").textContent = "Wizard's Quiz Academy";
   $("subtitle").textContent = "A castle of maps, words, and number-charms.";
   $("backBtn").hidden = true;
-  $("tabs").hidden = true;
   $("stats").hidden = true;
   $("home").hidden = false;
   $("play").hidden = true;
@@ -876,62 +985,77 @@ function showHome() {
   closeMenu();
 }
 
+function mcqPlace(q, extra) {
+  return Object.assign({
+    id: q.id,
+    name: q.word || q.prompt || (q.seq ? q.seq.join(", ") : q.id),
+    word: q.word || null,
+    prompt: q.prompt || null,
+    seq: q.seq || null,
+    choices: (q.choices || []).map(String),
+    answer: String(q.answer),
+    explain: q.explain || q.gloss || "",
+    ask: q.ask || "",
+    level: q.level || "",
+    kind: "mcq",
+  }, extra || {});
+}
+function catalogFor(key) {
+  const spec = TESTS[key];
+  if (spec.kind === "map") return spec.places.map(([id, name, abbr, region]) => ({ id, name, abbr, region, kind: "map", map: key, geoId: id }));
+  if (key === "mixed") {
+    const out = [];
+    (window.VOCAB_FR || []).forEach(q => out.push(mcqPlace(q, { id: "mx-vfr-" + q.id, source: "vocab-fr", contentLang: "fr", ask: "Quel est le synonyme le plus proche ?" })));
+    (window.LOGIC_QUESTIONS || []).forEach(q => out.push(mcqPlace(q, { id: "mx-lg-" + q.id, source: "logic", ask: "What number comes next?" })));
+    US_STATES.forEach(([id, name, abbr, region]) => out.push({ id: "mx-us-" + id, kind: "map", map: "us", source: "us", geoId: id, name, abbr, region }));
+    FR_REGIONS.forEach(([id, name, abbr, region]) => out.push({ id: "mx-reg-" + id, kind: "map", map: "fr", source: "fr", geoId: id, name, abbr, region }));
+    return out;
+  }
+  return (spec.questions || []).map(q => mcqPlace(q, { contentLang: spec.contentLang }));
+}
+function ensureMap(key) {
+  if (mapPacks[key]) return mapPacks[key];
+  const src = TESTS[key];
+  const data = key === "fr" ? buildFR(src) : key === "jp" ? buildJP(src) : buildUS(src);
+  data.colours = colourise(data.shapes.map(s => s.id), data.neighbours);
+  mapPacks[key] = data;
+  return data;
+}
 function selectTest(key) {
   if (!TESTS[key]) return showHome();
+  if (test && test.key !== key && S && Array.isArray(S.queue)) persist();
   timers.forEach(clearTimeout); timers = [];
   test = TESTS[key];
-  if (test.kind === "map") {
-    places = test.places.map(([id, name, abbr, region]) => ({ id, name, abbr, region }));
-  } else {
-    const bank = test.questions;
-    if (!bank || !bank.length) {
-      $("play").hidden = false;
-      $("home").hidden = true;
-      $("quizCard").hidden = false;
-      $("quizCard").innerHTML = `<p class="map-loading">The question chest did not open. Reload the page.</p>`;
-      return;
-    }
-    places = bank.map(q => ({
-      id: q.id,
-      name: q.word || q.seq.join(", "),
-      word: q.word || null,
-      seq: q.seq || null,
-      choices: q.choices,
-      answer: String(q.answer),
-      explain: q.explain || q.gloss || "",
-      level: q.level || "",
-    }));
+  places = catalogFor(key);
+  if (!places.length) {
+    $("play").hidden = false;
+    $("home").hidden = true;
+    $("quizCard").hidden = false;
+    $("quizCard").innerHTML = `<p class="map-loading">The question chest did not open. Reload the page.</p>`;
+    return;
   }
   view = "play";
   if (location.hash !== "#" + key) {
     try { history.replaceState(null, "", location.href.split("#")[0] + "#" + key); } catch {}
   }
-  S = freshState();
-  mapData = null; zoomT = null;
+  sessionToState(readSession());
+  mapData = null; zoomT = null; shownMap = null;
   $("home").hidden = true;
   $("play").hidden = false;
   $("backBtn").hidden = false;
-  $("tabs").hidden = false;
   $("stats").hidden = false;
   render();
-  if (test.kind === "map") {
-    $("map").innerHTML = `<p class="map-loading">Rowan is unrolling the map…</p>`;
-    try {
-      const data = key === "fr" ? buildFR(test) : key === "jp" ? buildJP(test) : buildUS(test);
-      if (!test || test.key !== key) return;
-      mapData = data;
-      colours = colourise(data.shapes.map(s => s.id), data.neighbours);
-      renderMap();
-    } catch (e) {
-      $("map").innerHTML = `<p class="map-loading">The map didn't unfurl. Refresh the page to try again.</p>`;
-    }
+  if (questionKind() === "map" || test.kind === "map" || test.kind === "mixed") {
+    try { if (test.kind === "map") ensureMap(key); }
+    catch (e) { $("map").innerHTML = `<p class="map-loading">The map didn't unfurl. Refresh the page to try again.</p>`; }
   }
 }
 
 function onPlaceClick(id) {
-  if (S.reward || S.won || !mapData) return;
-  const place = byId(id); if (!place) return;
+  if (questionKind() !== "map" || S.reward || S.won) return;
+  const place = geoPlace(id); if (!place) return;
   const target = current();
+  const correct = test.kind === "mixed" ? id === target.geoId : id === target.id;
   if (S.explore) {
     sfx.click();
     S.peekId = id;
@@ -941,12 +1065,12 @@ function onPlaceClick(id) {
   }
   if (S.practice) {
     if (!target) return;
-    if (id === target.id) {
+    if (correct) {
       const firstTry = S.misses === 0, rest = S.practiceQueue.slice(1);
       sfx.correct(); fireConfetti(false);
       S.popId = id; later(() => { S.popId = null; renderMap(); }, 700);
       S.misses = 0;
-      if (firstTry) { S.missed.delete(id); saveMissed(); } else rest.push(id);
+      if (firstTry) { S.missed.delete(target.id); saveMissed(); } else rest.push(target.id);
       if (rest.length === 0) {
         S.practice = false; S.practiceQueue = [];
         sfx.levelUp(); fireConfetti(true);
@@ -965,9 +1089,9 @@ function onPlaceClick(id) {
     }
     return render();
   }
-  if (!target || S.found.has(id)) return;
-  if (id === target.id) {
-    S.found.add(id);
+  if (!target || S.found.has(target.id)) return;
+  if (correct) {
+    S.found.add(target.id);
     const gained = 100 + Math.min(S.streak * 10, 50);
     S.score += gained; S.streak++; S.misses = 0;
     S.message = S.streak >= 3 ? `${pick(CHEERS)} ${S.streak} in a row.` : pick(CHEERS);
@@ -977,7 +1101,7 @@ function onPlaceClick(id) {
     S.popId = id; later(() => { S.popId = null; renderMap(); }, 700);
     S.queue = S.queue.slice(1);
     if (S.queue.length === 0) {
-      test.rewards.forEach(r => { if (!S.unlocked.includes(r.level)) S.unlocked.push(r.level); });
+      if (test.kind === "map") test.rewards.forEach(r => { if (!S.unlocked.includes(r.level)) S.unlocked.push(r.level); });
       saveUnlocked();
       S.won = true; S.party = true; sfx.levelUp(); fireConfetti(true);
       return render();
@@ -1007,7 +1131,7 @@ function flashWrong(id) { S.wrongId = id; later(() => { S.wrongId = null; render
 
 function ensureChoices() {
   const q = current();
-  if (!q || test.kind !== "mcq") return;
+  if (!q || questionKind() !== "mcq") return;
   if (S.choiceFor !== q.id) {
     S.choiceFor = q.id;
     S.choiceOrder = shuffle(q.choices);
@@ -1018,7 +1142,7 @@ function ensureChoices() {
   }
 }
 function onChoice(choice) {
-  if (!test || test.kind !== "mcq" || S.locked || S.reward || S.won) return;
+  if (questionKind() !== "mcq" || S.locked || S.reward || S.won) return;
   if (!choice || choice === S.hintHide) return;
   const q = current();
   if (!q) return;
@@ -1125,7 +1249,7 @@ function togglePractice() {
   render();
 }
 function toggleExplore() {
-  if (!test || test.kind !== "map") return;
+  if (questionKind() !== "map") return;
   sfx.click();
   S.explore = !S.explore;
   if (S.explore) S.practice = false;
@@ -1137,7 +1261,7 @@ function toggleExplore() {
 }
 function closeReward() {
   sfx.click();
-  const mcq = test && test.kind === "mcq";
+  const mcq = questionKind() === "mcq";
   S.reward = null; S.party = false;
   if (mcq && S.locked) return advanceAfterLock();
   const t = current();
@@ -1146,18 +1270,29 @@ function closeReward() {
 }
 function playAgain() {
   sfx.click();
-  const keep = { best: S.best, missed: S.missed, unlocked: S.unlocked, tags: S.tags };
-  S = Object.assign(freshState(), keep, { message: "A fresh quest. The castle is watching." });
+  const unlocked = (S.unlocked || []).slice();
+  const best = S.best || 0;
+  const tags = !!S.tags;
+  const missed = new Set(S.missed);
+  sessionToState(blankSession(), "A fresh quest. The castle is watching.");
+  S.unlocked = unlocked;
+  S.best = best;
+  S.tags = tags;
+  S.missed = missed;
+  S.won = false;
+  persist();
   render();
 }
 
 const HINTS = [
   { label: "Which direction is it?", answer: t => `${t.name} is in ${t.region}.` },
   { label: "What's next to it?", answer: t => {
-      const n = (mapData?.neighbours.get(t.id) || []).map(id => byId(id)?.name).filter(Boolean);
-      return n.length ? `${t.name} touches ${listNames(shuffle(n).slice(0, 3))}${n.length > 3 ? " and more" : ""}.` : `${test.lonely} Look for it on its own.`;
+      const ctx = hintContext();
+      const geo = t.geoId || t.id;
+      const n = (mapData?.neighbours.get(geo) || []).map(id => geoPlace(id)?.name).filter(Boolean);
+      return n.length ? `${t.name} touches ${listNames(shuffle(n).slice(0, 3))}${n.length > 3 ? " and more" : ""}.` : `${ctx.lonely} Look for it on its own.`;
     } },
-  { label: "Is it near water?", answer: t => test.water[t.abbr] ? `Yes. ${t.name} is next to ${test.water[t.abbr]}.` : `No sea touches ${t.name}. It is landlocked.` },
+  { label: "Is it near water?", answer: t => hintContext().water[t.abbr] ? `Yes. ${t.name} is next to ${hintContext().water[t.abbr]}.` : `No sea touches ${t.name}. It is landlocked.` },
   { label: "How do you spell it?", answer: t => `It starts with "${t.name[0]}" and ends with "${t.name[t.name.length - 1]}".` },
 ];
 
@@ -1166,7 +1301,7 @@ function render() {
   if (!test) return;
   const t = current();
   if ((t?.id ?? null) !== lastTarget) { S.askAnswer = null; lastTarget = t?.id ?? null; }
-  if (test.kind === "mcq") ensureChoices();
+  if (questionKind() === "mcq") ensureChoices();
   const level = Math.min(Math.floor(S.found.size / test.perLevel) + 1, test.rewards.length);
   const nextReward = test.rewards.find(r => !S.unlocked.includes(r.level));
   const inLevel = S.found.size % test.perLevel;
@@ -1176,36 +1311,34 @@ function render() {
   $("brand").textContent = "Wizard's Quiz Academy";
   $("title").textContent = test.title;
   $("subtitle").textContent = test.subtitle;
-  $("tabs").innerHTML = Object.values(TESTS).map(x =>
-    `<button class="test-tab" type="button" role="tab" aria-selected="${x.key === test.key}" data-test="${x.key}">${x.tab}</button>`).join("");
-  $("menuItems").innerHTML = `<button class="activity-item" type="button" role="menuitem" data-test="home">🏰 Academy doors</button>` +
-    Object.values(TESTS).map(x =>
-      `<button class="activity-item" type="button" role="menuitem" data-test="${x.key}">${x.menu}${x.key === test.key ? `<span class="activity-current">Playing</span>` : ""}</button>`).join("");
+  $("menuItems").innerHTML = quizMenu(test.key);
   const foundLabel = test.kind === "map" ? "Found" : "Correct";
   $("stats").innerHTML = [["Points", S.score], ["Streak", S.streak > 1 ? "✦ " + S.streak : "—"], ["Level", level], ["Best", S.best], [foundLabel, `${S.found.size}/${places.length}`]]
     .map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("") + `<div><dt>House</dt><dd>${esc(house)}</dd></div>`;
 
   $("mascot").className = `mascot ${S.party ? "mascot-party" : "mascot-bob"}`;
   $("msg").textContent = S.message;
-  const showTarget = test.kind === "map" && t && !S.won && !S.explore;
-  $("target").innerHTML = showTarget ? `${S.practice ? `Practice (${S.practiceQueue.length} left): ` : "Find: "}<strong>${esc(t.name)}</strong>` : "";
+  const showTarget = questionKind() === "map" && t && !S.won && !S.explore;
+  const findPrefix = test.kind === "mixed" ? (t && t.map === "fr" ? "French region: " : "US state: ") : "Find: ";
+  $("target").innerHTML = showTarget ? `${S.practice ? `Practice (${S.practiceQueue.length} left): ` : findPrefix}<strong>${esc(t.name)}</strong>` : "";
   $("target").hidden = !showTarget;
 
-  if (test.kind === "map" && showTarget) {
+  if (questionKind() === "map" && showTarget) {
     $("ask").innerHTML = S.askOpen
       ? `<div class="ask-panel"><div class="ask-quick">${HINTS.map((h, i) => `<button class="ask-chip" type="button" data-hint="${i}">${h.label}</button>`).join("")}</div>
          ${S.askAnswer ? `<p class="ask-answer" aria-live="polite">${esc(S.askAnswer)}</p>` : ""}
          <button class="ask-close" type="button" data-ask="close">Close</button></div>`
       : `<button class="mode-btn ask-row" type="button" data-ask="open">Ask Rowan for a hint</button>`;
-  } else if (test.kind === "mcq" && t && !S.won && !S.locked) {
+  } else if (questionKind() === "mcq" && t && !S.won && !S.locked) {
     $("ask").innerHTML = S.hintHide
       ? ""
       : `<button class="mode-btn ask-row" type="button" data-action="vanish">Vanish one wrong answer</button>`;
   } else $("ask").innerHTML = "";
 
   const eb = $("exploreBtn"), tb = $("tagsBtn"), pb = $("practiceBtn");
-  eb.hidden = test.kind !== "map";
-  tb.hidden = test.kind !== "map";
+  const mapNow = questionKind() === "map";
+  eb.hidden = !mapNow;
+  tb.hidden = !mapNow;
   eb.className = `mode-btn ${S.explore ? "mode-btn-active" : ""}`;
   eb.setAttribute("aria-pressed", String(S.explore));
   eb.textContent = S.explore ? "Exploring… tap to quiz" : "Explore";
@@ -1233,10 +1366,11 @@ function render() {
 
   renderModal();
   renderStage();
+  persist();
 }
 
 function renderStage() {
-  if (test.kind === "map") {
+  if (questionKind() === "map") {
     $("mapCard").hidden = false;
     $("quizCard").hidden = true;
     renderMap();
@@ -1246,18 +1380,29 @@ function renderStage() {
     renderQuiz();
   }
 }
+function lexEntry(q, word) {
+  const fr = q.source === "vocab-fr" || test.key === "vocab-fr";
+  const en = q.source === "vocab-en" || test.key === "vocab-en";
+  const book = fr ? window.VOCAB_FR_LEX : en ? window.VOCAB_EN_LEX : null;
+  return book ? book[word] || null : null;
+}
 function renderQuiz() {
   const q = current();
   const card = $("quizCard");
   if (!q) { card.innerHTML = ""; return; }
-  const lang = test.contentLang === "fr" ? ` lang="fr"` : "";
+  const langCode = q.contentLang || test.contentLang;
+  const lang = langCode === "fr" ? ` lang="fr"` : "";
   let head;
   if (q.seq) {
     const levelName = q.level === "archmage" ? "Archmage" : q.level === "scholar" ? "Scholar" : "Apprentice";
-    head = `<p class="quiz-kicker">${levelName} pattern</p>
+    const chip = q.source === "logic" ? "Number charm · " : "";
+    head = `<p class="quiz-kicker">${chip}${levelName} pattern</p>
       <h2 class="quiz-word seq-line">${q.seq.join(", ")}, <span class="seq-q">?</span></h2>`;
+  } else if (q.prompt) {
+    head = `<p class="quiz-kicker">${test.key === "mixed" ? "French verb" : "Conjugaison"}</p><h2 class="quiz-word"${lang}>${esc(q.prompt)}</h2>`;
   } else {
-    head = `<p class="quiz-kicker">${S.practice ? "Review" : "Synonym"}</p><h2 class="quiz-word"${lang}>${esc(q.word)}</h2>`;
+    const chip = q.source === "vocab-fr" ? "French vocabulary" : (S.practice ? "Review" : "Synonym");
+    head = `<p class="quiz-kicker">${chip}</p><h2 class="quiz-word"${lang}>${esc(q.word)}</h2>`;
   }
   const choices = (S.choiceOrder || q.choices).map((c, i) => {
     const gone = S.hintHide === c;
@@ -1266,7 +1411,10 @@ function renderQuiz() {
     else if (S.locked && c === S.picked) cls.push("choice-wrong");
     else if (S.locked) cls.push("choice-dim");
     if (gone) cls.push("choice-dim");
-    return `<button class="${cls.join(" ")}" type="button" data-choice="${i}"${S.locked || gone ? " disabled" : ""}><span class="choice-key">${i + 1}</span><span${lang}>${esc(c)}</span></button>`;
+    const note = S.locked ? lexEntry(q, c) : null;
+    const infoBtn = note ? `<button class="info-btn" type="button" data-info="${i}" aria-expanded="false" aria-label="Definition of ${esc(c)}">i</button>` : "";
+    const infoPop = note ? `<div class="info-pop" hidden${lang}><p class="info-word">${esc(c)}</p><p>${esc(note.def)}</p><p class="info-ex">“${esc(note.ex)}”</p></div>` : "";
+    return `<div class="choice-wrap"><div class="choice-line"><button class="${cls.join(" ")}" type="button" data-choice="${i}"${S.locked || gone ? " disabled" : ""}><span class="choice-key">${i + 1}</span><span${lang}>${esc(c)}</span></button>${infoBtn}</div>${infoPop}</div>`;
   }).join("");
   let explain = "";
   if (S.locked) {
@@ -1277,36 +1425,52 @@ function renderQuiz() {
       <button class="big-btn" type="button" data-action="next-q">Continue</button>
     </div>`;
   }
-  card.innerHTML = `${head}<p class="quiz-ask">${esc(test.ask)}</p><div class="choice-grid">${choices}</div>${explain}`;
+  const ask = q.ask || test.ask;
+  card.innerHTML = `${head}<p class="quiz-ask">${esc(ask)}</p><div class="choice-grid">${choices}</div>${explain}`;
 }
 
 function renderMap() {
-  if (!mapData || !test || test.kind !== "map") return;
+  const mapKey = activeMapKey();
+  if (!test || !mapKey) return;
+  let pack;
+  try { pack = ensureMap(mapKey); }
+  catch (e) {
+    $("map").innerHTML = `<p class="map-loading">The map didn't unfurl. Refresh the page to try again.</p>`;
+    return;
+  }
+  if (shownMap !== mapKey) { zoomT = null; shownMap = mapKey; }
+  mapData = pack;
+  colours = pack.colours;
   const t = current();
+  const mapTest = TESTS[mapKey];
   const { width, height, shapes, insets } = mapData;
-  let svg = `<svg viewBox="0 0 ${width} ${height}" class="game-map" role="application" aria-label="Map of ${esc(test.whole)}"><g class="zoom-layer">`;
+  let svg = `<svg viewBox="0 0 ${width} ${height}" class="game-map" role="application" aria-label="Map of ${esc(mapTest.whole)}"><g class="zoom-layer">`;
   insets.forEach(b => {
     svg += `<rect class="inset-box" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="12"/>`;
   });
   shapes.forEach(s => {
-    const p = byId(s.id);
+    const p = geoPlace(s.id);
+    if (!p) return;
     const cls = ["state-path", colours.get(s.id),
-      S.found.has(s.id) ? "state-found" : "",
+      shapeFound(s.id) ? "state-found" : "",
       S.wrongId === s.id ? "state-wrong" : "",
       S.popId === s.id ? "state-pop" : "",
-      !S.explore && S.misses >= 2 && t?.id === s.id ? "state-hint" : "",
+      !S.explore && S.misses >= 2 && isTargetGeo(s.id) ? "state-hint" : "",
       S.explore && S.peekId === s.id ? "state-peek" : ""].join(" ");
     svg += `<path d="${s.d}" class="${cls}" data-id="${s.id}" role="button" aria-label="${esc(p.name)}"/>`;
   });
   insets.forEach(b => {
+    const p = geoPlace(b.id);
     svg += `<rect class="inset-hit" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="12" data-id="${b.id}" aria-hidden="true"/>`;
-    svg += `<text class="inset-caption" x="${b.x + b.w / 2}" y="${b.y + b.h - 8}" pointer-events="none">${S.tags || S.found.has(b.id) ? esc(byId(b.id).name) : (test.insetCaption || "Overseas")}</text>`;
+    svg += `<text class="inset-caption" x="${b.x + b.w / 2}" y="${b.y + b.h - 8}" pointer-events="none">${S.tags || shapeFound(b.id) ? esc(p ? p.name : "") : (mapTest.insetCaption || "Overseas")}</text>`;
   });
   shapes.forEach(s => {
-    if (S.found.has(s.id)) svg += `<text x="${s.cx}" y="${s.cy}" class="state-star" pointer-events="none"${test.starSize ? ` style="font-size:${test.starSize}px"` : ""}>✦</text>`;
+    if (shapeFound(s.id)) svg += `<text x="${s.cx}" y="${s.cy}" class="state-star" pointer-events="none"${mapTest.starSize ? ` style="font-size:${mapTest.starSize}px"` : ""}>✦</text>`;
   });
   if (S.tags) shapes.forEach(s => {
-    svg += `<text x="${s.cx}" y="${s.cy + (S.found.has(s.id) ? (test.labelSize || 14) : 0)}" class="state-label" pointer-events="none"${test.labelSize ? ` style="font-size:${test.labelSize}px;stroke-width:2px"` : ""}>${esc(byId(s.id).abbr)}</text>`;
+    const p = geoPlace(s.id);
+    if (!p) return;
+    svg += `<text x="${s.cx}" y="${s.cy + (shapeFound(s.id) ? (mapTest.labelSize || 14) : 0)}" class="state-label" pointer-events="none"${mapTest.labelSize ? ` style="font-size:${mapTest.labelSize}px;stroke-width:2px"` : ""}>${esc(p.abbr)}</text>`;
   });
   svg += `</g></svg>`;
   $("map").innerHTML = svg;
@@ -1357,14 +1521,21 @@ function renderModal() {
   } else m.innerHTML = "";
 }
 
-function menuHTMLHome() {
-  return `<button class="activity-item" type="button" role="menuitem" data-test="home">🏰 Academy doors <span class="activity-current">Here</span></button>` +
-    Object.values(TESTS).map(x => `<button class="activity-item" type="button" role="menuitem" data-test="${x.key}">${x.menu}</button>`).join("");
+function quizMenu(playingKey) {
+  const here = view === "home" ? `<span class="activity-current">Here</span>` : "";
+  const home = `<button class="activity-item" type="button" role="menuitem" data-test="home">🏰 Academy doors ${here}</button>`;
+  const items = Object.values(TESTS).map(x => {
+    const session = store.get(`wqa-${x.key}-session`, null);
+    const done = session && Array.isArray(session.found) ? session.found.length : 0;
+    const mark = x.key === playingKey ? `<span class="activity-current">Playing</span>` : (done ? `<span class="activity-current">${session.won ? "Done" : done}</span>` : "");
+    return `<button class="activity-item" type="button" role="menuitem" data-test="${x.key}">${x.menu}${mark}</button>`;
+  }).join("");
+  return home + items;
 }
 
 $("map").addEventListener("click", e => { const el = e.target.closest("[data-id]"); if (el) onPlaceClick(el.dataset.id); });
 $("exploreBtn").addEventListener("click", toggleExplore);
-$("tagsBtn").addEventListener("click", () => { if (!test || test.kind !== "map") return; sfx.click(); S.tags = !S.tags; render(); });
+$("tagsBtn").addEventListener("click", () => { if (questionKind() !== "map") return; sfx.click(); S.tags = !S.tags; render(); });
 $("practiceBtn").addEventListener("click", togglePractice);
 $("ask").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
@@ -1376,6 +1547,17 @@ $("ask").addEventListener("click", e => {
   render();
 });
 $("quizCard").addEventListener("click", e => {
+  const info = e.target.closest("[data-info]");
+  if (info) {
+    e.stopPropagation();
+    const wrap = info.closest(".choice-wrap");
+    const pop = wrap && wrap.querySelector(".info-pop");
+    const willOpen = pop && pop.hidden;
+    document.querySelectorAll(".info-pop").forEach(p => { p.hidden = true; });
+    if (pop) pop.hidden = !willOpen;
+    info.setAttribute("aria-expanded", String(!!willOpen));
+    return;
+  }
   const vanish = e.target.closest("[data-action='vanish']");
   if (vanish) return vanishOne();
   const next = e.target.closest("[data-action='next-q']");
@@ -1409,7 +1591,6 @@ $("home").addEventListener("click", e => {
   if (h) { sfx.click(); applyHouse(h.dataset.house); return; }
   onTestClick(e);
 });
-$("tabs").addEventListener("click", onTestClick);
 $("menuItems").addEventListener("click", onTestClick);
 $("backBtn").addEventListener("click", () => switchTo("home"));
 $("zoomIn").addEventListener("click", () => zoomBy(1.6));
@@ -1418,7 +1599,7 @@ $("zoomReset").addEventListener("click", () => { if (zoomBehaviour) d3.select("#
 function closeMenu() { $("menu").hidden = true; $("menuBtn").setAttribute("aria-expanded", "false"); }
 $("menuBtn").addEventListener("click", e => {
   e.stopPropagation();
-  if (view === "home") $("menuItems").innerHTML = menuHTMLHome();
+  $("menuItems").innerHTML = quizMenu(test && test.key);
   const open = $("menu").hidden;
   $("menu").hidden = !open;
   $("menuBtn").setAttribute("aria-expanded", String(open));
@@ -1426,7 +1607,7 @@ $("menuBtn").addEventListener("click", e => {
 document.addEventListener("click", e => { if (!e.target.closest(".activity-menu-wrap")) closeMenu(); });
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") { closeMenu(); if (S.reward) closeReward(); }
-  if (!test || test.kind !== "mcq" || S.reward || S.won) return;
+  if (questionKind() !== "mcq" || S.reward || S.won) return;
   if (!S.locked && /^[1-4]$/.test(e.key)) {
     const choice = S.choiceOrder && S.choiceOrder[Number(e.key) - 1];
     if (choice) onChoice(choice);

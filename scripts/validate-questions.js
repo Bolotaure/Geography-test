@@ -7,6 +7,7 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 const { buildLogicQuestions, serializeLogic, assertConsistent } = require("./logic-rules");
+const { buildConjugationQuestions, serializeConj } = require("./conjugation-rules");
 
 const root = path.join(__dirname, "..");
 const errors = [];
@@ -262,10 +263,27 @@ function checkClusters(items) {
 const win = loadWindow("vocab-en.js");
 const wfr = loadWindow("vocab-fr.js");
 const wlogic = loadWindow("logic.js");
+const wconj = loadWindow("conj-fr.js");
+const enLex = require(path.join(root, "vocab-en-lex.js"));
+const frLex = require(path.join(root, "vocab-fr-lex.js"));
 checkBank("VOCAB_EN", win.VOCAB_EN, ["id", "word", "answer", "choices", "gloss"]);
 checkBank("VOCAB_FR", wfr.VOCAB_FR, ["id", "word", "answer", "choices", "gloss"]);
 checkBank("LOGIC", wlogic.LOGIC_QUESTIONS, ["id", "seq", "answer", "choices", "explain", "level"]);
+checkBank("CONJ_FR", wconj.CONJ_FR, ["id", "prompt", "ask", "answer", "choices", "explain"]);
 checkClusters([].concat(win.VOCAB_EN || [], wfr.VOCAB_FR || []));
+
+function checkLex(name, bank, lex) {
+  (bank || []).forEach(q => {
+    q.choices.forEach(word => {
+      const entry = lex[word];
+      if (!entry) return fail(name + " " + q.id + " choice has no lexicon entry: " + word);
+      if (!entry.def || String(entry.def).trim().length < 12) fail(name + " " + word + " definition is missing or too short");
+      if (!entry.ex || String(entry.ex).trim().length < 12) fail(name + " " + word + " example is missing or too short");
+    });
+  });
+}
+checkLex("EN", win.VOCAB_EN, enLex);
+checkLex("FR", wfr.VOCAB_FR, frLex);
 
 const logic = wlogic.LOGIC_QUESTIONS || [];
 logic.forEach(q => {
@@ -297,6 +315,19 @@ if (built) {
   if (Object.keys(positions).length < 3) fail("correct answers are not spread across the four choices");
 }
 
+const conj = wconj.CONJ_FR || [];
+conj.forEach(q => {
+  if (!String(q.explain).includes(String(q.answer))) fail(q.id + " explanation omits the answer");
+});
+let builtConj;
+try { builtConj = buildConjugationQuestions(); }
+catch (e) { fail("conjugation rules failed: " + e.message); }
+if (builtConj) {
+  const expected = serializeConj(builtConj);
+  const actual = fs.readFileSync(path.join(root, "conj-fr.js"), "utf8");
+  if (actual !== expected) fail("conj-fr.js does not match scripts/conjugation-rules.js — regenerate it");
+}
+
 if (errors.length) {
   console.error(errors.join("\n"));
   process.exit(1);
@@ -306,5 +337,6 @@ console.log("OK", {
   english: win.VOCAB_EN.length,
   french: wfr.VOCAB_FR.length,
   logic: logic.length,
+  conjugation: conj.length,
   levels,
 });
