@@ -60,8 +60,8 @@ button:disabled:not(.choice-right):not(.choice-wrong) { opacity: .45; }
 [hidden] { display: none !important; }
 .game-root {
   max-width: 1100px; min-height: 100vh; margin: 0 auto;
-  padding: 1rem clamp(.8rem, 3vw, 2.2rem) 3rem;
-  display: flex; flex-direction: column; gap: 1.15rem;
+  padding: 1rem clamp(.8rem, 3vw, 2.2rem) 6.5rem;
+  display: flex; flex-direction: column; gap: 1rem;
 }
 .brand-kicker { letter-spacing: .16em; text-transform: uppercase; font-size: .72rem; color: var(--gold); font-weight: 700; }
 .game-title { font-family: var(--font-display); color: var(--candle); font-size: clamp(1.7rem, 4vw, 2.6rem); font-weight: 800; line-height: 1.15; text-shadow: 0 2px 0 #0006; }
@@ -270,83 +270,166 @@ button:disabled:not(.choice-right):not(.choice-wrong) { opacity: .45; }
 }
 .big-btn:hover { transform: translateY(-1px); }
 button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
+.pills { display: flex; flex-wrap: wrap; gap: .4rem; }
+.pill {
+  background: #241828cc; border: 2px solid #5c4a32; border-radius: 999px;
+  padding: .35rem .75rem; font-weight: 800; min-height: 40px; display: inline-flex; align-items: center;
+}
+.course-head { display: flex; align-items: flex-start; }
+.course-head .game-title { font-size: clamp(1.45rem, 4vw, 2.1rem); }
+.path-wrap { max-width: 440px; margin: 0 auto; }
+.path-hero { text-align: center; margin-bottom: .8rem; }
+.path-hero p { color: #eadcc0; }
+.unit {
+  background: #1c1424ee; border: 2px solid #5c4a32; border-radius: 28px;
+  padding: 1rem .6rem .4rem; margin-bottom: 1rem;
+}
+.unit-title { font-family: var(--font-display); color: var(--candle); text-align: center; font-size: 1.25rem; }
+.unit-sub { text-align: center; color: #cbbda6; font-size: .9rem; margin: .15rem 0 .4rem; }
+.path { display: flex; flex-direction: column; align-items: center; gap: 26px; padding: 62px 0 26px; position: relative; }
+.path::before {
+  content: ""; position: absolute; top: 8px; bottom: 8px; left: 50%; width: 10px;
+  background: #3a2c22; border-radius: 999px; transform: translateX(-50%);
+}
+.node {
+  position: relative; z-index: 1; width: 72px; height: 72px; border-radius: 50%;
+  border: 4px solid #6b5438; background: #2a2033; color: var(--gold);
+  font-weight: 800; font-size: 1rem; box-shadow: 0 6px 0 #0005;
+}
+.node-left { margin-right: 128px; }
+.node-right { margin-left: 128px; }
+.node-done { background: linear-gradient(#ffe7a3, #e2b657); color: #5a3b08; border-color: #a67c2d; }
+.node-current {
+  background: var(--house); color: var(--house-ink); border-color: var(--gold);
+  animation: nodePulse 1.5s ease-in-out infinite;
+}
+.node-locked { opacity: .42; }
+.node-mark { position: relative; z-index: 1; }
+.node-owl { position: absolute; left: 50%; bottom: 78%; width: 58px; transform: translateX(-50%); pointer-events: none; filter: drop-shadow(0 6px 4px #0006); }
+.node-owl svg { width: 58px; height: auto; }
+@keyframes nodePulse { 50% { transform: scale(1.06); box-shadow: 0 0 0 8px color-mix(in srgb, var(--house) 40%, transparent); } }
+.path-review {
+  display: block; margin: .4rem auto 1rem; min-height: 48px; padding: .6rem 1rem;
+  border-radius: 999px; background: var(--parchment); color: var(--ink); font-weight: 800;
+}
+.lesson-head { display: flex; align-items: center; gap: .7rem; }
+.quit-btn {
+  width: 44px; height: 44px; border-radius: 14px; background: #241828; border: 2px solid #5c4a32;
+  color: var(--parchment); font-size: 1.2rem; font-weight: 800;
+}
+.lesson-track { flex: 1; height: 16px; background: #2a2033; border-radius: 999px; overflow: hidden; border: 2px solid #5c4a32; }
+.lesson-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--house), var(--gold)); transition: width .35s ease; }
+.lesson-prompt { font-family: var(--font-display); font-size: clamp(1.25rem, 4vw, 1.7rem); text-align: center; color: var(--candle); }
+.choice { min-height: 64px; border-radius: 16px; font-size: 1.12rem; }
+.choice-selected { border-color: var(--gold-deep); box-shadow: 0 0 0 3px var(--gold); background: #fff4d2; }
+.state-selected { stroke: #a67c2d !important; stroke-width: 3.5px; fill: var(--state-hover) !important; }
+.check-bar, .feedback {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 36;
+  padding: .9rem 1rem calc(.9rem + env(safe-area-inset-bottom));
+}
+.check-bar { background: #140e1cf0; display: flex; justify-content: center; }
+.feedback { border-top: 4px solid transparent; animation: sheet .28s ease; }
+.feedback-ok { background: #d9f5e4; color: #145c38; border-top-color: #1f8a4d; }
+.feedback-no { background: #ffd9d4; color: #8c1c2c; border-top-color: #c43838; }
+.feedback-row { display: flex; gap: .8rem; align-items: center; max-width: 640px; margin: 0 auto .7rem; }
+.feedback-owl { width: 64px; flex: none; }
+.feedback-owl svg { width: 64px; height: auto; }
+.feedback-title { font-family: var(--font-display); font-size: 1.25rem; }
+.feedback-body { font-weight: 700; }
+.check-bar .big-btn, .feedback .big-btn { width: min(520px, 100%); margin: 0 auto; display: block; }
+.feedback-ok .big-btn { background: #1f8a4d; }
+.feedback-no .big-btn { background: #c43838; }
+@keyframes sheet { from { transform: translateY(18px); opacity: .5; } }
+.bottom-nav {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  display: flex; justify-content: space-around; gap: .3rem;
+  background: #1a1024f5; border-top: 2px solid #5c4a32;
+  padding: .35rem .5rem calc(.4rem + env(safe-area-inset-bottom));
+}
+.nav-btn { min-height: 52px; min-width: 84px; border-radius: 16px; font-weight: 800; color: #eadcc0; }
+.nav-on { background: var(--house); color: var(--house-ink); }
+.summary-card, .relic-board, .profile-card {
+  max-width: 480px; margin: 0 auto; background: var(--parchment); color: var(--ink);
+  border-radius: 28px; padding: 1.3rem 1.1rem 1.5rem; text-align: center; border: 3px solid var(--gold);
+}
+.summary-owl svg { width: 120px; height: auto; }
+.summary-title { font-family: var(--font-display); font-size: 1.7rem; color: var(--gold-deep); }
+.summary-xp { font-family: var(--font-display); font-size: 2.4rem; color: var(--house); margin: .2rem 0; }
+.summary-acc { font-weight: 800; color: var(--muted); }
+.summary-relics { display: flex; flex-wrap: wrap; gap: .7rem; justify-content: center; margin-top: .8rem; }
+.summary-relic svg { width: 96px; height: auto; }
+.summary-note { margin-top: .8rem; color: var(--muted); font-weight: 700; }
+.relic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; text-align: center; }
+.relic-card { background: #efe4cc; border-radius: 16px; padding: .6rem; }
+.relic-card svg { width: 100%; max-width: 120px; height: auto; }
+.relic-card h3 { font-family: var(--font-display); font-size: 1rem; }
+.relic-card p { color: var(--muted); font-size: .85rem; }
+.relic-locked svg { filter: grayscale(1) brightness(.55); }
+.profile-line { font-size: 1.15rem; margin: .25rem 0; }
+.profile-list { list-style: none; text-align: left; margin-top: .8rem; display: flex; flex-direction: column; gap: .45rem; }
+.profile-list li { display: flex; justify-content: space-between; gap: .6rem; background: #efe4cc; border-radius: 12px; padding: .55rem .7rem; }
+.profile-list span { color: var(--muted); font-weight: 700; white-space: nowrap; }
+body.lesson-mode .mascot,
+body.lesson-mode .speech-bubble,
+body.lesson-mode #progress,
+body.lesson-mode .shelf-card,
+body.lesson-mode .brand-kicker,
+body.lesson-mode .game-subtitle,
+body.lesson-mode #ask,
+body.lesson-mode #practiceBtn { display: none !important; }
+body.lesson-mode .game-root { padding-bottom: 18rem; max-width: 760px; }
+body.lesson-mode .prompt-row { margin-bottom: 0; }
 @media (max-width: 640px) {
   .game-title { font-size: 1.55rem; }
   .activity-stats { gap: .35rem .8rem; }
   .home-owl { width: 96px; }
   .speech-bubble::before { display: none; }
+  .node-left { margin-right: 96px; }
+  .node-right { margin-left: 96px; }
+  .node { width: 68px; height: 68px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .mascot-bob, .mascot-party, .home-owl, .shelf-owned { animation: none; }
+  .mascot-bob, .mascot-party, .home-owl, .shelf-owned, .node-current, .feedback { animation: none; }
 }
 </style>
 </head>
 <body>
 <div class="game-root">
-  <header>
-    <div class="activity-heading">
-      <div>
-        <button class="back-btn" id="backBtn" type="button" hidden>← Academy</button>
-        <p class="brand-kicker" id="brand">Candlelight &amp; questions</p>
-        <h1 class="game-title" id="title">Wizard's Quiz Academy</h1>
-        <p class="game-subtitle" id="subtitle">A castle of maps, words, and number-charms.</p>
-      </div>
-      <div class="activity-menu-wrap">
-        <button class="activity-trigger" id="menuBtn" type="button" aria-haspopup="menu" aria-expanded="false">Choose a quiz
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-        </button>
-        <div class="activity-menu" id="menu" role="menu" hidden>
-          <div class="activity-menu-label">Choose a quiz</div>
-          <hr>
-          <div id="menuItems"></div>
-        </div>
+  <header class="topbar">
+    <div class="pills" aria-label="Streak and points">
+      <span class="pill" id="streakPill" title="Days in a row">🔥 0</span>
+      <span class="pill" id="xpPill" title="Experience">✦ 0</span>
+      <span class="pill" id="heartsPill" hidden title="Hearts">♥♥♥♥♥</span>
+    </div>
+    <div class="activity-menu-wrap">
+      <button class="activity-trigger" id="menuBtn" type="button" aria-haspopup="menu" aria-expanded="false">Choose a quiz
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="activity-menu" id="menu" role="menu" hidden>
+        <div class="activity-menu-label">Choose a quiz</div>
+        <hr>
+        <div id="menuItems"></div>
       </div>
     </div>
-    <dl class="activity-stats" aria-label="Quiz progress" id="stats" hidden></dl>
   </header>
+  <div class="course-head">
+    <div>
+      <button class="back-btn" id="backBtn" type="button" hidden>← Academy</button>
+      <p class="brand-kicker" id="brand">Candlelight &amp; questions</p>
+      <h1 class="game-title" id="title">Wizard's Quiz Academy</h1>
+      <p class="game-subtitle" id="subtitle">A castle of maps, words, and number-charms.</p>
+    </div>
+  </div>
+  <div class="lesson-head" id="lessonHead" hidden>
+    <button class="quit-btn" id="quitLesson" type="button" aria-label="Leave lesson">✕</button>
+    <div class="lesson-track" aria-hidden="true"><div class="lesson-fill" id="lessonFill"></div></div>
+  </div>
+  <p class="lesson-prompt" id="lessonPrompt" hidden></p>
+  <dl class="activity-stats" aria-label="Quiz progress" id="stats" hidden></dl>
 
-  <section id="home" aria-label="Choose a subject">
-    <div class="hero">
-      <div class="home-owl" id="homeOwl" role="img" aria-label="Rowan the academy owl"></div>
-      <p class="hero-lead">Rowan the owl keeps the night watch. Pick a subject, earn house points, and fill the relic shelf.</p>
-      <div class="house-picker" role="radiogroup" aria-label="Choose a house">
-        <button class="house-btn" type="button" role="radio" data-house="emberwyck" aria-checked="false"><span class="swatch" style="background:#8c1c2c"></span>Emberwyck</button>
-        <button class="house-btn" type="button" role="radio" data-house="verdant" aria-checked="false"><span class="swatch" style="background:#1f6b4a"></span>Verdant Hollow</button>
-        <button class="house-btn" type="button" role="radio" data-house="azurequill" aria-checked="false"><span class="swatch" style="background:#1e4d8c"></span>Azure Quill</button>
-        <button class="house-btn" type="button" role="radio" data-house="amberkeep" aria-checked="false"><span class="swatch" style="background:#b8860b"></span>Amberkeep</button>
-      </div>
-    </div>
-    <div class="topic-grid">
-      <article class="topic-card">
-        <p class="topic-kicker">Geography</p>
-        <h2>Living maps</h2>
-        <p>Tap the place Rowan names. Streaks add house points. Two misses light the answer. US states, French regions, and Japanese prefectures each keep their own progress.</p>
-      </article>
-      <article class="topic-card">
-        <p class="topic-kicker">Vocabulary</p>
-        <h2>Words of power</h2>
-        <p>An advanced word, four choices, one true synonym. After you answer, each choice has an info mark with its definition and an example.</p>
-      </article>
-      <article class="topic-card">
-        <p class="topic-kicker">Logic</p>
-        <h2>Number charms</h2>
-        <p>Sequences in the style of a high-ceiling puzzle test. Name the next number. The rule appears after you answer.</p>
-      </article>
-      <article class="topic-card">
-        <p class="topic-kicker">Conjugation</p>
-        <h2>French verbs</h2>
-        <p>Présent, futur, imparfait, passé composé, infinitif, and participe passé. Regular -er and -ir verbs sit beside the common irregulars.</p>
-      </article>
-      <article class="topic-card">
-        <p class="topic-kicker">Mixed</p>
-        <h2>One quest, four arts</h2>
-        <p>French words, number charms, US states, and French regions, one after another. The desk changes from card to map as the question changes.</p>
-      </article>
-    </div>
-    <p class="hero-lead" style="margin-top:.2rem">Open <strong>Choose a quiz</strong> to begin. Each quiz remembers its own score, streak, and relics.</p>
-    <svg class="castle" viewBox="0 0 1200 160" preserveAspectRatio="none" aria-hidden="true">
-      <path fill="#100a14" d="M0 160V100h40V60h30V28l20-18 20 18v32h40v20h50V48h30V20l20 28h20v32h70V55l30-28 30 28v40h80V68l40-32 40 32v36h80V78l40-36 40 36v28h100V70l40-34 40 34v28h80V58l40-30 40 30v42h80V78h60V160Z"/>
-    </svg>
+  <section id="home" aria-label="Learning path">
+    <div class="path-wrap" id="path"></div>
   </section>
 
   <section id="play" hidden>
@@ -380,6 +463,55 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
       <div class="shelf-row" id="shelf"></div>
     </div>
   </section>
+
+  <section id="relicsPane" hidden aria-label="Relics">
+    <div class="relic-board">
+      <h2 class="summary-title">Relic shelf</h2>
+      <div class="relic-grid" id="relicGrid"></div>
+    </div>
+  </section>
+
+  <section id="profilePane" hidden aria-label="Profile">
+    <div class="profile-card">
+      <h2 class="summary-title">Your house</h2>
+      <div class="house-picker" role="radiogroup" aria-label="Choose a house">
+        <button class="house-btn" type="button" role="radio" data-house="emberwyck" aria-checked="false"><span class="swatch" style="background:#8c1c2c"></span>Emberwyck</button>
+        <button class="house-btn" type="button" role="radio" data-house="verdant" aria-checked="false"><span class="swatch" style="background:#1f6b4a"></span>Verdant Hollow</button>
+        <button class="house-btn" type="button" role="radio" data-house="azurequill" aria-checked="false"><span class="swatch" style="background:#1e4d8c"></span>Azure Quill</button>
+        <button class="house-btn" type="button" role="radio" data-house="amberkeep" aria-checked="false"><span class="swatch" style="background:#b8860b"></span>Amberkeep</button>
+      </div>
+      <div id="profileStats"></div>
+    </div>
+  </section>
+
+  <section id="summary" hidden aria-label="Lesson summary">
+    <div class="summary-card">
+      <div class="summary-owl" id="summaryOwl"></div>
+      <h2 class="summary-title" id="summaryTitle">Lesson complete</h2>
+      <p class="summary-xp" id="summaryXp">+0 XP</p>
+      <p class="summary-acc" id="summaryAcc"></p>
+      <div class="summary-relics" id="summaryRelics"></div>
+      <button class="big-btn" id="summaryContinue" type="button">Continue</button>
+    </div>
+  </section>
+</div>
+<nav class="bottom-nav" id="bottomNav" aria-label="Main">
+  <button class="nav-btn nav-on" type="button" data-tab="learn" aria-current="page">Learn</button>
+  <button class="nav-btn" type="button" data-tab="relics">Relics</button>
+  <button class="nav-btn" type="button" data-tab="profile">Profile</button>
+</nav>
+<div class="check-bar" id="checkBar" hidden>
+  <button class="big-btn" id="checkBtn" type="button">Check</button>
+</div>
+<div class="feedback" id="feedback" hidden role="status">
+  <div class="feedback-row">
+    <div class="feedback-owl" id="feedbackOwl"></div>
+    <div>
+      <p class="feedback-title" id="feedbackTitle"></p>
+      <p class="feedback-body" id="feedbackBody"></p>
+    </div>
+  </div>
+  <button class="big-btn" id="continueBtn" type="button">Continue</button>
 </div>
 <div id="modal"></div>
 
@@ -488,11 +620,12 @@ function fireConfetti(big) {
   }
 }
 let timers = [];
-function later(fn, ms) { timers.push(setTimeout(() => { if (view === "play") fn(); }, ms)); }
+let tab = "learn";
+function later(fn, ms) { timers.push(setTimeout(() => { if (view === "play" || view === "lesson") fn(); }, ms)); }
 function paintMascots() {
   const svg = owlSVG({ scarf: HOUSES[currentHouse].scarf });
-  $("homeOwl").innerHTML = svg;
-  $("mascot").innerHTML = svg;
+  const home = $("homeOwl"); if (home) home.innerHTML = svg;
+  const mascot = $("mascot"); if (mascot) mascot.innerHTML = svg;
 }
 function applyHouse(id) {
   if (!HOUSES[id]) id = "emberwyck";
@@ -759,10 +892,10 @@ const TESTS = {
   },
   mixed: {
     key: "mixed", kind: "mixed", tab: "✨ Mixed", menu: "✨ Mixed quest",
-    title: "Mixed Quest", subtitle: "French words, number charms, US states, and French regions, in turn.",
+    title: "Mixed Quest", subtitle: "Every subject, one after another: maps, both vocabularies, number charms, and French verbs.",
     noun: "question", nounPl: "questions", perLevel: 40, whole: "the realm",
     ask: "Your move.",
-    welcome: "Four arts, one quest. A French word, a number, a state, a region — then round again.",
+    welcome: "Every subject, one quest. Maps, both vocabularies, number charms, and French verbs.",
     champion: "Quest Champion",
     rewards: [
       R(1, "Quest Cauldron", "cauldron", "Words and maps simmer together.", "#1f6b4a"),
@@ -873,7 +1006,11 @@ function hintContext() {
   return test;
 }
 const byId = id => places.find(p => p.id === id);
-const current = () => S.practice ? byId(S.practiceQueue[0]) : byId(S.queue[0]);
+const current = () => {
+  if (S.practice) return byId(S.practiceQueue[0]);
+  if (S.lesson && S.lesson.queue && S.lesson.queue.length) return byId(S.lesson.queue[0]);
+  return byId(S.queue && S.queue[0]);
+};
 function geoPlace(geoId) {
   if (!test || test.kind !== "mixed") return byId(geoId);
   const map = activeMapKey();
@@ -891,9 +1028,10 @@ function isTargetGeo(geoId) {
   return t.kind === "map" && t.geoId === geoId;
 }
 
+const MIX_SOURCES = ["us", "fr", "jp", "vocab-en", "vocab-fr", "logic", "conj"];
 function freshQueue() {
   if (test.kind !== "mixed") return shuffle(places.map(p => p.id));
-  const groups = ["vocab-fr", "logic", "us", "fr"].map(src => shuffle(places.filter(p => p.source === src).map(p => p.id)));
+  const groups = MIX_SOURCES.map(src => shuffle(places.filter(p => p.source === src).map(p => p.id)));
   const out = [];
   while (groups.some(g => g.length)) groups.forEach(g => { if (g.length) out.push(g.shift()); });
   return out;
@@ -943,8 +1081,9 @@ function sessionToState(p, message) {
     choiceOrder: p.lock ? p.lock.order : null,
     locked: !!(p.lock && p.lock.picked),
     picked: p.lock ? p.lock.picked : null,
+    selected: null, selectedGeo: null,
     hintHide: p.lock ? p.lock.hintHide : null,
-    pendingReward: null, firstTry: true,
+    pendingReward: null, firstTry: true, lesson: null,
   };
 }
 function persist() {
@@ -953,7 +1092,7 @@ function persist() {
   const data = {
     queue: S.queue, found: [...S.found], score: S.score, streak: S.streak, misses: S.misses,
     missed: [...S.missed], unlocked: S.unlocked, best: S.best, won: !!S.won, tags: !!S.tags,
-    lock: S.locked && t ? { id: t.id, picked: S.picked, order: S.choiceOrder, hintHide: S.hintHide } : null,
+    lock: !S.lesson && S.locked && t ? { id: t.id, picked: S.picked, order: S.choiceOrder, hintHide: S.hintHide } : null,
   };
   store.set(`wqa-${test.key}-session`, data);
   store.set(`wqa-${test.key}-best`, S.best);
@@ -964,25 +1103,8 @@ const saveMissed = () => persist();
 const saveUnlocked = () => persist();
 
 function showHome() {
-  if (test && S && Array.isArray(S.queue)) persist();
-  timers.forEach(clearTimeout); timers = [];
-  view = "home";
-  test = null;
-  const hash = location.hash.slice(1);
-  if (hash !== "home") {
-    try { history.replaceState(null, "", location.href.split("#")[0] + "#home"); } catch {}
-  }
-  document.title = "Wizard's Quiz Academy";
-  $("brand").textContent = "Candlelight & questions";
-  $("title").textContent = "Wizard's Quiz Academy";
-  $("subtitle").textContent = "A castle of maps, words, and number-charms.";
-  $("backBtn").hidden = true;
-  $("stats").hidden = true;
-  $("home").hidden = false;
-  $("play").hidden = true;
-  $("modal").innerHTML = "";
-  refreshBests();
-  closeMenu();
+  const key = store.get("wqa-last-course", "us") || "us";
+  if (TESTS[key]) selectTest(key);
 }
 
 function mcqPlace(q, extra) {
@@ -1005,10 +1127,13 @@ function catalogFor(key) {
   if (spec.kind === "map") return spec.places.map(([id, name, abbr, region]) => ({ id, name, abbr, region, kind: "map", map: key, geoId: id }));
   if (key === "mixed") {
     const out = [];
+    (window.VOCAB_EN || []).forEach(q => out.push(mcqPlace(q, { id: "mx-ven-" + q.id, source: "vocab-en", contentLang: "en", ask: "Which word is closest in meaning?" })));
     (window.VOCAB_FR || []).forEach(q => out.push(mcqPlace(q, { id: "mx-vfr-" + q.id, source: "vocab-fr", contentLang: "fr", ask: "Quel est le synonyme le plus proche ?" })));
     (window.LOGIC_QUESTIONS || []).forEach(q => out.push(mcqPlace(q, { id: "mx-lg-" + q.id, source: "logic", ask: "What number comes next?" })));
+    (window.CONJ_FR || []).forEach(q => out.push(mcqPlace(q, { id: "mx-cj-" + q.id, source: "conj", contentLang: "fr" })));
     US_STATES.forEach(([id, name, abbr, region]) => out.push({ id: "mx-us-" + id, kind: "map", map: "us", source: "us", geoId: id, name, abbr, region }));
     FR_REGIONS.forEach(([id, name, abbr, region]) => out.push({ id: "mx-reg-" + id, kind: "map", map: "fr", source: "fr", geoId: id, name, abbr, region }));
+    JP_PREFS.forEach(([id, name, abbr, region]) => out.push({ id: "mx-jp-" + id, kind: "map", map: "jp", source: "jp", geoId: id, name, abbr, region }));
     return out;
   }
   return (spec.questions || []).map(q => mcqPlace(q, { contentLang: spec.contentLang }));
@@ -1034,25 +1159,30 @@ function selectTest(key) {
     $("quizCard").innerHTML = `<p class="map-loading">The question chest did not open. Reload the page.</p>`;
     return;
   }
-  view = "play";
+  view = "learn";
+  tab = "learn";
+  sessionToState(readSession());
+  mapData = null; zoomT = null; shownMap = null;
+  store.set("wqa-last-course", key);
   if (location.hash !== "#" + key) {
     try { history.replaceState(null, "", location.href.split("#")[0] + "#" + key); } catch {}
   }
-  sessionToState(readSession());
-  mapData = null; zoomT = null; shownMap = null;
-  $("home").hidden = true;
-  $("play").hidden = false;
-  $("backBtn").hidden = false;
-  $("stats").hidden = false;
-  render();
-  if (questionKind() === "map" || test.kind === "map" || test.kind === "mixed") {
-    try { if (test.kind === "map") ensureMap(key); }
-    catch (e) { $("map").innerHTML = `<p class="map-loading">The map didn't unfurl. Refresh the page to try again.</p>`; }
-  }
+  document.body.classList.remove("lesson-mode");
+  $("play").hidden = true;
+  $("summary").hidden = true;
+  $("backBtn").hidden = true;
+  $("stats").hidden = true;
+  $("lessonHead").hidden = true;
+  $("lessonPrompt").hidden = true;
+  $("checkBar").hidden = true;
+  $("feedback").hidden = true;
+  $("bottomNav").hidden = false;
+  showTab("learn");
 }
 
 function onPlaceClick(id) {
-  if (questionKind() !== "map" || S.reward || S.won) return;
+  if (questionKind() !== "map" || S.reward || S.locked) return;
+  if (S.won && !S.lesson) return;
   const place = geoPlace(id); if (!place) return;
   const target = current();
   const correct = test.kind === "mixed" ? id === target.geoId : id === target.id;
@@ -1089,43 +1219,65 @@ function onPlaceClick(id) {
     }
     return render();
   }
-  if (!target || S.found.has(target.id)) return;
+  if (!target) return;
+  if (!S.lesson && S.found.has(target.id)) return;
   if (correct) {
-    S.found.add(target.id);
-    const gained = 100 + Math.min(S.streak * 10, 50);
-    S.score += gained; S.streak++; S.misses = 0;
+    const already = S.found.has(target.id);
+    if (!already) {
+      S.found.add(target.id);
+      const gained = 100 + Math.min(S.streak * 10, 50);
+      S.score += gained; S.streak++; S.misses = 0;
+      if (S.lesson) S.lesson.xp += gained;
+      if (S.score > S.best) { S.best = S.score; store.set(`wqa-${test.key}-best`, S.best); }
+      S.missed.delete(target.id);
+      S.queue = S.queue.filter(x => x !== target.id);
+      if (!S.queue.length) {
+        if (test.kind === "map") test.rewards.forEach(r => { if (!S.unlocked.includes(r.level)) S.unlocked.push(r.level); });
+        S.won = true;
+      }
+      noteRelic();
+    } else if (S.lesson && S.lesson.replay) {
+      S.score += 20;
+      S.lesson.xp += 20;
+    }
+    if (S.lesson) S.lesson.correct++;
     S.message = S.streak >= 3 ? `${pick(CHEERS)} ${S.streak} in a row.` : pick(CHEERS);
     if (S.streak % 5 === 0) sfx.streak(); else sfx.correct();
     fireConfetti(false);
-    if (S.score > S.best) { S.best = S.score; store.set(`wqa-${test.key}-best`, S.best); }
     S.popId = id; later(() => { S.popId = null; renderMap(); }, 700);
-    S.queue = S.queue.slice(1);
-    if (S.queue.length === 0) {
-      if (test.kind === "map") test.rewards.forEach(r => { if (!S.unlocked.includes(r.level)) S.unlocked.push(r.level); });
-      saveUnlocked();
-      S.won = true; S.party = true; sfx.levelUp(); fireConfetti(true);
-      return render();
-    }
-    if (S.found.size % test.perLevel === 0) {
-      const reward = test.rewards.find(r => r.level === S.found.size / test.perLevel);
-      if (reward) {
-        S.party = true;
-        later(() => {
-          S.reward = reward;
-          if (!S.unlocked.includes(reward.level)) { S.unlocked.push(reward.level); saveUnlocked(); }
-          sfx.levelUp(); fireConfetti(true); S.message = pick(LEVEL_MSGS); render();
-        }, 650);
-      }
-    }
+    if (S.lesson) { S.locked = true; S.picked = target.name; return render(); }
+    if (S.won) { S.party = true; sfx.levelUp(); fireConfetti(true); return render(); }
+    showRelicModal();
   } else {
     S.misses++; S.streak = 0;
-    S.missed.add(target.id); saveMissed();
+    if (!S.lesson || !S.lesson.replay) { S.missed.add(target.id); saveMissed(); }
+    if (S.lesson) S.lesson.hearts = Math.max(0, S.lesson.hearts - 1);
     flashWrong(id); sfx.wrong();
-    S.message = S.misses >= 2
-      ? `That's ${place.name}. ${target.name} is in ${target.region}. Watch for the glow.`
-      : `That's ${place.name}. ${pick(OOPS)}`;
+    S.message = `That's ${place.name}. The place was ${target.name}.`;
+    if (S.lesson) { S.locked = true; S.picked = place.name; return render(); }
   }
   render();
+}
+function noteRelic() {
+  if (S.found.size % test.perLevel !== 0) return;
+  const reward = test.rewards.find(r => r.level === S.found.size / test.perLevel);
+  if (!reward || S.unlocked.includes(reward.level)) return;
+  S.unlocked.push(reward.level);
+  saveUnlocked();
+  if (S.lesson) {
+    S.lesson.relics = S.lesson.relics || [];
+    S.lesson.relics.push(reward);
+  } else S.pendingReward = reward;
+}
+function showRelicModal() {
+  if (!S.pendingReward || S.lesson) return;
+  const reward = S.pendingReward;
+  later(() => {
+    S.reward = reward;
+    S.pendingReward = null;
+    S.party = true;
+    sfx.levelUp(); fireConfetti(true); S.message = pick(LEVEL_MSGS); render();
+  }, 650);
 }
 function flashWrong(id) { S.wrongId = id; later(() => { S.wrongId = null; renderMap(); }, 900); }
 
@@ -1137,12 +1289,31 @@ function ensureChoices() {
     S.choiceOrder = shuffle(q.choices);
     S.locked = false;
     S.picked = null;
+    S.selected = null;
+    S.selectedGeo = null;
     S.hintHide = null;
     S.firstTry = true;
   }
 }
+function selectChoice(choice) {
+  if (questionKind() !== "mcq" || S.locked || S.reward) return;
+  if (!choice || choice === S.hintHide) return;
+  S.selected = choice;
+  sfx.click();
+  render();
+}
+function checkAnswer() {
+  if (S.locked || S.reward || !S.lesson || S.explore) return;
+  if (questionKind() === "map") {
+    if (S.selectedGeo == null) return;
+    return onPlaceClick(S.selectedGeo);
+  }
+  if (!S.selected) return;
+  onChoice(S.selected);
+}
 function onChoice(choice) {
-  if (questionKind() !== "mcq" || S.locked || S.reward || S.won) return;
+  if (questionKind() !== "mcq" || S.locked || S.reward) return;
+  if (S.won && !S.lesson) return;
   if (!choice || choice === S.hintHide) return;
   const q = current();
   if (!q) return;
@@ -1162,20 +1333,29 @@ function onChoice(choice) {
     return render();
   }
   if (ok) {
-    S.found.add(q.id);
-    const gained = 100 + Math.min(S.streak * 10, 50);
-    S.score += gained; S.streak++;
+    const already = S.found.has(q.id);
+    if (!already) {
+      S.found.add(q.id);
+      const gained = 100 + Math.min(S.streak * 10, 50);
+      S.score += gained; S.streak++;
+      if (S.lesson) S.lesson.xp += gained;
+      if (S.score > S.best) { S.best = S.score; store.set(`wqa-${test.key}-best`, S.best); }
+      S.missed.delete(q.id);
+      S.queue = S.queue.filter(x => x !== q.id);
+      if (!S.queue.length) S.won = true;
+      noteRelic();
+    } else if (S.lesson && S.lesson.replay) {
+      S.score += 20;
+      S.lesson.xp += 20;
+    }
+    if (S.lesson) S.lesson.correct++;
     S.message = S.streak >= 3 ? `${pick(CHEERS)} ${S.streak} in a row — house points flare.` : pick(CHEERS);
     if (S.streak % 5 === 0) sfx.streak(); else sfx.correct();
     fireConfetti(false);
-    if (S.score > S.best) { S.best = S.score; store.set(`wqa-${test.key}-best`, S.best); }
-    if (S.found.size % test.perLevel === 0) {
-      const reward = test.rewards.find(r => r.level === S.found.size / test.perLevel);
-      if (reward && !S.unlocked.includes(reward.level)) S.pendingReward = reward;
-    }
   } else {
     S.streak = 0;
-    S.missed.add(q.id); saveMissed();
+    if (!S.lesson || !S.lesson.replay) { S.missed.add(q.id); saveMissed(); }
+    if (S.lesson) S.lesson.hearts = Math.max(0, S.lesson.hearts - 1);
     sfx.wrong();
     S.message = `The spell fizzles. ${q.answer} was the true match.`;
   }
@@ -1184,9 +1364,18 @@ function onChoice(choice) {
 function advanceAfterLock() {
   S.locked = false;
   S.picked = null;
+  S.selected = null;
+  S.selectedGeo = null;
   S.choiceFor = null;
   S.hintHide = null;
   S.pendingReward = null;
+  if (S.lesson) {
+    S.lesson.answered++;
+    S.lesson.queue.shift();
+    if (!S.lesson.queue.length || S.lesson.hearts <= 0) return finishLesson();
+    S.message = "Onward, apprentice.";
+    return render();
+  }
   if (S.practice) {
     S.practiceQueue = S.practiceQueue.slice(1);
     if (!S.practiceQueue.length) {
@@ -1207,6 +1396,7 @@ function advanceAfterLock() {
 }
 function continueQuestion() {
   if (!S.locked || S.reward) return;
+  if (S.lesson) return advanceAfterLock();
   if (S.pendingReward) {
     const reward = S.pendingReward;
     S.pendingReward = null;
@@ -1318,8 +1508,8 @@ function render() {
 
   $("mascot").className = `mascot ${S.party ? "mascot-party" : "mascot-bob"}`;
   $("msg").textContent = S.message;
-  const showTarget = questionKind() === "map" && t && !S.won && !S.explore;
-  const findPrefix = test.kind === "mixed" ? (t && t.map === "fr" ? "French region: " : "US state: ") : "Find: ";
+  const showTarget = questionKind() === "map" && t && !S.won && !S.explore && !S.lesson;
+  const findPrefix = test.kind === "mixed" ? (t && t.map === "fr" ? "French region: " : t && t.map === "jp" ? "Japanese prefecture: " : "US state: ") : "Find: ";
   $("target").innerHTML = showTarget ? `${S.practice ? `Practice (${S.practiceQueue.length} left): ` : findPrefix}<strong>${esc(t.name)}</strong>` : "";
   $("target").hidden = !showTarget;
 
@@ -1367,6 +1557,7 @@ function render() {
   renderModal();
   renderStage();
   persist();
+  syncLessonChrome();
 }
 
 function renderStage() {
@@ -1410,23 +1601,15 @@ function renderQuiz() {
     if (S.locked && c === q.answer) cls.push("choice-right");
     else if (S.locked && c === S.picked) cls.push("choice-wrong");
     else if (S.locked) cls.push("choice-dim");
+    else if (c === S.selected) cls.push("choice-selected");
     if (gone) cls.push("choice-dim");
     const note = S.locked ? lexEntry(q, c) : null;
     const infoBtn = note ? `<button class="info-btn" type="button" data-info="${i}" aria-expanded="false" aria-label="Definition of ${esc(c)}">i</button>` : "";
     const infoPop = note ? `<div class="info-pop" hidden${lang}><p class="info-word">${esc(c)}</p><p>${esc(note.def)}</p><p class="info-ex">“${esc(note.ex)}”</p></div>` : "";
     return `<div class="choice-wrap"><div class="choice-line"><button class="${cls.join(" ")}" type="button" data-choice="${i}"${S.locked || gone ? " disabled" : ""}><span class="choice-key">${i + 1}</span><span${lang}>${esc(c)}</span></button>${infoBtn}</div>${infoPop}</div>`;
   }).join("");
-  let explain = "";
-  if (S.locked) {
-    const ok = S.picked === q.answer;
-    explain = `<div class="quiz-explain ${ok ? "explain-ok" : "explain-no"}" aria-live="polite">
-      <p class="explain-kicker">${ok ? "The spell holds" : "The true match"}</p>
-      <p>${esc(q.explain)}</p>
-      <button class="big-btn" type="button" data-action="next-q">Continue</button>
-    </div>`;
-  }
   const ask = q.ask || test.ask;
-  card.innerHTML = `${head}<p class="quiz-ask">${esc(ask)}</p><div class="choice-grid">${choices}</div>${explain}`;
+  card.innerHTML = `${head}<p class="quiz-ask">${esc(ask)}</p><div class="choice-grid">${choices}</div>`;
 }
 
 function renderMap() {
@@ -1455,7 +1638,8 @@ function renderMap() {
       shapeFound(s.id) ? "state-found" : "",
       S.wrongId === s.id ? "state-wrong" : "",
       S.popId === s.id ? "state-pop" : "",
-      !S.explore && S.misses >= 2 && isTargetGeo(s.id) ? "state-hint" : "",
+      S.selectedGeo === s.id ? "state-selected" : "",
+      !S.lesson && !S.explore && S.misses >= 2 && isTargetGeo(s.id) ? "state-hint" : "",
       S.explore && S.peekId === s.id ? "state-peek" : ""].join(" ");
     svg += `<path d="${s.d}" class="${cls}" data-id="${s.id}" role="button" aria-label="${esc(p.name)}"/>`;
   });
@@ -1500,7 +1684,7 @@ function zoomBy(f) { if (zoomBehaviour) d3.select("#map svg").transition().durat
 
 function renderModal() {
   const m = $("modal");
-  if (!test) { m.innerHTML = ""; return; }
+  if (!test || S.lesson || view === "lesson" || view === "summary") { m.innerHTML = ""; return; }
   if (S.reward) {
     const r = S.reward;
     m.innerHTML = `<div class="modal-backdrop" data-close="1"><div class="reward-modal" role="dialog" aria-modal="true" aria-labelledby="rewardName">
@@ -1521,8 +1705,303 @@ function renderModal() {
   } else m.innerHTML = "";
 }
 
+function localDay(d) {
+  const x = d || new Date();
+  return x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, "0") + "-" + String(x.getDate()).padStart(2, "0");
+}
+function bumpDayStreak() {
+  const today = localDay();
+  const prev = store.get("wqa-day-streak", { n: 0, day: "" });
+  if (prev.day === today) return prev.n || 0;
+  const y = new Date(); y.setDate(y.getDate() - 1);
+  const n = prev.day === localDay(y) ? (prev.n || 0) + 1 : 1;
+  store.set("wqa-day-streak", { n, day: today });
+  return n;
+}
+function totalXp() {
+  let n = 0;
+  Object.keys(TESTS).forEach(k => {
+    if (test && k === test.key && S && typeof S.score === "number") n += S.score;
+    else n += (store.get(`wqa-${k}-session`, null) || {}).score || 0;
+  });
+  return n;
+}
+function updatePills() {
+  const day = store.get("wqa-day-streak", { n: 0 });
+  const streak = $("streakPill"), xp = $("xpPill"), hearts = $("heartsPill");
+  if (streak) streak.textContent = "🔥 " + (day.n || 0);
+  if (xp) xp.textContent = "✦ " + totalXp();
+  if (!hearts) return;
+  if (view === "lesson" && S.lesson) {
+    hearts.hidden = false;
+    const h = S.lesson.hearts;
+    hearts.textContent = "♥".repeat(h) + "♡".repeat(Math.max(0, 5 - h));
+  } else hearts.hidden = true;
+}
+function chunkIds(ids, n) {
+  const out = [];
+  for (let i = 0; i < ids.length; i += n) out.push(ids.slice(i, i + n));
+  return out;
+}
+function indexLessons(units) {
+  let n = 0;
+  return units.filter(u => u.ids && u.ids.length).map(u => ({
+    title: u.title,
+    sub: u.sub || "",
+    lessons: chunkIds(u.ids, 10).map(ids => ({ index: n++, ids })),
+  }));
+}
+function buildPlan() {
+  const levelName = { apprentice: "Apprentice", scholar: "Scholar", archmage: "Archmage" };
+  if (!test || !places) return [];
+  if (test.key === "mixed") {
+    const groups = MIX_SOURCES.map(src => places.filter(p => p.source === src).map(p => p.id));
+    const rotated = [];
+    while (groups.some(g => g.length)) groups.forEach(g => { if (g.length) rotated.push(g.shift()); });
+    const bands = [
+      { title: "Apprentice", sub: "States, regions, prefectures, words, numbers, verbs" },
+      { title: "Scholar", sub: "The same seven subjects, a little deeper" },
+      { title: "Archmage", sub: "The long rotation" },
+    ];
+    const size = Math.ceil(rotated.length / bands.length);
+    return indexLessons(bands.map((b, i) => ({
+      title: b.title,
+      sub: b.sub,
+      ids: rotated.slice(i * size, (i + 1) * size),
+    })));
+  }
+  if (test.key === "logic") {
+    return indexLessons(["apprentice", "scholar", "archmage"].map(lv => ({
+      title: levelName[lv],
+      sub: "Number charms",
+      ids: places.filter(p => p.level === lv).map(p => p.id),
+    })));
+  }
+  const bands = [
+    { title: "Apprentice", sub: "The first lessons" },
+    { title: "Scholar", sub: "A longer stretch" },
+    { title: "Archmage", sub: "The last climb" },
+  ];
+  const size = Math.ceil(places.length / bands.length);
+  return indexLessons(bands.map((b, i) => ({
+    title: b.title,
+    sub: b.sub,
+    ids: places.slice(i * size, (i + 1) * size).map(p => p.id),
+  })));
+}
+function lessonByIndex(index) {
+  let found = null;
+  buildPlan().forEach(u => u.lessons.forEach(ls => { if (ls.index === index) found = ls; }));
+  return found;
+}
+function showTab(name) {
+  tab = name;
+  const inLesson = view === "lesson";
+  $("home").hidden = inLesson || name !== "learn";
+  $("relicsPane").hidden = inLesson || name !== "relics";
+  $("profilePane").hidden = inLesson || name !== "profile";
+  $("play").hidden = view !== "lesson";
+  $("summary").hidden = view !== "summary";
+  document.querySelectorAll("[data-tab]").forEach(b => {
+    const on = b.dataset.tab === name;
+    b.classList.toggle("nav-on", on);
+    b.setAttribute("aria-current", on ? "page" : "false");
+  });
+  if (!inLesson && name === "learn" && view !== "summary") renderPath();
+  if (name === "relics") renderRelics();
+  if (name === "profile") renderProfile();
+  updatePills();
+}
+function renderPath() {
+  if (!test) return;
+  document.title = test.title + " · Wizard's Quiz Academy";
+  $("brand").textContent = "Wizard's Quiz Academy";
+  $("title").textContent = test.title;
+  $("subtitle").textContent = test.subtitle;
+  const plan = buildPlan();
+  const stars = store.get(`wqa-${test.key}-stars`, {});
+  const flat = [];
+  plan.forEach(u => u.lessons.forEach(ls => flat.push(ls)));
+  let currentIndex = flat.findIndex(ls => !ls.ids.every(id => S.found.has(id)));
+  if (currentIndex < 0) currentIndex = flat.length;
+  let html = `<div class="path-hero"><div class="home-owl" id="homeOwl" role="img" aria-label="Rowan the academy owl"></div><p>Rowan waits on your next lesson. Ten questions, then a rest.</p></div>`;
+  let i = 0;
+  plan.forEach(unit => {
+    html += `<section class="unit"><h2 class="unit-title">${esc(unit.title)}</h2><p class="unit-sub">${esc(unit.sub)}</p><div class="path">`;
+    unit.lessons.forEach(ls => {
+      const done = ls.ids.every(id => S.found.has(id));
+      const isCurrent = i === currentIndex;
+      const locked = !done && i > currentIndex;
+      const st = stars[ls.index] || 0;
+      const side = i % 3 === 0 ? "node-left" : i % 3 === 1 ? "node-mid" : "node-right";
+      const cls = ["node", side, done ? "node-done" : "", isCurrent ? "node-current" : "", locked ? "node-locked" : ""].filter(Boolean).join(" ");
+      const mark = done ? (st >= 3 ? "♛" : "★".repeat(Math.max(st, 1))) : (isCurrent ? "▶" : i + 1);
+      const owl = isCurrent ? `<span class="node-owl">${owlSVG({ scarf: HOUSES[currentHouse].scarf })}</span>` : "";
+      html += `<button class="${cls}" type="button" data-lesson="${ls.index}" data-replay="${done ? "1" : "0"}"${locked ? " disabled" : ""} aria-label="Lesson ${i + 1}${done ? ", complete" : isCurrent ? ", current" : ", locked"}">${owl}<span class="node-mark">${mark}</span></button>`;
+      i++;
+    });
+    html += `</div></section>`;
+  });
+  if (S.missed && S.missed.size) html += `<button class="path-review" id="reviewBtn" type="button">Practice missed (${S.missed.size})</button>`;
+  $("path").innerHTML = html;
+  paintMascots();
+  const node = document.querySelector(".node-current");
+  if (node) {
+    const top = node.getBoundingClientRect().top;
+    if (top < 70 || top > window.innerHeight - 140) node.scrollIntoView({ block: "center", behavior: "auto" });
+  }
+  updatePills();
+}
+function renderRelics() {
+  const grid = $("relicGrid");
+  if (!grid) return;
+  if (!test) { grid.innerHTML = "<p>Choose a quiz to see its relics.</p>"; return; }
+  grid.innerHTML = test.rewards.map(r => {
+    const owned = S.unlocked.includes(r.level);
+    return `<article class="relic-card ${owned ? "relic-owned" : "relic-locked"}">${relicSVG(r.kind, r.accent)}<h3>${owned ? esc(r.name) : "Locked"}</h3><p>${owned ? esc(r.tagline) : "Reach level " + r.level}</p></article>`;
+  }).join("");
+}
+function renderProfile() {
+  const day = store.get("wqa-day-streak", { n: 0 });
+  const rows = Object.values(TESTS).map(x => {
+    const live = test && x.key === test.key;
+    const session = store.get(`wqa-${x.key}-session`, null);
+    const found = live ? S.found.size : (session && session.found ? session.found.length : 0);
+    const score = live ? S.score : (session && session.score) || 0;
+    const total = x.key === "mixed" ? "all" : (x.kind === "map" ? x.places.length : (x.questions || []).length);
+    return `<li><strong>${esc(x.title)}</strong><span>${found}${total === "all" ? "" : "/" + total} · ${score} XP</span></li>`;
+  }).join("");
+  $("profileStats").innerHTML = `<p class="profile-line">Day streak <b>${day.n || 0}</b></p><p class="profile-line">Total XP <b>${totalXp()}</b></p><ul class="profile-list">${rows}</ul>`;
+}
+function startLesson(index, ids, replay) {
+  if (!ids || !ids.length) return;
+  sfx.click();
+  S.lesson = { index, ids: ids.slice(), queue: ids.slice(), replay: !!replay, review: false, correct: 0, answered: 0, xp: 0, hearts: 5, relics: [] };
+  S.locked = false; S.picked = null; S.selected = null; S.selectedGeo = null;
+  S.choiceFor = null; S.hintHide = null; S.explore = false; S.practice = false;
+  S.reward = null; S.party = false; S.pendingReward = null; S.askOpen = false;
+  view = "lesson";
+  $("home").hidden = true;
+  $("summary").hidden = true;
+  $("relicsPane").hidden = true;
+  $("profilePane").hidden = true;
+  $("play").hidden = false;
+  $("bottomNav").hidden = true;
+  $("lessonHead").hidden = false;
+  document.body.classList.add("lesson-mode");
+  S.message = replay ? "A familiar lesson. The relics stay yours." : test.welcome;
+  render();
+}
+function startReview() {
+  const ids = shuffle([...S.missed]).slice(0, 10);
+  if (!ids.length) return;
+  startLesson(-1, ids, false);
+  if (S.lesson) S.lesson.review = true;
+}
+function quitLesson() {
+  S.lesson = null;
+  S.locked = false; S.selected = null; S.selectedGeo = null; S.picked = null;
+  view = "learn";
+  document.body.classList.remove("lesson-mode");
+  $("play").hidden = true;
+  $("checkBar").hidden = true;
+  $("feedback").hidden = true;
+  $("lessonHead").hidden = true;
+  $("lessonPrompt").hidden = true;
+  $("bottomNav").hidden = false;
+  persist();
+  showTab("learn");
+}
+function finishLesson() {
+  const lesson = S.lesson;
+  if (!lesson) return;
+  const answered = lesson.answered || 0;
+  const acc = answered ? lesson.correct / answered : 0;
+  const complete = lesson.ids.every(id => S.found.has(id));
+  let stars = 0;
+  if (complete && lesson.index >= 0) {
+    stars = acc >= 0.999 ? 3 : acc >= 0.8 ? 2 : 1;
+    const all = store.get(`wqa-${test.key}-stars`, {});
+    if (stars > (all[lesson.index] || 0)) { all[lesson.index] = stars; store.set(`wqa-${test.key}-stars`, all); }
+  }
+  bumpDayStreak();
+  const xp = lesson.xp || 0;
+  const relics = lesson.relics || [];
+  const heartsOut = lesson.hearts <= 0 && lesson.queue.length > 0;
+  S.lesson = null;
+  S.locked = false; S.selected = null; S.selectedGeo = null;
+  view = "summary";
+  tab = "learn";
+  document.body.classList.remove("lesson-mode");
+  $("play").hidden = true;
+  $("home").hidden = true;
+  $("relicsPane").hidden = true;
+  $("profilePane").hidden = true;
+  $("summary").hidden = false;
+  $("checkBar").hidden = true;
+  $("feedback").hidden = true;
+  $("lessonHead").hidden = true;
+  $("lessonPrompt").hidden = true;
+  $("bottomNav").hidden = false;
+  $("summaryOwl").innerHTML = owlSVG({ scarf: HOUSES[currentHouse].scarf });
+  $("summaryTitle").textContent = heartsOut ? "Out of hearts" : (complete ? "Lesson complete" : "Keep practicing");
+  $("summaryXp").textContent = "+" + xp + " XP";
+  $("summaryAcc").textContent = Math.round(acc * 100) + "% accurate" + (stars ? " · " + "★".repeat(stars) : "");
+  $("summaryRelics").innerHTML = relics.length
+    ? relics.map(r => `<div class="summary-relic">${relicSVG(r.kind, r.accent)}<p>${esc(r.name)}</p><p>${esc(r.tagline)}</p></div>`).join("")
+    : `<p class="summary-note">${complete ? "A clean lesson. The shelf is patient." : "Missed questions stay on this lesson until you land them."}</p>`;
+  persist();
+  updatePills();
+}
+function syncLessonChrome() {
+  const lesson = view === "lesson" && S.lesson;
+  document.body.classList.toggle("lesson-mode", !!lesson);
+  const head = $("lessonHead"), bar = $("checkBar"), fb = $("feedback"), prompt = $("lessonPrompt");
+  if (head) head.hidden = !lesson;
+  if ($("bottomNav")) $("bottomNav").hidden = !!lesson;
+  if (!lesson) {
+    if (bar) bar.hidden = true;
+    if (fb) fb.hidden = true;
+    if (prompt) prompt.hidden = true;
+    updatePills();
+    return;
+  }
+  const total = S.lesson.ids.length || 1;
+  const fill = $("lessonFill");
+  if (fill) fill.style.width = Math.min(100, S.lesson.answered / total * 100) + "%";
+  const t = current();
+  const mapQ = questionKind() === "map";
+  if (prompt) {
+    prompt.hidden = !(mapQ && t);
+    if (mapQ && t) {
+      const kind = t.map === "fr" ? "French region" : t.map === "jp" ? "Japanese prefecture" : "US state";
+      prompt.textContent = "Find the " + kind + ": " + t.name;
+    }
+  }
+  if (S.locked && t && !S.practice) {
+    if (bar) bar.hidden = true;
+    if (fb) {
+      fb.hidden = false;
+      const ok = mapQ ? S.picked === t.name : S.picked === t.answer;
+      fb.className = "feedback " + (ok ? "feedback-ok" : "feedback-no");
+      $("feedbackTitle").textContent = ok ? "Correct!" : "Correct answer";
+      const answer = mapQ ? t.name : t.answer;
+      $("feedbackBody").textContent = ok
+        ? (t.explain || S.message || "That's the one.")
+        : answer + (t.explain ? " — " + t.explain : "");
+      $("feedbackOwl").innerHTML = owlSVG({ scarf: HOUSES[currentHouse].scarf });
+    }
+  } else if (fb && bar) {
+    fb.hidden = true;
+    bar.hidden = !!S.explore;
+    const ready = mapQ ? S.selectedGeo != null : !!S.selected;
+    $("checkBtn").disabled = !ready;
+  }
+  updatePills();
+}
+
 function quizMenu(playingKey) {
-  const here = view === "home" ? `<span class="activity-current">Here</span>` : "";
+  const here = view === "learn" ? `<span class="activity-current">Here</span>` : "";
   const home = `<button class="activity-item" type="button" role="menuitem" data-test="home">🏰 Academy doors ${here}</button>`;
   const items = Object.values(TESTS).map(x => {
     const session = store.get(`wqa-${x.key}-session`, null);
@@ -1533,7 +2012,15 @@ function quizMenu(playingKey) {
   return home + items;
 }
 
-$("map").addEventListener("click", e => { const el = e.target.closest("[data-id]"); if (el) onPlaceClick(el.dataset.id); });
+$("map").addEventListener("click", e => {
+  const el = e.target.closest("[data-id]"); if (!el) return;
+  if (S.lesson && !S.explore && !S.practice && !S.locked) {
+    S.selectedGeo = el.dataset.id;
+    sfx.click();
+    return render();
+  }
+  onPlaceClick(el.dataset.id);
+});
 $("exploreBtn").addEventListener("click", toggleExplore);
 $("tagsBtn").addEventListener("click", () => { if (questionKind() !== "map") return; sfx.click(); S.tags = !S.tags; render(); });
 $("practiceBtn").addEventListener("click", togglePractice);
@@ -1563,7 +2050,7 @@ $("quizCard").addEventListener("click", e => {
   const next = e.target.closest("[data-action='next-q']");
   if (next) return continueQuestion();
   const choiceBtn = e.target.closest("[data-choice]");
-  if (choiceBtn && !choiceBtn.disabled) onChoice(S.choiceOrder[+choiceBtn.dataset.choice]);
+  if (choiceBtn && !choiceBtn.disabled) selectChoice(S.choiceOrder[+choiceBtn.dataset.choice]);
 });
 $("modal").addEventListener("click", e => {
   const a = e.target.closest("[data-action]");
@@ -1574,11 +2061,17 @@ $("modal").addEventListener("click", e => {
 function switchTo(key) {
   closeMenu();
   if (key === "home") {
-    if (view !== "home") { sfx.click(); showHome(); }
+    sfx.click();
+    if (view === "lesson") quitLesson();
+    else showHome();
     return;
   }
   if (!TESTS[key]) return;
-  if (test && key === test.key && view === "play") return;
+  if (test && key === test.key) {
+    if (view === "lesson") quitLesson();
+    else if (view === "summary") { view = "learn"; $("summary").hidden = true; showTab("learn"); }
+    return;
+  }
   sfx.click();
   selectTest(key);
 }
@@ -1587,9 +2080,34 @@ function onTestClick(e) {
   if (b) switchTo(b.dataset.test);
 }
 $("home").addEventListener("click", e => {
-  const h = e.target.closest("button[data-house]");
-  if (h) { sfx.click(); applyHouse(h.dataset.house); return; }
+  const lessonBtn = e.target.closest("[data-lesson]");
+  if (lessonBtn && !lessonBtn.disabled) {
+    const ls = lessonByIndex(+lessonBtn.dataset.lesson);
+    if (ls) startLesson(ls.index, ls.ids, lessonBtn.dataset.replay === "1");
+    return;
+  }
+  if (e.target.closest("#reviewBtn")) return startReview();
   onTestClick(e);
+});
+$("profilePane").addEventListener("click", e => {
+  const h = e.target.closest("button[data-house]");
+  if (h) { sfx.click(); applyHouse(h.dataset.house); }
+});
+$("bottomNav").addEventListener("click", e => {
+  const b = e.target.closest("[data-tab]");
+  if (!b || view === "lesson") return;
+  sfx.click();
+  if (view === "summary") { view = "learn"; $("summary").hidden = true; }
+  showTab(b.dataset.tab);
+});
+$("quitLesson").addEventListener("click", quitLesson);
+$("checkBtn").addEventListener("click", checkAnswer);
+$("continueBtn").addEventListener("click", continueQuestion);
+$("summaryContinue").addEventListener("click", () => {
+  sfx.click();
+  view = "learn";
+  $("summary").hidden = true;
+  showTab("learn");
 });
 $("menuItems").addEventListener("click", onTestClick);
 $("backBtn").addEventListener("click", () => switchTo("home"));
@@ -1606,24 +2124,33 @@ $("menuBtn").addEventListener("click", e => {
 });
 document.addEventListener("click", e => { if (!e.target.closest(".activity-menu-wrap")) closeMenu(); });
 document.addEventListener("keydown", e => {
-  if (e.key === "Escape") { closeMenu(); if (S.reward) closeReward(); }
-  if (questionKind() !== "mcq" || S.reward || S.won) return;
-  if (!S.locked && /^[1-4]$/.test(e.key)) {
+  if (e.key === "Escape") { closeMenu(); if (S.reward) closeReward(); return; }
+  if (S.reward) return;
+  if (questionKind() === "mcq" && !S.locked && /^[1-4]$/.test(e.key)) {
     const choice = S.choiceOrder && S.choiceOrder[Number(e.key) - 1];
-    if (choice) onChoice(choice);
-  } else if (e.key === "Enter" && S.locked) continueQuestion();
+    if (choice && choice !== S.hintHide) selectChoice(choice);
+    return;
+  }
+  if (e.key === "Enter" && view === "lesson") {
+    if (S.locked) continueQuestion();
+    else checkAnswer();
+  }
 });
 window.addEventListener("hashchange", () => {
   const k = location.hash.slice(1);
-  if (!k || k === "home") { if (view !== "home") showHome(); return; }
-  if (TESTS[k] && (!test || k !== test.key || view !== "play")) selectTest(k);
+  if (!k || k === "home") {
+    const dest = store.get("wqa-last-course", "us") || "us";
+    if (!test || test.key !== dest || (view !== "learn" && view !== "lesson")) selectTest(dest);
+    return;
+  }
+  if (TESTS[k] && (!test || k !== test.key || (view !== "learn" && view !== "lesson"))) selectTest(k);
 });
 
 applyHouse(store.get("wqa-house", "emberwyck"));
 refreshBests();
 const boot = location.hash.slice(1);
 if (TESTS[boot]) selectTest(boot);
-else showHome();
+else selectTest(store.get("wqa-last-course", "us") || "us");
 </script>
 </body>
 </html>

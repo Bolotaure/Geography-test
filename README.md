@@ -1,18 +1,19 @@
 # Wizard's Quiz Academy
 
-A quiz castle for curious minds. Geography is still here — the 50 US states, the 18 regions of France, and the 47 prefectures of Japan — and two new subjects sit beside the maps: advanced vocabulary (English or French) and number-pattern logic.
+A quiz castle for curious minds. Geography is still here — the 50 US states, the 18 regions of France, and the 47 prefectures of Japan — beside advanced vocabulary, number-pattern logic, and French conjugation.
 
-Open `index.html`. Pick a quiz from **Choose a quiz**. You can also jump straight in with a hash: `#us`, `#fr`, `#jp`, `#vocab-en`, `#vocab-fr`, `#logic`, `#conj`, or `#mixed`.
+Open `index.html`. The home screen is a winding lesson path. **Choose a quiz** picks the course. You can also jump with a hash: `#us`, `#fr`, `#jp`, `#vocab-en`, `#vocab-fr`, `#logic`, `#conj`, `#mixed`, or `#home` (last course).
 
-Each quiz keeps its own score, streak, place in the queue, and relics in the browser. Leave and come back, and that quiz resumes. Play again starts the queue over and keeps the relics you already earned.
+Each course keeps its own score, streak, found questions, and relics in the browser. Lessons are ten questions along a stable order, so a saved quest still lines up with the path. A day streak counts each local day you finish a lesson. The bottom bar opens Learn, Relics, and Profile.
 
 ## Subjects
 
-- **Geography.** Tap the place Rowan names. A streak adds bonus house points. Two misses make the answer glow. Missed places go to **Practice missed**. **Explore** names whatever you tap. **Name tags** shows short labels. **Ask Rowan for a hint** gives direction, neighbours, water, and spelling, all worked out in the page. Zoom with **+ / −**, a two-finger pinch, or ctrl + mouse wheel.
-- **Vocabulary.** A hard word, four choices, one real synonym. Pick English (100 words) or French (100 words). A wrong answer is plainly wrong; the note after you answer says why the synonym fits. One hint brushes a single distractor aside.
-- **Logic.** 100 number sequences, from steady steps up to interleaved patterns and digit rules. Four choices, one next number. The rule is shown after you answer.
+- **Lessons.** Tap the glowing node. Pick an answer, then **Check**. A green or red banner shows the result and **Continue**. Ten questions end on a summary with XP, accuracy, and any new relic. Hearts run out after five misses.
+- **Geography.** The lesson names a place. Tap it, then Check. **Explore** names whatever you tap. **Name tags** shows short labels. **Ask Rowan for a hint** gives direction, neighbours, water, and spelling. Zoom with **+ / −**, a two-finger pinch, or ctrl + mouse wheel.
+- **Vocabulary.** A hard word, four choices, one real synonym. English and French each have 100 words. After Check, a wrong choice keeps its info mark, with a definition and an example.
+- **Logic.** 100 number sequences, grouped as Apprentice, Scholar, and Archmage. The rule appears in the banner after Check.
 - **French conjugation.** 100 checked forms: présent, futur, imparfait, passé composé, infinitif, and participe passé. Regular -er and -ir verbs sit with the common irregulars. Passé composé with être agrees in the masculine, and vous is treated as masculine singular.
-- **Mixed quest.** French vocabulary, a number charm, a US state, and a French region, then round again. The page switches between the card and the map.
+- **Mixed quest.** The path walks every subject in turn: US states, French regions, Japanese prefectures, English synonyms, French synonyms, number charms, and French conjugation. The lesson switches between the card and the map.
 - **Synonym notes.** After an English or French answer, each choice has an info mark with a definition and an example sentence.
 
 The four houses — Emberwyck, Verdant Hollow, Azure Quill, and Amberkeep — only change the accent colour.
