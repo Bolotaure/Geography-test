@@ -300,7 +300,8 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
 .node-slot { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: .2rem; }
 .node-slot.node-left { margin-right: 128px; }
 .node-slot.node-right { margin-left: 128px; }
-.node-caption { color: #eadcc0; font-size: .78rem; font-weight: 800; }
+.node-caption { color: #eadcc0; font-size: .78rem; font-weight: 800; text-align: center; line-height: 1.15; max-width: 7.2rem; }
+.node-icon { font-size: 1.35rem; line-height: 1; }
 .node-badge {
   position: absolute; top: -4px; right: -8px; background: #fff4d2; color: #5a3b08;
   border: 2px solid #a67c2d; border-radius: 999px; font-size: .68rem; line-height: 1.2; padding: 0 .28rem;
@@ -1117,9 +1118,77 @@ function persist() {
 const saveMissed = () => persist();
 const saveUnlocked = () => persist();
 
-function showHome() {
-  const key = store.get("wqa-last-course", "us") || "us";
-  if (TESTS[key]) selectTest(key);
+function showHome() { showAcademy(); }
+function decodeMixedId(id) {
+  const prefixes = [
+    ["mx-usq-", "us"], ["mx-frq-", "fr"], ["mx-jpq-", "jp"],
+    ["mx-ven-", "vocab-en"], ["mx-vfr-", "vocab-fr"], ["mx-lg-", "logic"], ["mx-cj-", "conj"],
+    ["mx-reg-", "fr"], ["mx-jp-", "jp"], ["mx-us-", "us"],
+  ];
+  for (const [prefix, type] of prefixes) {
+    if (String(id).startsWith(prefix)) return { type, id: String(id).slice(prefix.length) };
+  }
+  return null;
+}
+function migrateMixed() {
+  if (store.get("wqa-mixed-migrated", false)) return;
+  const saved = store.get("wqa-mixed-session", null);
+  if (saved && Array.isArray(saved.found)) {
+    const buckets = {};
+    saved.found.forEach(raw => {
+      const hit = decodeMixedId(raw);
+      if (!hit) return;
+      (buckets[hit.type] = buckets[hit.type] || []).push(hit.id);
+    });
+    Object.keys(buckets).forEach(type => {
+      const session = store.get(`wqa-${type}-session`, null) || {
+        queue: [], found: [], score: 0, streak: 0, misses: 0, missed: [],
+        unlocked: [], best: 0, won: false, tags: false, lock: null,
+      };
+      const found = new Set(session.found || []);
+      buckets[type].forEach(id => found.add(id));
+      session.found = [...found];
+      store.set(`wqa-${type}-session`, session);
+    });
+    if (saved.score) store.set("wqa-bonus-xp", (store.get("wqa-bonus-xp", 0) || 0) + saved.score);
+  }
+  store.set("wqa-mixed-migrated", true);
+}
+function showAcademy() {
+  migrateMixed();
+  if (test && S && Array.isArray(S.queue)) persist();
+  pathHome = true;
+  timers.forEach(clearTimeout); timers = [];
+  test = null;
+  S = {};
+  view = "learn";
+  tab = "learn";
+  if (location.hash !== "#home") {
+    try { history.replaceState(null, "", location.href.split("#")[0] + "#home"); } catch {}
+  }
+  document.body.classList.remove("lesson-mode");
+  document.title = "Wizard's Quiz Academy";
+  $("brand").textContent = "Wizard's Quiz Academy";
+  $("title").textContent = "Wizard's Quiz Academy";
+  $("subtitle").textContent = "Vingt leçons. Sept niveaux, et le type change à chaque nœud.";
+  $("play").hidden = true;
+  $("summary").hidden = true;
+  $("backBtn").hidden = true;
+  $("stats").hidden = true;
+  $("lessonHead").hidden = true;
+  $("lessonPrompt").hidden = true;
+  $("checkBar").hidden = true;
+  $("feedback").hidden = true;
+  $("bottomNav").hidden = false;
+  $("home").hidden = false;
+  $("relicsPane").hidden = true;
+  $("profilePane").hidden = true;
+  document.querySelectorAll("[data-tab]").forEach(b => {
+    const on = b.dataset.tab === "learn";
+    b.classList.toggle("nav-on", on);
+    b.setAttribute("aria-current", on ? "page" : "false");
+  });
+  renderHomePath();
 }
 
 function mcqPlace(q, extra) {
@@ -1144,6 +1213,14 @@ const TYPE_LABEL = {
   "vocab-en": "English vocabulary", "vocab-fr": "French vocabulary",
   logic: "Number patterns", conj: "French conjugation",
 };
+const TYPE_SHORT = {
+  us: "États", fr: "Régions", jp: "Préfectures",
+  "vocab-en": "Anglais", "vocab-fr": "Français", logic: "Nombres", conj: "Conjugaison",
+};
+const TYPE_ICON = {
+  us: "🗺️", fr: "🗼", jp: "🗾", "vocab-en": "📖", "vocab-fr": "📘", logic: "🔢", conj: "✍️",
+};
+let pathHome = false;
 function lessonNumber(q, i) { return q.lesson || Math.floor(i / 5) + 1; }
 function sourceBank(key) {
   if (key === "us") return window.US_QUESTIONS || [];
@@ -1188,7 +1265,9 @@ function asQuestion(source, q, i, id) {
     ask: q.ask || spec.ask || "",
   });
 }
+const catalogCache = {};
 function catalogFor(key) {
+  if (catalogCache[key]) return catalogCache[key];
   const sources = key === "mixed" ? MIX_SOURCES : [key];
   const out = [];
   sources.forEach(src => {
@@ -1198,6 +1277,7 @@ function catalogFor(key) {
       if (item) out.push(item);
     });
   });
+  catalogCache[key] = out;
   return out;
 }
 function ensureMap(key) {
@@ -1221,6 +1301,7 @@ function selectTest(key) {
     $("quizCard").innerHTML = `<p class="map-loading">The question chest did not open. Reload the page.</p>`;
     return;
   }
+  pathHome = false;
   view = "learn";
   tab = "learn";
   sessionToState(readSession());
@@ -1780,12 +1861,21 @@ function bumpDayStreak() {
   return n;
 }
 function totalXp() {
-  let n = 0;
+  let n = store.get("wqa-bonus-xp", 0) || 0;
   Object.keys(TESTS).forEach(k => {
+    if (k === "mixed") return;
     if (test && k === test.key && S && typeof S.score === "number") n += S.score;
     else n += (store.get(`wqa-${k}-session`, null) || {}).score || 0;
   });
   return n;
+}
+function typeSession(key) {
+  if (test && test.key === key && S && S.found) return { found: S.found, score: S.score || 0 };
+  const saved = store.get(`wqa-${key}-session`, null);
+  return { found: new Set((saved && saved.found) || []), score: (saved && saved.score) || 0 };
+}
+function typeLessonIds(key, lesson) {
+  return catalogFor(key).filter(p => p.lesson === lesson).map(p => p.id);
 }
 function updatePills() {
   const day = store.get("wqa-day-streak", { n: 0 });
@@ -1822,7 +1912,7 @@ function idsForLesson(n) {
   return places.filter(p => p.lesson === n).map(p => p.id);
 }
 function buildPlan() {
-  if (!test || !places) return [];
+  if (!test || !places || test.key === "mixed") return [];
   const bands = [
     { title: "Apprentice", sub: "Leçons 1–7", from: 1, to: 7 },
     { title: "Scholar", sub: "Leçons 8–14", from: 8, to: 14 },
@@ -1830,12 +1920,29 @@ function buildPlan() {
   ];
   return bands.map(b => ({
     title: b.title,
-    sub: test.key === "mixed" ? b.sub + " · five from every subject" : b.sub,
+    sub: b.sub,
     lessons: Array.from({ length: b.to - b.from + 1 }, (_, k) => {
       const n = b.from + k;
       return { index: n, number: n, ids: idsForLesson(n) };
     }).filter(ls => ls.ids.length),
   }));
+}
+function homeNodes() {
+  const nodes = [];
+  for (let lesson = 1; lesson <= 20; lesson++) {
+    MIX_SOURCES.forEach((type, i) => {
+      const ids = typeLessonIds(type, lesson);
+      const found = typeSession(type).found;
+      const done = ids.length === 5 && ids.every(id => found.has(id));
+      nodes.push({ lesson, niveau: i + 1, type, ids, done });
+    });
+  }
+  const current = nodes.findIndex(nd => !nd.done);
+  nodes.forEach((nd, i) => {
+    nd.current = current === i;
+    nd.locked = !nd.done && (current === -1 ? false : i > current);
+  });
+  return nodes;
 }
 function lessonByIndex(index) {
   let found = null;
@@ -1855,7 +1962,10 @@ function showTab(name) {
     b.classList.toggle("nav-on", on);
     b.setAttribute("aria-current", on ? "page" : "false");
   });
-  if (!inLesson && name === "learn" && view !== "summary") renderPath();
+  if (!inLesson && name === "learn" && view !== "summary") {
+    if (pathHome) renderHomePath();
+    else renderPath();
+  }
   if (name === "relics") renderRelics();
   if (name === "profile") renderProfile();
   updatePills();
@@ -1872,9 +1982,7 @@ function renderPath() {
   plan.forEach(u => u.lessons.forEach(ls => flat.push(ls)));
   let currentIndex = flat.findIndex(ls => !ls.ids.every(id => S.found.has(id)));
   if (currentIndex < 0) currentIndex = flat.length;
-  const blurb = test.key === "mixed"
-    ? "Each leçon takes five questions from every subject."
-    : "Twenty numbered lessons, five questions each.";
+  const blurb = "Twenty numbered lessons, five questions each.";
   let html = `<div class="path-hero"><div class="home-owl" id="homeOwl" role="img" aria-label="Rowan the academy owl"></div><p>${blurb}</p></div>`;
   let i = 0;
   plan.forEach(unit => {
@@ -1904,10 +2012,63 @@ function renderPath() {
   }
   updatePills();
 }
+function renderHomePath() {
+  migrateMixed();
+  const nodes = homeNodes();
+  let html = `<div class="path-hero"><div class="home-owl" id="homeOwl" role="img" aria-label="Rowan the academy owl"></div><p>Chaque leçon a sept niveaux. Le type change à chaque nœud.</p></div>`;
+  let lesson = 0;
+  nodes.forEach((nd, i) => {
+    if (nd.lesson !== lesson) {
+      if (lesson) html += `</div></section>`;
+      lesson = nd.lesson;
+      html += `<section class="unit"><h2 class="unit-title">Leçon ${lesson}</h2><p class="unit-sub">Sept niveaux, un type chacun</p><div class="path">`;
+    }
+    const stars = store.get(`wqa-${nd.type}-lesson-stars`, {});
+    const st = stars[nd.lesson] || 0;
+    const side = i % 3 === 0 ? "node-left" : i % 3 === 1 ? "node-mid" : "node-right";
+    const cls = ["node", nd.done ? "node-done" : "", nd.current ? "node-current" : "", nd.locked ? "node-locked" : ""].filter(Boolean).join(" ");
+    const badge = nd.done ? (st >= 3 ? "♛" : "★".repeat(Math.max(st, 1))) : "";
+    const owl = nd.current ? `<span class="node-owl">${owlSVG({ scarf: HOUSES[currentHouse].scarf })}</span>` : "";
+    const label = `Leçon ${nd.lesson} · Niveau ${nd.niveau} · ${TYPE_SHORT[nd.type]}`;
+    html += `<div class="node-slot ${side}"><button class="${cls}" type="button" data-type="${nd.type}" data-lecon="${nd.lesson}" data-replay="${nd.done ? "1" : "0"}"${nd.locked ? " disabled" : ""} aria-label="${esc(label)}">${owl}<span class="node-mark node-icon" aria-hidden="true">${TYPE_ICON[nd.type]}</span>${badge ? `<span class="node-badge">${badge}</span>` : ""}</button><span class="node-caption">Niveau ${nd.niveau}</span><span class="node-caption">${esc(TYPE_SHORT[nd.type])}</span></div>`;
+  });
+  if (lesson) html += `</div></section>`;
+  $("path").innerHTML = html;
+  paintMascots();
+  const node = document.querySelector(".node-current");
+  if (node) {
+    const top = node.getBoundingClientRect().top;
+    if (top < 70 || top > window.innerHeight - 140) node.scrollIntoView({ block: "center", behavior: "auto" });
+  }
+  updatePills();
+}
+function openHomeLevel(type, lesson, replay) {
+  if (!TESTS[type]) return;
+  if (test && test.key !== type && S && Array.isArray(S.queue)) persist();
+  pathHome = true;
+  timers.forEach(clearTimeout); timers = [];
+  test = TESTS[type];
+  places = catalogFor(type);
+  sessionToState(readSession());
+  const ids = places.filter(p => p.lesson === lesson).map(p => p.id);
+  startLesson(lesson, ids, replay);
+}
 function renderRelics() {
   const grid = $("relicGrid");
   if (!grid) return;
-  if (!test) { grid.innerHTML = "<p>Choose a quiz to see its relics.</p>"; return; }
+  if (pathHome || !test) {
+    grid.innerHTML = MIX_SOURCES.map(key => {
+      const spec = TESTS[key];
+      const saved = store.get(`wqa-${key}-session`, null);
+      const unlocked = new Set((saved && saved.unlocked) || []);
+      const cards = spec.rewards.map(r => {
+        const owned = unlocked.has(r.level);
+        return `<article class="relic-card ${owned ? "relic-owned" : "relic-locked"}">${relicSVG(r.kind, r.accent)}<h3>${owned ? esc(r.name) : "Locked"}</h3><p>${esc(spec.title)}</p></article>`;
+      }).join("");
+      return cards;
+    }).join("");
+    return;
+  }
   grid.innerHTML = test.rewards.map(r => {
     const owned = S.unlocked.includes(r.level);
     return `<article class="relic-card ${owned ? "relic-owned" : "relic-locked"}">${relicSVG(r.kind, r.accent)}<h3>${owned ? esc(r.name) : "Locked"}</h3><p>${owned ? esc(r.tagline) : "Reach level " + r.level}</p></article>`;
@@ -1921,6 +2082,7 @@ function renderProfile() {
     const found = live ? S.found.size : (session && session.found ? session.found.length : 0);
     const score = live ? S.score : (session && session.score) || 0;
     const total = x.key === "mixed" ? 700 : 100;
+    if (x.key === "mixed") return "";
     return `<li><strong>${esc(x.title)}</strong><span>${found}${total === "all" ? "" : "/" + total} · ${score} XP</span></li>`;
   }).join("");
   $("profileStats").innerHTML = `<p class="profile-line">Day streak <b>${day.n || 0}</b></p><p class="profile-line">Total XP <b>${totalXp()}</b></p><ul class="profile-list">${rows}</ul>`;
@@ -1962,6 +2124,7 @@ function quitLesson() {
   $("lessonPrompt").hidden = true;
   $("bottomNav").hidden = false;
   persist();
+  if (pathHome) return showAcademy();
   showTab("learn");
 }
 function finishLesson() {
@@ -2053,9 +2216,9 @@ function syncLessonChrome() {
 }
 
 function quizMenu(playingKey) {
-  const here = view === "learn" ? `<span class="activity-current">Here</span>` : "";
-  const home = `<button class="activity-item" type="button" role="menuitem" data-test="home">🏰 Academy doors ${here}</button>`;
-  const items = Object.values(TESTS).map(x => {
+  const here = pathHome && view === "learn" ? `<span class="activity-current">Here</span>` : "";
+  const home = `<button class="activity-item" type="button" role="menuitem" data-test="home">🏰 Leçons ${here}</button>`;
+  const items = Object.values(TESTS).filter(x => x.key !== "mixed").map(x => {
     const session = store.get(`wqa-${x.key}-session`, null);
     const done = session && Array.isArray(session.found) ? session.found.length : 0;
     const mark = x.key === playingKey ? `<span class="activity-current">Playing</span>` : (done ? `<span class="activity-current">${session.won ? "Done" : done}</span>` : "");
@@ -2112,14 +2275,14 @@ $("modal").addEventListener("click", e => {
 });
 function switchTo(key) {
   closeMenu();
-  if (key === "home") {
+  if (key === "home" || key === "mixed") {
     sfx.click();
-    if (view === "lesson") quitLesson();
-    else showHome();
+    if (view === "lesson" && S) S.lesson = null;
+    showAcademy();
     return;
   }
   if (!TESTS[key]) return;
-  if (test && key === test.key) {
+  if (test && key === test.key && !pathHome) {
     if (view === "lesson") quitLesson();
     else if (view === "summary") { view = "learn"; $("summary").hidden = true; showTab("learn"); }
     return;
@@ -2132,6 +2295,11 @@ function onTestClick(e) {
   if (b) switchTo(b.dataset.test);
 }
 $("home").addEventListener("click", e => {
+  const levelBtn = e.target.closest("[data-type]");
+  if (levelBtn && !levelBtn.disabled) {
+    openHomeLevel(levelBtn.dataset.type, +levelBtn.dataset.lecon, levelBtn.dataset.replay === "1");
+    return;
+  }
   const lessonBtn = e.target.closest("[data-lesson]");
   if (lessonBtn && !lessonBtn.disabled) {
     const ls = lessonByIndex(+lessonBtn.dataset.lesson);
@@ -2159,7 +2327,8 @@ $("summaryContinue").addEventListener("click", () => {
   sfx.click();
   view = "learn";
   $("summary").hidden = true;
-  showTab("learn");
+  if (pathHome) showAcademy();
+  else showTab("learn");
 });
 $("menuItems").addEventListener("click", onTestClick);
 $("backBtn").addEventListener("click", () => switchTo("home"));
@@ -2190,19 +2359,19 @@ document.addEventListener("keydown", e => {
 });
 window.addEventListener("hashchange", () => {
   const k = location.hash.slice(1);
-  if (!k || k === "home") {
-    const dest = store.get("wqa-last-course", "us") || "us";
-    if (!test || test.key !== dest || (view !== "learn" && view !== "lesson")) selectTest(dest);
+  if (!k || k === "home" || k === "mixed") {
+    if (!pathHome || (view !== "learn" && view !== "lesson" && view !== "summary")) showAcademy();
     return;
   }
-  if (TESTS[k] && (!test || k !== test.key || (view !== "learn" && view !== "lesson"))) selectTest(k);
+  if (TESTS[k] && (!test || k !== test.key || pathHome || (view !== "learn" && view !== "lesson"))) selectTest(k);
 });
 
 applyHouse(store.get("wqa-house", "emberwyck"));
 refreshBests();
+migrateMixed();
 const boot = location.hash.slice(1);
-if (TESTS[boot]) selectTest(boot);
-else selectTest(store.get("wqa-last-course", "us") || "us");
+if (TESTS[boot] && boot !== "mixed") selectTest(boot);
+else showAcademy();
 </script>
 </body>
 </html>
