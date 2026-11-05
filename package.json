@@ -1,0 +1,12 @@
+{
+  "name": "wizards-quiz-academy",
+  "private": true,
+  "scripts": {
+    "test:data": "node --test tests/data.test.mjs && node scripts/validate-questions.js",
+    "test:e2e": "playwright test",
+    "test": "npm run test:data && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.49.1"
+  }
+}

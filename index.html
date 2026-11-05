@@ -179,7 +179,7 @@ button:disabled:not(.choice-right):not(.choice-wrong) { opacity: .45; }
 .map-card { overflow: hidden; }
 .game-map { width: 100%; height: auto; display: block; touch-action: pan-x pan-y; }
 .game-map.zoomed { touch-action: none; cursor: grab; }
-.zoom-controls { position: absolute; right: .8rem; bottom: .8rem; z-index: 2; display: flex; flex-direction: column; gap: .35rem; }
+.zoom-controls { position: static; z-index: 2; display: flex; justify-content: flex-end; gap: .35rem; margin-bottom: .45rem; }
 .zoom-btn {
   width: 44px; height: 44px; border-radius: 12px; background: #fffaf0; color: var(--ink);
   border: 2px solid #c8b48a; font-size: 1.25rem; font-weight: 800;
@@ -193,7 +193,8 @@ button:disabled:not(.choice-right):not(.choice-wrong) { opacity: .45; }
 .state-c { fill: var(--state-c); } .state-d { fill: var(--state-d); }
 .state-path:hover { fill: var(--state-hover); }
 .state-found, .state-found:hover { fill: var(--state-found); cursor: default; }
-.state-wrong { animation: shake .45s; fill: var(--danger) !important; }
+.state-answer, .state-answer:hover { fill: #2f8f62 !important; stroke: #146c43; stroke-width: 3px; }
+.state-wrong { animation: shake .45s; fill: var(--danger) !important; stroke: #6d1020; stroke-width: 2.5px; }
 .state-pop { animation: pop .5s; }
 .state-hint { animation: hintPulse 1s ease-in-out infinite; fill: var(--candle) !important; }
 .state-peek { animation: pop .4s; fill: #e7b3d8 !important; }
@@ -952,23 +953,28 @@ function buildFR(test) {
   const topo = window.FR_REGIONS_TOPO;
   const geoms = topo.objects.regions.geometries;
   const fc = topojson.feature(topo, topo.objects.regions);
-  const W = 975, H = 700, shapes = [], insets = [];
-  const metro = fc.features.filter(f => !FR_OVERSEAS.includes(f.id));
+  const W = 975, H = 820, shapes = [], insets = [];
+  // Corse sits far southeast of the hexagon. On a phone it was a speck under the
+  // zoom controls, so it gets its own box, like the overseas regions.
+  const boxed = ["94"].concat(FR_OVERSEAS);
+  const metro = fc.features.filter(f => !boxed.includes(f.id));
   const proj = d3.geoConicConformal().parallels([44, 49]).rotate([-3, 0])
-    .fitExtent([[215, 10], [W - 10, H - 10]], { type: "FeatureCollection", features: metro });
+    .fitExtent([[210, 8], [W - 8, H - 8]], { type: "FeatureCollection", features: metro });
   const path = d3.geoPath(proj);
   metro.forEach(f => { const [cx, cy] = path.centroid(f); shapes.push({ id: f.id, d: path(f), cx, cy }); });
 
-  // Overseas regions: one inset box each, stacked down the left side.
-  const boxW = 185, gap = 10, boxH = (H - 20 - gap * 4) / 5;
-  FR_OVERSEAS.forEach((id, i) => {
+  const boxW = 200, gap = 8, corseH = 188;
+  const overseasH = (H - 16 - gap * (boxed.length - 1) - corseH) / FR_OVERSEAS.length;
+  boxed.forEach((id, i) => {
     const f = fc.features.find(x => x.id === id);
-    const x0 = 10, y0 = 10 + i * (boxH + gap);
-    const p = d3.geoMercator().fitExtent([[x0 + 12, y0 + 10], [x0 + boxW - 12, y0 + boxH - 24]], f);
+    const boxH = id === "94" ? corseH : overseasH;
+    const y0 = 8 + (id === "94" ? 0 : corseH + gap + (i - 1) * (overseasH + gap));
+    const x0 = 8;
+    const p = d3.geoMercator().fitExtent([[x0 + 18, y0 + 12], [x0 + boxW - 18, y0 + boxH - 26]], f);
     const ip = d3.geoPath(p);
     const [cx, cy] = ip.centroid(f);
     shapes.push({ id, d: ip(f), cx, cy });
-    insets.push({ id, x: x0, y: y0, w: boxW, h: boxH });
+    insets.push({ id, x: x0, y: y0, w: boxW, h: boxH, caption: id === "94" ? "Island" : "Far" });
   });
   const nb = topojson.neighbors(geoms), neighbours = new Map();
   geoms.forEach((g, i) => neighbours.set(g.id, nb[i].map(j => geoms[j].id)));
@@ -1395,9 +1401,10 @@ function onPlaceClick(id) {
     S.misses++; S.streak = 0;
     if (!S.lesson || !S.lesson.replay) { S.missed.add(target.id); saveMissed(); }
     if (S.lesson) S.lesson.hearts = Math.max(0, S.lesson.hearts - 1);
-    flashWrong(id); sfx.wrong();
+    sfx.wrong();
     S.message = `That's ${place.name}. The place was ${target.name}.`;
-    if (S.lesson) { S.locked = true; S.picked = place.name; return render(); }
+    if (S.lesson) { S.locked = true; S.picked = place.name; S.wrongId = id; return render(); }
+    flashWrong(id);
   }
   render();
 }
@@ -1778,9 +1785,10 @@ function renderMap() {
     if (!p) return;
     const cls = ["state-path", colours.get(s.id),
       shapeFound(s.id) ? "state-found" : "",
-      S.wrongId === s.id ? "state-wrong" : "",
+      S.locked && isTargetGeo(s.id) ? "state-answer" : "",
+      (S.wrongId === s.id || (S.locked && S.selectedGeo === s.id && !isTargetGeo(s.id))) ? "state-wrong" : "",
       S.popId === s.id ? "state-pop" : "",
-      S.selectedGeo === s.id ? "state-selected" : "",
+      !S.locked && S.selectedGeo === s.id ? "state-selected" : "",
       !S.lesson && !S.explore && S.misses >= 2 && isTargetGeo(s.id) ? "state-hint" : "",
       S.explore && S.peekId === s.id ? "state-peek" : ""].join(" ");
     svg += `<path d="${s.d}" class="${cls}" data-id="${s.id}" role="button" aria-label="${esc(p.name)}"/>`;
@@ -1788,7 +1796,8 @@ function renderMap() {
   insets.forEach(b => {
     const p = geoPlace(b.id);
     svg += `<rect class="inset-hit" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="12" data-id="${b.id}" aria-hidden="true"/>`;
-    svg += `<text class="inset-caption" x="${b.x + b.w / 2}" y="${b.y + b.h - 8}" pointer-events="none">${S.tags || shapeFound(b.id) ? esc(p ? p.name : "") : (mapTest.insetCaption || "Overseas")}</text>`;
+    const insetLabel = S.tags || shapeFound(b.id) ? (p ? p.name : "") : (b.caption || mapTest.insetCaption || "Overseas");
+    svg += `<text class="inset-caption" x="${b.x + b.w / 2}" y="${b.y + b.h - 8}" pointer-events="none">${esc(insetLabel)}</text>`;
   });
   shapes.forEach(s => {
     if (shapeFound(s.id)) svg += `<text x="${s.cx}" y="${s.cy}" class="state-star" pointer-events="none"${mapTest.starSize ? ` style="font-size:${mapTest.starSize}px"` : ""}>✦</text>`;
@@ -2199,11 +2208,14 @@ function syncLessonChrome() {
       fb.hidden = false;
       const ok = mapQ ? S.picked === t.name : S.picked === t.answer;
       fb.className = "feedback " + (ok ? "feedback-ok" : "feedback-no");
-      $("feedbackTitle").textContent = ok ? "Correct!" : "Correct answer";
       const answer = mapQ ? t.name : t.answer;
+      const explain = (t.explain || "").trim();
+      const generic = answer + " is the place to tap.";
+      const useful = explain && explain !== generic && explain !== answer;
+      $("feedbackTitle").textContent = ok ? "Correct!" : "Not quite!";
       $("feedbackBody").textContent = ok
-        ? (t.explain || S.message || "That's the one.")
-        : answer + (t.explain ? " — " + t.explain : "");
+        ? (useful ? explain : "That's " + answer + ".")
+        : "You tapped " + S.picked + ". The answer is " + answer + "." + (useful && !mapQ ? " " + explain : "");
       $("feedbackOwl").innerHTML = owlSVG({ scarf: HOUSES[currentHouse].scarf });
     }
   } else if (fb && bar) {
