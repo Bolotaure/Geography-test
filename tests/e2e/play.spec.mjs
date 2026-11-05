@@ -174,8 +174,7 @@ test("every map target is visible and clickable", async ({ page }) => {
   assertQuiet(errors);
 });
 
-test("home path alternates types and plays every lesson", async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name !== "iphone", "the full 20×7 play runs at phone size");
+test("home path alternates types and plays every lesson", async ({ page }) => {
   test.setTimeout(600_000);
   const errors = await fresh(page, "#home");
   await page.waitForSelector('button[data-type="us"][data-lecon="1"]');
