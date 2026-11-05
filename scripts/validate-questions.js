@@ -8,6 +8,7 @@ const path = require("path");
 const vm = require("vm");
 const { buildLogicQuestions, serializeLogic, assertConsistent } = require("./logic-rules");
 const { buildConjugationQuestions, serializeConj } = require("./conjugation-rules");
+const { buildAll, serialize } = require("./geo-questions");
 
 const root = path.join(__dirname, "..");
 const errors = [];
@@ -328,6 +329,84 @@ if (builtConj) {
   if (actual !== expected) fail("conj-fr.js does not match scripts/conjugation-rules.js — regenerate it");
 }
 
+function lessonOf(q, i) { return q.lesson || Math.floor(i / 5) + 1; }
+function checkLessons(name, items) {
+  if (!items || items.length !== 100) return fail(name + " needs 100 questions");
+  const buckets = {};
+  let prev = 0;
+  items.forEach((q, i) => {
+    const n = lessonOf(q, i);
+    const group = Math.floor(i / 5) + 1;
+    if (n !== group) fail(name + " " + q.id + " belongs to lesson " + n + " but sits in group " + group);
+    if (n < prev) fail(name + " lesson order went backwards at " + q.id);
+    prev = n;
+    buckets[n] = (buckets[n] || 0) + 1;
+  });
+  for (let n = 1; n <= 20; n++) if (buckets[n] !== 5) fail(name + " lesson " + n + " has " + (buckets[n] || 0) + " questions");
+}
+checkLessons("VOCAB_EN", win.VOCAB_EN);
+checkLessons("VOCAB_FR", wfr.VOCAB_FR);
+checkLessons("LOGIC", logic);
+checkLessons("CONJ", conj);
+
+const levelRank = { apprentice: 1, scholar: 2, archmage: 3 };
+let logicPrev = 0;
+logic.forEach(q => {
+  const rank = levelRank[q.level] || 0;
+  if (rank < logicPrev) fail(q.id + " is easier than the question before it");
+  logicPrev = rank;
+});
+const conjRankOf = q => {
+  const t = String(q.prompt || "");
+  const named = t.match(/Verbe ([^,]+),/) || t.match(/du verbe ([^.]+)/);
+  const verb = (named ? named[1] : (/infinitif/i.test(t) ? q.answer : "")).trim().toLowerCase();
+  if (["parler", "aimer", "jouer"].includes(verb)) return 1;
+  if (["finir", "choisir", "réussir"].includes(verb)) return 2;
+  return 3;
+};
+let conjPrev = 0;
+conj.forEach(q => {
+  const rank = conjRankOf(q);
+  if (rank < conjPrev) fail(q.id + " is an easier verb than the question before it");
+  conjPrev = rank;
+});
+
+let geo;
+try { geo = buildAll(); }
+catch (e) { fail("geography facts failed: " + e.message); }
+if (geo) {
+  [["US_QUESTIONS", "us-questions.js", geo.us], ["FR_QUESTIONS", "fr-questions.js", geo.fr], ["JP_QUESTIONS", "jp-questions.js", geo.jp]].forEach(([name, file, items]) => {
+    checkLessons(name, items);
+    const expected = serialize(name, items);
+    const actual = fs.readFileSync(path.join(root, file), "utf8");
+    if (actual !== expected) fail(file + " does not match scripts/geo-questions.js — regenerate it");
+    items.forEach(q => {
+      if (q.kind === "mcq") {
+        if (!Array.isArray(q.choices) || q.choices.length !== 4) fail(q.id + " needs 4 choices");
+        else if (new Set(q.choices).size !== 4) fail(q.id + " choices are not unique");
+        else if (!q.choices.includes(q.answer)) fail(q.id + " answer is not among the choices");
+      }
+    });
+  });
+  const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
+  function placeIds(constName) {
+    const m = html.match(new RegExp("const " + constName + " = \\[([\\s\\S]*?)\\];"));
+    if (!m) { fail("missing " + constName); return new Set(); }
+    return new Set([...m[1].matchAll(/\["(\d+)"/g)].map(x => x[1]));
+  }
+  const pages = { us: placeIds("US_STATES"), fr: placeIds("FR_REGIONS"), jp: placeIds("JP_PREFS") };
+  [["us", geo.us], ["fr", geo.fr], ["jp", geo.jp]].forEach(([key, items]) => {
+    items.forEach(q => {
+      if (q.geoId && !pages[key].has(q.geoId)) fail(q.id + " uses an unknown place " + q.geoId);
+    });
+  });
+  for (let n = 1; n <= 20; n++) {
+    const mixed = [win.VOCAB_EN, wfr.VOCAB_FR, logic, conj, geo.us, geo.fr, geo.jp]
+      .reduce((sum, bank) => sum + bank.filter((q, i) => lessonOf(q, i) === n).length, 0);
+    if (mixed !== 35) fail("mixed lesson " + n + " has " + mixed + " questions, expected 35");
+  }
+}
+
 if (errors.length) {
   console.error(errors.join("\n"));
   process.exit(1);
@@ -338,5 +417,10 @@ console.log("OK", {
   french: wfr.VOCAB_FR.length,
   logic: logic.length,
   conjugation: conj.length,
+  states: geo.us.length,
+  regions: geo.fr.length,
+  prefectures: geo.jp.length,
+  lessons: 20,
+  perLesson: 5,
   levels,
 });
