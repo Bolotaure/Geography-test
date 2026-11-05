@@ -227,22 +227,6 @@ window.LOGIC_QUESTIONS = [
     explain: "Multiply by 2 each time. 96 × 2 = 192."
   },
   {
-    id: "L029",
-    level: "scholar",
-    seq: [3125, 625, 125, 25, 5],
-    choices: ["2","3","5","1"],
-    answer: "1",
-    explain: "Divide by 5 each time. 5 ÷ 5 = 1."
-  },
-  {
-    id: "L030",
-    level: "scholar",
-    seq: [2, 8, 32, 128, 512],
-    choices: ["2049","2048","2047","2050"],
-    answer: "2048",
-    explain: "Multiply by 4 each time. 512 × 4 = 2048."
-  },
-  {
     id: "L031",
     level: "apprentice",
     seq: [9, 18, 36, 72, 144, 288],
@@ -267,14 +251,6 @@ window.LOGIC_QUESTIONS = [
     explain: "Divide by 3 each time. 3 ÷ 3 = 1."
   },
   {
-    id: "L034",
-    level: "scholar",
-    seq: [5, 15, 45, 135, 405],
-    choices: ["1216","1215","1217","1214"],
-    answer: "1215",
-    explain: "Multiply by 3 each time. 405 × 3 = 1215."
-  },
-  {
     id: "L035",
     level: "apprentice",
     seq: [100000, 10000, 1000, 100, 10],
@@ -297,6 +273,38 @@ window.LOGIC_QUESTIONS = [
     choices: ["122","121","123","120"],
     answer: "121",
     explain: "These are consecutive square numbers: 5² = 25, 6² = 36, 7² = 49, 8² = 64, 9² = 81, 10² = 100. The next is 11² = 121."
+  },
+  {
+    id: "L063",
+    level: "apprentice",
+    seq: [4, 5, 7, 8, 10, 11, 13],
+    choices: ["15","13","16","14"],
+    answer: "14",
+    explain: "The steps alternate: add 1, then add 2, and then repeat. Following that rule from 4 gives 4, 5, 7, 8, 10, 11, 13, 14. The next number is 14."
+  },
+  {
+    id: "L029",
+    level: "scholar",
+    seq: [3125, 625, 125, 25, 5],
+    choices: ["2","3","5","1"],
+    answer: "1",
+    explain: "Divide by 5 each time. 5 ÷ 5 = 1."
+  },
+  {
+    id: "L030",
+    level: "scholar",
+    seq: [2, 8, 32, 128, 512],
+    choices: ["2049","2048","2047","2050"],
+    answer: "2048",
+    explain: "Multiply by 4 each time. 512 × 4 = 2048."
+  },
+  {
+    id: "L034",
+    level: "scholar",
+    seq: [5, 15, 45, 135, 405],
+    choices: ["1216","1215","1217","1214"],
+    answer: "1215",
+    explain: "Multiply by 3 each time. 405 × 3 = 1215."
   },
   {
     id: "L038",
@@ -395,14 +403,6 @@ window.LOGIC_QUESTIONS = [
     explain: "Each number is the sum of the two before it. 41 + 66 = 107."
   },
   {
-    id: "L050",
-    level: "archmage",
-    seq: [1, 1, 1, 3, 5, 9, 17, 31],
-    choices: ["58","59","57","56"],
-    answer: "57",
-    explain: "Each number is the sum of the three before it. 9 + 17 + 31 = 57."
-  },
-  {
     id: "L051",
     level: "scholar",
     seq: [1, 2, 4, 7, 11, 16, 22],
@@ -467,6 +467,86 @@ window.LOGIC_QUESTIONS = [
     explain: "The gap between terms starts at 1 and the gaps grow by 2: 1, 3, 5, 7, 9. The next gap is 11, so 40 + 11 = 51."
   },
   {
+    id: "L061",
+    level: "scholar",
+    seq: [3, 5, 10, 12, 24, 26],
+    choices: ["52","53","54","51"],
+    answer: "52",
+    explain: "The steps alternate: add 2, then multiply by 2, and then repeat. Following that rule from 3 gives 3, 5, 10, 12, 24, 26, 52. The next number is 52."
+  },
+  {
+    id: "L064",
+    level: "scholar",
+    seq: [30, 27, 28, 25, 26, 23, 24],
+    choices: ["21","20","22","23"],
+    answer: "21",
+    explain: "The steps alternate: subtract 3, then add 1, and then repeat. Following that rule from 30 gives 30, 27, 28, 25, 26, 23, 24, 21. The next number is 21."
+  },
+  {
+    id: "L066",
+    level: "scholar",
+    seq: [1, 6, 4, 9, 7, 12, 10],
+    choices: ["16","14","17","15"],
+    answer: "15",
+    explain: "The steps alternate: add 5, then subtract 2, and then repeat. Following that rule from 1 gives 1, 6, 4, 9, 7, 12, 10, 15. The next number is 15."
+  },
+  {
+    id: "L068",
+    level: "scholar",
+    seq: [2, 11, 7, 16, 12, 21, 17],
+    choices: ["28","25","26","27"],
+    answer: "26",
+    explain: "The steps alternate: add 9, then subtract 4, and then repeat. Following that rule from 2 gives 2, 11, 7, 16, 12, 21, 17, 26. The next number is 26."
+  },
+  {
+    id: "L082",
+    level: "scholar",
+    seq: [2, 3, 5, 7, 11, 13, 17],
+    choices: ["19","20","18","21"],
+    answer: "19",
+    explain: "These are consecutive prime numbers. The next prime after 17 is 19."
+  },
+  {
+    id: "L083",
+    level: "scholar",
+    seq: [7, 11, 13, 17, 19, 23, 29],
+    choices: ["33","32","31","30"],
+    answer: "31",
+    explain: "These are consecutive prime numbers. The next prime after 29 is 31."
+  },
+  {
+    id: "L084",
+    level: "scholar",
+    seq: [13, 17, 19, 23, 29, 31],
+    choices: ["37","36","39","38"],
+    answer: "37",
+    explain: "These are consecutive prime numbers. The next prime after 31 is 37."
+  },
+  {
+    id: "L086",
+    level: "scholar",
+    seq: [1, 10, 2, 20, 3, 30, 4],
+    choices: ["41","50","5","40"],
+    answer: "40",
+    explain: "Two patterns alternate, one on odd positions and one on even positions. Odd positions start at 1 and add 1. Even positions start at 10 and add 10. Position 8 is even, so the next number is 40."
+  },
+  {
+    id: "L100",
+    level: "scholar",
+    seq: [4, 16, 36, 64, 100, 144],
+    choices: ["195","197","198","196"],
+    answer: "196",
+    explain: "These are squares of consecutive even numbers: 2² = 4, 4² = 16, 6² = 36, 8² = 64, 10² = 100, 12² = 144. The next is 14² = 196."
+  },
+  {
+    id: "L050",
+    level: "archmage",
+    seq: [1, 1, 1, 3, 5, 9, 17, 31],
+    choices: ["58","59","57","56"],
+    answer: "57",
+    explain: "Each number is the sum of the three before it. 9 + 17 + 31 = 57."
+  },
+  {
     id: "L059",
     level: "archmage",
     seq: [10, 12, 16, 24, 40, 72],
@@ -483,36 +563,12 @@ window.LOGIC_QUESTIONS = [
     explain: "The gaps double each time: 1, 2, 4, 8, 16, 32. The next gap is 64, so 68 + 64 = 132."
   },
   {
-    id: "L061",
-    level: "scholar",
-    seq: [3, 5, 10, 12, 24, 26],
-    choices: ["52","53","54","51"],
-    answer: "52",
-    explain: "The steps alternate: add 2, then multiply by 2, and then repeat. Following that rule from 3 gives 3, 5, 10, 12, 24, 26, 52. The next number is 52."
-  },
-  {
     id: "L062",
     level: "archmage",
     seq: [2, 4, 7, 14, 17, 34, 37],
     choices: ["75","76","74","73"],
     answer: "74",
     explain: "The steps alternate: multiply by 2, then add 3, and then repeat. Following that rule from 2 gives 2, 4, 7, 14, 17, 34, 37, 74. The next number is 74."
-  },
-  {
-    id: "L063",
-    level: "apprentice",
-    seq: [4, 5, 7, 8, 10, 11, 13],
-    choices: ["15","13","16","14"],
-    answer: "14",
-    explain: "The steps alternate: add 1, then add 2, and then repeat. Following that rule from 4 gives 4, 5, 7, 8, 10, 11, 13, 14. The next number is 14."
-  },
-  {
-    id: "L064",
-    level: "scholar",
-    seq: [30, 27, 28, 25, 26, 23, 24],
-    choices: ["21","20","22","23"],
-    answer: "21",
-    explain: "The steps alternate: subtract 3, then add 1, and then repeat. Following that rule from 30 gives 30, 27, 28, 25, 26, 23, 24, 21. The next number is 21."
   },
   {
     id: "L065",
@@ -523,28 +579,12 @@ window.LOGIC_QUESTIONS = [
     explain: "The steps alternate: multiply by 3, then subtract 1, and then repeat. Following that rule from 2 gives 2, 6, 5, 15, 14, 42, 41, 123. The next number is 123."
   },
   {
-    id: "L066",
-    level: "scholar",
-    seq: [1, 6, 4, 9, 7, 12, 10],
-    choices: ["16","14","17","15"],
-    answer: "15",
-    explain: "The steps alternate: add 5, then subtract 2, and then repeat. Following that rule from 1 gives 1, 6, 4, 9, 7, 12, 10, 15. The next number is 15."
-  },
-  {
     id: "L067",
     level: "archmage",
     seq: [1, 2, 4, 8, 10, 20, 22],
     choices: ["44","43","45","46"],
     answer: "44",
     explain: "The steps alternate: multiply by 2, then add 2, and then repeat. Following that rule from 1 gives 1, 2, 4, 8, 10, 20, 22, 44. The next number is 44."
-  },
-  {
-    id: "L068",
-    level: "scholar",
-    seq: [2, 11, 7, 16, 12, 21, 17],
-    choices: ["28","25","26","27"],
-    answer: "26",
-    explain: "The steps alternate: add 9, then subtract 4, and then repeat. Following that rule from 2 gives 2, 11, 7, 16, 12, 21, 17, 26. The next number is 26."
   },
   {
     id: "L069",
@@ -651,44 +691,12 @@ window.LOGIC_QUESTIONS = [
     explain: "Each term multiplies the one before it by the next integer, starting at × 2: 2, then 3, then 4, then 5. 360 × 6 = 2160."
   },
   {
-    id: "L082",
-    level: "scholar",
-    seq: [2, 3, 5, 7, 11, 13, 17],
-    choices: ["19","20","18","21"],
-    answer: "19",
-    explain: "These are consecutive prime numbers. The next prime after 17 is 19."
-  },
-  {
-    id: "L083",
-    level: "scholar",
-    seq: [7, 11, 13, 17, 19, 23, 29],
-    choices: ["33","32","31","30"],
-    answer: "31",
-    explain: "These are consecutive prime numbers. The next prime after 29 is 31."
-  },
-  {
-    id: "L084",
-    level: "scholar",
-    seq: [13, 17, 19, 23, 29, 31],
-    choices: ["37","36","39","38"],
-    answer: "37",
-    explain: "These are consecutive prime numbers. The next prime after 31 is 37."
-  },
-  {
     id: "L085",
     level: "archmage",
     seq: [4, 9, 25, 49, 121, 169],
     choices: ["289","288","291","290"],
     answer: "289",
     explain: "These are squares of consecutive primes: 2² = 4, 3² = 9, 5² = 25, 7² = 49, 11² = 121, 13² = 169. The next prime is 17, and 17² = 289."
-  },
-  {
-    id: "L086",
-    level: "scholar",
-    seq: [1, 10, 2, 20, 3, 30, 4],
-    choices: ["41","50","5","40"],
-    answer: "40",
-    explain: "Two patterns alternate, one on odd positions and one on even positions. Odd positions start at 1 and add 1. Even positions start at 10 and add 10. Position 8 is even, so the next number is 40."
   },
   {
     id: "L087",
@@ -793,13 +801,5 @@ window.LOGIC_QUESTIONS = [
     choices: ["169","171","168","170"],
     answer: "169",
     explain: "These are squares of consecutive odd numbers: 1² = 1, 3² = 9, 5² = 25, 7² = 49, 9² = 81, 11² = 121. The next is 13² = 169."
-  },
-  {
-    id: "L100",
-    level: "scholar",
-    seq: [4, 16, 36, 64, 100, 144],
-    choices: ["195","197","198","196"],
-    answer: "196",
-    explain: "These are squares of consecutive even numbers: 2² = 4, 4² = 16, 6² = 36, 8² = 64, 10² = 100, 12² = 144. The next is 14² = 196."
   }
 ];

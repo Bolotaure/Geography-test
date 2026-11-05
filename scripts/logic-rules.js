@@ -357,6 +357,8 @@ function buildLogicQuestions() {
   if (ids.size !== 100) throw new Error("duplicate ids");
   const sigs = new Set(rules.map(r => r.seq.join(",")));
   if (sigs.size !== 100) throw new Error("duplicate sequences");
+  const rank = { apprentice: 0, scholar: 1, archmage: 2 };
+  rules.sort((a, b) => rank[a.level] - rank[b.level] || a.id.localeCompare(b.id, "en", { numeric: true }));
   return rules;
 }
 

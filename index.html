@@ -297,15 +297,22 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
   border: 4px solid #6b5438; background: #2a2033; color: var(--gold);
   font-weight: 800; font-size: 1rem; box-shadow: 0 6px 0 #0005;
 }
-.node-left { margin-right: 128px; }
-.node-right { margin-left: 128px; }
+.node-slot { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: .2rem; }
+.node-slot.node-left { margin-right: 128px; }
+.node-slot.node-right { margin-left: 128px; }
+.node-caption { color: #eadcc0; font-size: .78rem; font-weight: 800; }
+.node-badge {
+  position: absolute; top: -4px; right: -8px; background: #fff4d2; color: #5a3b08;
+  border: 2px solid #a67c2d; border-radius: 999px; font-size: .68rem; line-height: 1.2; padding: 0 .28rem;
+}
+.node-mark { font-family: var(--font-display); font-size: 1.25rem; }
 .node-done { background: linear-gradient(#ffe7a3, #e2b657); color: #5a3b08; border-color: #a67c2d; }
 .node-current {
   background: var(--house); color: var(--house-ink); border-color: var(--gold);
   animation: nodePulse 1.5s ease-in-out infinite;
 }
 .node-locked { opacity: .42; }
-.node-mark { position: relative; z-index: 1; }
+.node { margin: 0; }
 .node-owl { position: absolute; left: 50%; bottom: 78%; width: 58px; transform: translateX(-50%); pointer-events: none; filter: drop-shadow(0 6px 4px #0006); }
 .node-owl svg { width: 58px; height: auto; }
 @keyframes nodePulse { 50% { transform: scale(1.06); box-shadow: 0 0 0 8px color-mix(in srgb, var(--house) 40%, transparent); } }
@@ -385,8 +392,8 @@ body.lesson-mode .prompt-row { margin-bottom: 0; }
   .activity-stats { gap: .35rem .8rem; }
   .home-owl { width: 96px; }
   .speech-bubble::before { display: none; }
-  .node-left { margin-right: 96px; }
-  .node-right { margin-left: 96px; }
+  .node-slot.node-left { margin-right: 96px; }
+  .node-slot.node-right { margin-left: 96px; }
   .node { width: 68px; height: 68px; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -521,6 +528,9 @@ body.lesson-mode .prompt-row { margin-bottom: 0; }
 <script src="us-states.js"></script>
 <script src="fr-regions.js"></script>
 <script src="jp-prefectures.js"></script>
+<script src="us-questions.js"></script>
+<script src="fr-questions.js"></script>
+<script src="jp-questions.js"></script>
 <script src="vocab-en.js"></script>
 <script src="vocab-fr.js"></script>
 <script src="logic.js"></script>
@@ -776,7 +786,7 @@ function R(level, name, kind, tagline, accent) { return { level, name, kind, tag
 const TESTS = {
   us: {
     key: "us", kind: "map", tab: "🇺🇸 States", menu: "🗺️ US States",
-    title: "State Atlas", subtitle: "Find all 50 states. Streaks kindle bonus house points.",
+    title: "State Atlas", subtitle: "Twenty lessons of five, from the big outlines to capitals and landmarks.",
     noun: "state", nounPl: "states", whole: "the United States", perLevel: 8,
     places: US_STATES, water: US_WATER, lonely: "It doesn't touch any other state!",
     welcome: "Rowan unrolls the states. Tap the one he names.",
@@ -792,7 +802,7 @@ const TESTS = {
   },
   fr: {
     key: "fr", kind: "map", tab: "🇫🇷 France", menu: "🗼 French Regions",
-    title: "Regions of France", subtitle: "Find all 18 regions, mainland and overseas.",
+    title: "Regions of France", subtitle: "Twenty lessons of five: the map, then capitals, cities, départements, and landmarks.",
     noun: "region", nounPl: "regions", whole: "France", perLevel: 3,
     places: FR_REGIONS, water: FR_WATER, lonely: "It doesn't touch any other French region!",
     welcome: "Rowan spreads the map of France. Tap the region he names.",
@@ -808,7 +818,7 @@ const TESTS = {
   },
   jp: {
     key: "jp", kind: "map", tab: "🇯🇵 Japan", menu: "🗾 Japanese Prefectures",
-    title: "Prefectures of Japan", subtitle: "Find all 47 prefectures. Okinawa sits in its own box.",
+    title: "Prefectures of Japan", subtitle: "Twenty lessons of five: the map, then capitals, cities, and landmarks.",
     noun: "prefecture", nounPl: "prefectures", whole: "Japan", perLevel: 8, labelSize: 9, starSize: 10, insetCaption: "Southern islands",
     places: JP_PREFS, water: JP_WATER, lonely: "It doesn't touch any other prefecture!",
     welcome: "Rowan opens the map of Japan. Tap the prefecture he names.",
@@ -892,10 +902,10 @@ const TESTS = {
   },
   mixed: {
     key: "mixed", kind: "mixed", tab: "✨ Mixed", menu: "✨ Mixed quest",
-    title: "Mixed Quest", subtitle: "Every subject, one after another: maps, both vocabularies, number charms, and French verbs.",
+    title: "Mixed Quest", subtitle: "Twenty lessons. Leçon N asks five questions from every subject.",
     noun: "question", nounPl: "questions", perLevel: 40, whole: "the realm",
     ask: "Your move.",
-    welcome: "Every subject, one quest. Maps, both vocabularies, number charms, and French verbs.",
+    welcome: "Leçon by leçon, five questions from every subject.",
     champion: "Quest Champion",
     rewards: [
       R(1, "Quest Cauldron", "cauldron", "Words and maps simmer together.", "#1f6b4a"),
@@ -992,18 +1002,26 @@ const mapPacks = {};
 let shownMap = null;
 
 function questionKind() {
+  const q = current();
+  if (q && q.kind) return q.kind;
   if (!test) return null;
-  if (test.kind === "mixed") return current()?.kind || null;
-  return test.kind;
+  return test.kind === "mixed" ? null : test.kind;
 }
 function activeMapKey() {
-  if (test?.kind === "mixed") return current()?.map || null;
-  if (test?.kind === "map") return test.key;
+  const q = current();
+  if (q && q.kind === "map") return q.map || null;
   return null;
 }
 function hintContext() {
-  if (test?.kind === "mixed" && current()?.kind === "map") return TESTS[current().map];
+  const q = current();
+  if (q && q.kind === "map" && TESTS[q.map]) return TESTS[q.map];
   return test;
+}
+function basePlace(mapKey, geoId) {
+  const spec = TESTS[mapKey];
+  const row = spec && spec.places && spec.places.find(p => p[0] === geoId);
+  if (!row) return null;
+  return { id: row[0], geoId: row[0], name: row[1], abbr: row[2], region: row[3] };
 }
 const byId = id => places.find(p => p.id === id);
 const current = () => {
@@ -1012,20 +1030,19 @@ const current = () => {
   return byId(S.queue && S.queue[0]);
 };
 function geoPlace(geoId) {
-  if (!test || test.kind !== "mixed") return byId(geoId);
   const map = activeMapKey();
-  return places.find(p => p.kind === "map" && p.map === map && p.geoId === geoId);
+  if (map) return basePlace(map, geoId);
+  if (test && test.kind === "map") return basePlace(test.key, geoId);
+  return byId(geoId);
 }
 function shapeFound(geoId) {
-  if (!test || test.kind !== "mixed") return S.found.has(geoId);
   const map = activeMapKey();
+  if (!map) return S.found.has(geoId);
   return places.some(p => p.kind === "map" && p.map === map && p.geoId === geoId && S.found.has(p.id));
 }
 function isTargetGeo(geoId) {
   const t = current();
-  if (!t) return false;
-  if (test.kind !== "mixed") return t.id === geoId;
-  return t.kind === "map" && t.geoId === geoId;
+  return !!(t && t.kind === "map" && t.geoId === geoId);
 }
 
 const MIX_SOURCES = ["us", "fr", "jp", "vocab-en", "vocab-fr", "logic", "conj"];
@@ -1052,10 +1069,8 @@ function readSession() {
   const found = (saved.found || []).filter(id => known.has(id));
   let queue = (saved.queue || []).filter(id => known.has(id));
   const seen = new Set(queue.concat(found));
-  if (!saved.won) {
-    const extras = shuffle(places.map(p => p.id).filter(id => !seen.has(id)));
-    queue = queue.concat(extras);
-  }
+  const extras = shuffle(places.map(p => p.id).filter(id => !seen.has(id)));
+  if (extras.length) queue = queue.concat(extras);
   if (!(saved.lock && saved.lock.id === queue[0])) {
     while (queue.length && found.includes(queue[0])) queue.shift();
   }
@@ -1064,7 +1079,7 @@ function readSession() {
     missed: (saved.missed || []).filter(id => known.has(id)),
     unlocked: saved.unlocked || store.get(`wqa-${test.key}-unlocked`, []) || [],
     best: Math.max(saved.best || 0, store.get(`wqa-${test.key}-best`, 0) || 0),
-    won: !!saved.won && queue.length === 0,
+    won: !extras.length && !!saved.won && queue.length === 0,
     tags: !!saved.tags,
     lock: saved.lock && saved.lock.id === queue[0] ? saved.lock : null,
   };
@@ -1119,24 +1134,71 @@ function mcqPlace(q, extra) {
     explain: q.explain || q.gloss || "",
     ask: q.ask || "",
     level: q.level || "",
-    kind: "mcq",
+    lesson: q.lesson || null,
+    label: q.label || "",
+    kind: q.kind === "map" ? "map" : "mcq",
   }, extra || {});
 }
-function catalogFor(key) {
-  const spec = TESTS[key];
-  if (spec.kind === "map") return spec.places.map(([id, name, abbr, region]) => ({ id, name, abbr, region, kind: "map", map: key, geoId: id }));
-  if (key === "mixed") {
-    const out = [];
-    (window.VOCAB_EN || []).forEach(q => out.push(mcqPlace(q, { id: "mx-ven-" + q.id, source: "vocab-en", contentLang: "en", ask: "Which word is closest in meaning?" })));
-    (window.VOCAB_FR || []).forEach(q => out.push(mcqPlace(q, { id: "mx-vfr-" + q.id, source: "vocab-fr", contentLang: "fr", ask: "Quel est le synonyme le plus proche ?" })));
-    (window.LOGIC_QUESTIONS || []).forEach(q => out.push(mcqPlace(q, { id: "mx-lg-" + q.id, source: "logic", ask: "What number comes next?" })));
-    (window.CONJ_FR || []).forEach(q => out.push(mcqPlace(q, { id: "mx-cj-" + q.id, source: "conj", contentLang: "fr" })));
-    US_STATES.forEach(([id, name, abbr, region]) => out.push({ id: "mx-us-" + id, kind: "map", map: "us", source: "us", geoId: id, name, abbr, region }));
-    FR_REGIONS.forEach(([id, name, abbr, region]) => out.push({ id: "mx-reg-" + id, kind: "map", map: "fr", source: "fr", geoId: id, name, abbr, region }));
-    JP_PREFS.forEach(([id, name, abbr, region]) => out.push({ id: "mx-jp-" + id, kind: "map", map: "jp", source: "jp", geoId: id, name, abbr, region }));
-    return out;
+const TYPE_LABEL = {
+  us: "US states", fr: "French regions", jp: "Japanese prefectures",
+  "vocab-en": "English vocabulary", "vocab-fr": "French vocabulary",
+  logic: "Number patterns", conj: "French conjugation",
+};
+function lessonNumber(q, i) { return q.lesson || Math.floor(i / 5) + 1; }
+function sourceBank(key) {
+  if (key === "us") return window.US_QUESTIONS || [];
+  if (key === "fr") return window.FR_QUESTIONS || [];
+  if (key === "jp") return window.JP_QUESTIONS || [];
+  if (key === "vocab-en") return window.VOCAB_EN || [];
+  if (key === "vocab-fr") return window.VOCAB_FR || [];
+  if (key === "logic") return window.LOGIC_QUESTIONS || [];
+  if (key === "conj") return window.CONJ_FR || [];
+  return [];
+}
+function mixedId(source, q) {
+  if (q.kind === "map") {
+    if (source === "fr") return "mx-reg-" + q.geoId;
+    if (source === "jp") return "mx-jp-" + q.geoId;
+    return "mx-us-" + q.geoId;
   }
-  return (spec.questions || []).map(q => mcqPlace(q, { contentLang: spec.contentLang }));
+  if (source === "vocab-en") return "mx-ven-" + q.id;
+  if (source === "vocab-fr") return "mx-vfr-" + q.id;
+  if (source === "logic") return "mx-lg-" + q.id;
+  if (source === "conj") return "mx-cj-" + q.id;
+  if (source === "us") return "mx-usq-" + q.id;
+  if (source === "fr") return "mx-frq-" + q.id;
+  return "mx-jpq-" + q.id;
+}
+function asQuestion(source, q, i, id) {
+  const lesson = lessonNumber(q, i);
+  const label = TYPE_LABEL[source] || "Question";
+  const spec = TESTS[source] || {};
+  if (q.kind === "map") {
+    const row = basePlace(source, q.geoId);
+    if (!row) return null;
+    return {
+      id, lesson, kind: "map", format: "map", source, label, map: source,
+      geoId: q.geoId, name: row.name, abbr: row.abbr, region: row.region,
+      prompt: q.prompt, explain: q.explain, ask: "",
+    };
+  }
+  return mcqPlace(q, {
+    id, lesson, source, label,
+    contentLang: spec.contentLang,
+    ask: q.ask || spec.ask || "",
+  });
+}
+function catalogFor(key) {
+  const sources = key === "mixed" ? MIX_SOURCES : [key];
+  const out = [];
+  sources.forEach(src => {
+    sourceBank(src).forEach((q, i) => {
+      const id = key === "mixed" ? mixedId(src, q) : (q.kind === "map" ? q.geoId : q.id);
+      const item = asQuestion(src, q, i, id);
+      if (item) out.push(item);
+    });
+  });
+  return out;
 }
 function ensureMap(key) {
   if (mapPacks[key]) return mapPacks[key];
@@ -1185,7 +1247,7 @@ function onPlaceClick(id) {
   if (S.won && !S.lesson) return;
   const place = geoPlace(id); if (!place) return;
   const target = current();
-  const correct = test.kind === "mixed" ? id === target.geoId : id === target.id;
+  const correct = target.kind === "map" ? id === target.geoId : id === target.id;
   if (S.explore) {
     sfx.click();
     S.peekId = id;
@@ -1583,17 +1645,16 @@ function renderQuiz() {
   if (!q) { card.innerHTML = ""; return; }
   const langCode = q.contentLang || test.contentLang;
   const lang = langCode === "fr" ? ` lang="fr"` : "";
+  const kicker = esc(q.label || "Question");
   let head;
   if (q.seq) {
     const levelName = q.level === "archmage" ? "Archmage" : q.level === "scholar" ? "Scholar" : "Apprentice";
-    const chip = q.source === "logic" ? "Number charm · " : "";
-    head = `<p class="quiz-kicker">${chip}${levelName} pattern</p>
+    head = `<p class="quiz-kicker">${kicker} · ${levelName}</p>
       <h2 class="quiz-word seq-line">${q.seq.join(", ")}, <span class="seq-q">?</span></h2>`;
-  } else if (q.prompt) {
-    head = `<p class="quiz-kicker">${test.key === "mixed" ? "French verb" : "Conjugaison"}</p><h2 class="quiz-word"${lang}>${esc(q.prompt)}</h2>`;
+  } else if (q.word) {
+    head = `<p class="quiz-kicker">${kicker}</p><h2 class="quiz-word"${lang}>${esc(q.word)}</h2>`;
   } else {
-    const chip = q.source === "vocab-fr" ? "French vocabulary" : (S.practice ? "Review" : "Synonym");
-    head = `<p class="quiz-kicker">${chip}</p><h2 class="quiz-word"${lang}>${esc(q.word)}</h2>`;
+    head = `<p class="quiz-kicker">${kicker}</p><h2 class="quiz-word"${lang}>${esc(q.prompt || q.name || "")}</h2>`;
   }
   const choices = (S.choiceOrder || q.choices).map((c, i) => {
     const gone = S.hintHide === c;
@@ -1608,8 +1669,8 @@ function renderQuiz() {
     const infoPop = note ? `<div class="info-pop" hidden${lang}><p class="info-word">${esc(c)}</p><p>${esc(note.def)}</p><p class="info-ex">“${esc(note.ex)}”</p></div>` : "";
     return `<div class="choice-wrap"><div class="choice-line"><button class="${cls.join(" ")}" type="button" data-choice="${i}"${S.locked || gone ? " disabled" : ""}><span class="choice-key">${i + 1}</span><span${lang}>${esc(c)}</span></button>${infoBtn}</div>${infoPop}</div>`;
   }).join("");
-  const ask = q.ask || test.ask;
-  card.innerHTML = `${head}<p class="quiz-ask">${esc(ask)}</p><div class="choice-grid">${choices}</div>`;
+  const ask = q.ask || test.ask || "";
+  card.innerHTML = `${head}${ask ? `<p class="quiz-ask">${esc(ask)}</p>` : ""}<div class="choice-grid">${choices}</div>`;
 }
 
 function renderMap() {
@@ -1751,43 +1812,30 @@ function indexLessons(units) {
     lessons: chunkIds(u.ids, 10).map(ids => ({ index: n++, ids })),
   }));
 }
-function buildPlan() {
-  const levelName = { apprentice: "Apprentice", scholar: "Scholar", archmage: "Archmage" };
-  if (!test || !places) return [];
+function idsForLesson(n) {
   if (test.key === "mixed") {
-    const groups = MIX_SOURCES.map(src => places.filter(p => p.source === src).map(p => p.id));
-    const rotated = [];
-    while (groups.some(g => g.length)) groups.forEach(g => { if (g.length) rotated.push(g.shift()); });
-    const bands = [
-      { title: "Apprentice", sub: "States, regions, prefectures, words, numbers, verbs" },
-      { title: "Scholar", sub: "The same seven subjects, a little deeper" },
-      { title: "Archmage", sub: "The long rotation" },
-    ];
-    const size = Math.ceil(rotated.length / bands.length);
-    return indexLessons(bands.map((b, i) => ({
-      title: b.title,
-      sub: b.sub,
-      ids: rotated.slice(i * size, (i + 1) * size),
-    })));
+    const groups = MIX_SOURCES.map(src => places.filter(p => p.source === src && p.lesson === n));
+    const ids = [];
+    for (let i = 0; i < 5; i++) groups.forEach(g => { if (g[i]) ids.push(g[i].id); });
+    return ids;
   }
-  if (test.key === "logic") {
-    return indexLessons(["apprentice", "scholar", "archmage"].map(lv => ({
-      title: levelName[lv],
-      sub: "Number charms",
-      ids: places.filter(p => p.level === lv).map(p => p.id),
-    })));
-  }
+  return places.filter(p => p.lesson === n).map(p => p.id);
+}
+function buildPlan() {
+  if (!test || !places) return [];
   const bands = [
-    { title: "Apprentice", sub: "The first lessons" },
-    { title: "Scholar", sub: "A longer stretch" },
-    { title: "Archmage", sub: "The last climb" },
+    { title: "Apprentice", sub: "Leçons 1–7", from: 1, to: 7 },
+    { title: "Scholar", sub: "Leçons 8–14", from: 8, to: 14 },
+    { title: "Archmage", sub: "Leçons 15–20", from: 15, to: 20 },
   ];
-  const size = Math.ceil(places.length / bands.length);
-  return indexLessons(bands.map((b, i) => ({
+  return bands.map(b => ({
     title: b.title,
-    sub: b.sub,
-    ids: places.slice(i * size, (i + 1) * size).map(p => p.id),
-  })));
+    sub: test.key === "mixed" ? b.sub + " · five from every subject" : b.sub,
+    lessons: Array.from({ length: b.to - b.from + 1 }, (_, k) => {
+      const n = b.from + k;
+      return { index: n, number: n, ids: idsForLesson(n) };
+    }).filter(ls => ls.ids.length),
+  }));
 }
 function lessonByIndex(index) {
   let found = null;
@@ -1819,12 +1867,15 @@ function renderPath() {
   $("title").textContent = test.title;
   $("subtitle").textContent = test.subtitle;
   const plan = buildPlan();
-  const stars = store.get(`wqa-${test.key}-stars`, {});
+  const stars = store.get(`wqa-${test.key}-lesson-stars`, {});
   const flat = [];
   plan.forEach(u => u.lessons.forEach(ls => flat.push(ls)));
   let currentIndex = flat.findIndex(ls => !ls.ids.every(id => S.found.has(id)));
   if (currentIndex < 0) currentIndex = flat.length;
-  let html = `<div class="path-hero"><div class="home-owl" id="homeOwl" role="img" aria-label="Rowan the academy owl"></div><p>Rowan waits on your next lesson. Ten questions, then a rest.</p></div>`;
+  const blurb = test.key === "mixed"
+    ? "Each leçon takes five questions from every subject."
+    : "Twenty numbered lessons, five questions each.";
+  let html = `<div class="path-hero"><div class="home-owl" id="homeOwl" role="img" aria-label="Rowan the academy owl"></div><p>${blurb}</p></div>`;
   let i = 0;
   plan.forEach(unit => {
     html += `<section class="unit"><h2 class="unit-title">${esc(unit.title)}</h2><p class="unit-sub">${esc(unit.sub)}</p><div class="path">`;
@@ -1832,12 +1883,13 @@ function renderPath() {
       const done = ls.ids.every(id => S.found.has(id));
       const isCurrent = i === currentIndex;
       const locked = !done && i > currentIndex;
-      const st = stars[ls.index] || 0;
+      const st = stars[ls.number] || stars[ls.index] || 0;
       const side = i % 3 === 0 ? "node-left" : i % 3 === 1 ? "node-mid" : "node-right";
-      const cls = ["node", side, done ? "node-done" : "", isCurrent ? "node-current" : "", locked ? "node-locked" : ""].filter(Boolean).join(" ");
-      const mark = done ? (st >= 3 ? "♛" : "★".repeat(Math.max(st, 1))) : (isCurrent ? "▶" : i + 1);
+      const cls = ["node", done ? "node-done" : "", isCurrent ? "node-current" : "", locked ? "node-locked" : ""].filter(Boolean).join(" ");
+      const num = ls.number || (i + 1);
+      const badge = done ? (st >= 3 ? "♛" : "★".repeat(Math.max(st, 1))) : "";
       const owl = isCurrent ? `<span class="node-owl">${owlSVG({ scarf: HOUSES[currentHouse].scarf })}</span>` : "";
-      html += `<button class="${cls}" type="button" data-lesson="${ls.index}" data-replay="${done ? "1" : "0"}"${locked ? " disabled" : ""} aria-label="Lesson ${i + 1}${done ? ", complete" : isCurrent ? ", current" : ", locked"}">${owl}<span class="node-mark">${mark}</span></button>`;
+      html += `<div class="node-slot ${side}"><button class="${cls}" type="button" data-lesson="${ls.index}" data-replay="${done ? "1" : "0"}"${locked ? " disabled" : ""} aria-label="Leçon ${num}${done ? ", complete" : isCurrent ? ", current" : ", locked"}">${owl}<span class="node-mark">${num}</span>${badge ? `<span class="node-badge">${badge}</span>` : ""}</button><span class="node-caption">Leçon ${num}</span></div>`;
       i++;
     });
     html += `</div></section>`;
@@ -1868,7 +1920,7 @@ function renderProfile() {
     const session = store.get(`wqa-${x.key}-session`, null);
     const found = live ? S.found.size : (session && session.found ? session.found.length : 0);
     const score = live ? S.score : (session && session.score) || 0;
-    const total = x.key === "mixed" ? "all" : (x.kind === "map" ? x.places.length : (x.questions || []).length);
+    const total = x.key === "mixed" ? 700 : 100;
     return `<li><strong>${esc(x.title)}</strong><span>${found}${total === "all" ? "" : "/" + total} · ${score} XP</span></li>`;
   }).join("");
   $("profileStats").innerHTML = `<p class="profile-line">Day streak <b>${day.n || 0}</b></p><p class="profile-line">Total XP <b>${totalXp()}</b></p><ul class="profile-list">${rows}</ul>`;
@@ -1921,8 +1973,8 @@ function finishLesson() {
   let stars = 0;
   if (complete && lesson.index >= 0) {
     stars = acc >= 0.999 ? 3 : acc >= 0.8 ? 2 : 1;
-    const all = store.get(`wqa-${test.key}-stars`, {});
-    if (stars > (all[lesson.index] || 0)) { all[lesson.index] = stars; store.set(`wqa-${test.key}-stars`, all); }
+    const all = store.get(`wqa-${test.key}-lesson-stars`, {});
+    if (stars > (all[lesson.index] || 0)) { all[lesson.index] = stars; store.set(`wqa-${test.key}-lesson-stars`, all); }
   }
   bumpDayStreak();
   const xp = lesson.xp || 0;
@@ -1974,8 +2026,8 @@ function syncLessonChrome() {
   if (prompt) {
     prompt.hidden = !(mapQ && t);
     if (mapQ && t) {
-      const kind = t.map === "fr" ? "French region" : t.map === "jp" ? "Japanese prefecture" : "US state";
-      prompt.textContent = "Find the " + kind + ": " + t.name;
+      const kind = t.label || (t.map === "fr" ? "French regions" : t.map === "jp" ? "Japanese prefectures" : "US states");
+      prompt.textContent = kind + " · Find " + t.name;
     }
   }
   if (S.locked && t && !S.practice) {
