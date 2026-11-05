@@ -2,7 +2,7 @@
 
 A quiz castle for curious minds. Geography is still here — the 50 US states, the 18 regions of France, and the 47 prefectures of Japan — beside advanced vocabulary, number-pattern logic, and French conjugation.
 
-Open `index.html`. The home screen is a winding path of twenty numbered lessons, Leçon 1 through Leçon 20. Each single-subject lesson is five questions, gentler at the start. **Choose a quiz** picks the course. You can also jump with a hash: `#us`, `#fr`, `#jp`, `#vocab-en`, `#vocab-fr`, `#logic`, `#conj`, `#mixed`, or `#home` (last course).
+Open `index.html`. The home path is twenty lessons. Each lesson is a unit of seven levels, and the type changes at every node: États, Régions, Préfectures, Anglais, Français, Nombres, then Conjugaison. A node is the five questions of that type's Leçon N. Finishing all seven unlocks the next lesson. **Choose a quiz** still opens a single subject. Hashes: `#home` or `#mixed` for the main path, or `#us`, `#fr`, `#jp`, `#vocab-en`, `#vocab-fr`, `#logic`, `#conj`.
 
 Each course keeps its own score, streak, found questions, and relics in the browser. A day streak counts each local day you finish a lesson. The bottom bar opens Learn, Relics, and Profile. An older save keeps its score and any question it already knew; new questions are added to the path.
 
@@ -13,7 +13,7 @@ Each course keeps its own score, streak, found questions, and relics in the brow
 - **Vocabulary.** A hard word, four choices, one real synonym. English and French each have 100 words. After Check, a wrong choice keeps its info mark, with a definition and an example.
 - **Logic.** 100 number sequences, grouped as Apprentice, Scholar, and Archmage. The rule appears in the banner after Check.
 - **French conjugation.** 100 checked forms: présent, futur, imparfait, passé composé, infinitif, and participe passé. Regular -er and -ir verbs sit with the common irregulars. Passé composé with être agrees in the masculine, and vous is treated as masculine singular.
-- **Mixed quest.** Leçon N takes the five questions from Leçon N of every subject: US states, French regions, Japanese prefectures, English synonyms, French synonyms, number patterns, and French conjugation (35 questions). Each question is labeled with its type. The desk switches between the card and the map.
+- **Home path.** Leçon N holds seven nodes, one per subject, in that order. Two nodes in a row are never the same type. The questions are the same five as that subject's own Leçon N, so finishing a node fills the same progress as playing it inside the subject, and the other way around.
 - **Synonym notes.** After an English or French answer, each choice has an info mark with a definition and an example sentence.
 
 The four houses — Emberwyck, Verdant Hollow, Azure Quill, and Amberkeep — only change the accent colour.
