@@ -255,6 +255,27 @@ test("tap to quiz leaves explore and accepts a map answer", async ({ page }) => 
   assertQuiet(errors);
 });
 
+test("synonym feedback shows an example sentence", async ({ page }) => {
+  const errors = errorsOf(page);
+  for (const [hash, label] of [["#vocab-fr", "Exemple : "], ["#vocab-en", "Example: "]]) {
+    await page.goto("/index.html?syn=1" + hash, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => localStorage.clear());
+    await page.goto("/index.html?syn=2" + hash, { waitUntil: "domcontentloaded" });
+    await page.waitForSelector(".node-current");
+    await page.locator(".node-current").click({ force: true });
+    const word = (await page.locator(".quiz-word").innerText()).trim();
+    const wrong = hash === "#vocab-fr";
+    await answerCurrent(page, { wrong });
+    await page.waitForSelector("#feedbackExample:not([hidden])");
+    const line = await page.locator("#feedbackExample").innerText();
+    expect(line.startsWith(label)).toBe(true);
+    expect(line.toLocaleLowerCase("fr")).toContain(word.toLocaleLowerCase("fr"));
+    if (wrong) await expect(page.locator("#feedback")).toHaveClass(/feedback-no/);
+    else await expect(page.locator("#feedback")).toHaveClass(/feedback-ok/);
+  }
+  assertQuiet(errors);
+});
+
 test("each single-subject course plays lesson 1", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "subject courses are played on desktop");
   test.setTimeout(300_000);

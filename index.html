@@ -175,6 +175,7 @@ button:disabled:not(.choice-right):not(.choice-wrong) { opacity: .45; }
 .progress-relic svg { width: 56px; height: 56px; filter: grayscale(1) opacity(.7); }
 .progress-info { display: flex; flex-direction: column; flex: 1; gap: .2rem; }
 .progress-label, .progress-count { color: var(--muted); font-size: .85rem; font-weight: 700; }
+.progress-rule { color: var(--ink); font-size: .82rem; font-weight: 700; line-height: 1.35; }
 .progress-track { background: #e5d7b8; border-radius: 999px; height: 12px; overflow: hidden; }
 .progress-fill { background: linear-gradient(90deg, var(--house), var(--gold)); border-radius: 999px; height: 100%; transition: width .4s; }
 .map-card, .quiz-card, .shelf-card {
@@ -376,7 +377,7 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
 .summary-relics { display: flex; flex-wrap: wrap; gap: .7rem; justify-content: center; margin-top: .8rem; }
 .summary-relic svg { width: 96px; height: auto; }
 .summary-note { margin-top: .8rem; color: var(--muted); font-weight: 700; line-height: 1.4; }
-.relic-rule { margin: .35rem 0 1rem; color: var(--muted); font-weight: 700; line-height: 1.4; text-align: left; font-size: .95rem; }
+.relic-rule { margin: .35rem 0 1rem; color: var(--muted); font-weight: 700; line-height: 1.4; text-align: left; font-size: .95rem; white-space: pre-line; }
 .relic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; text-align: center; }
 .relic-card { background: #efe4cc; border-radius: 16px; padding: .6rem; }
 .relic-card svg { width: 100%; max-width: 120px; height: auto; }
@@ -389,7 +390,6 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
 .profile-list span { color: var(--muted); font-weight: 700; white-space: nowrap; }
 body.lesson-mode .mascot,
 body.lesson-mode .speech-bubble,
-body.lesson-mode #progress,
 body.lesson-mode .shelf-card,
 body.lesson-mode .brand-kicker,
 body.lesson-mode .game-subtitle,
@@ -1172,7 +1172,7 @@ function migrateMixed() {
   store.set("wqa-mixed-migrated", true);
 }
 const BANNERS = {
-  home: ["img/banner-mixed.webp", "A candlelit academy table with a map, a spellbook, and glowing runes"],
+  home: ["img/banner-home.webp", "A candlelit path of lesson stones leading up to the academy"],
   mixed: ["img/banner-mixed.webp", "A candlelit academy table with a map, a spellbook, and glowing runes"],
   us: ["img/banner-us.webp", "A magical map of the United States by candlelight"],
   fr: ["img/banner-fr.webp", "An enchanted map of France"],
@@ -1449,8 +1449,8 @@ function onPlaceClick(id) {
 }
 function exampleSentence(q) {
   if (!q || !q.word || !q.example) return "";
-  const fr = test && (test.contentLang === "fr" || test.key === "vocab-fr");
-  return (fr ? "Exemple : " : "Example: ") + q.example;
+  const french = q.source === "vocab-fr" || q.contentLang === "fr" || (test && test.key === "vocab-fr");
+  return (french ? "Exemple : " : "Example: ") + q.example;
 }
 function relicMarks(spec) {
   return spec.rewards.map(r => r.level * spec.perLevel).join(", ");
@@ -1463,21 +1463,25 @@ function relicRemaining(spec, foundCount) {
   return into === 0 ? every : every - into;
 }
 function relicHomeIntro() {
-  return "You earn a relic the first time your new correct answers in a subject hit each multiple of its pace: every 8 for US states and Japanese prefectures, every 3 for French regions, and every 15 for English, French, numbers, and verbs. Finishing a lesson does not award one. A question you already knew does not count again. On a map course, clearing the last question also grants any relic still locked.";
+  return "You earn a relic by getting new questions right. A question you already knew does not count again, and finishing a lesson does not hand you one by itself.\n\nUS states and Japanese prefectures: one relic every 8 new correct answers (8, 16, 24, 32, 40, 48).\nFrench regions: one relic every 3 (3, 6, 9, 12, 15, 18).\nEnglish, French, numbers, and verbs: one relic every 15 (15, 30, 45, 60, 75, 90).\nThe mixed course, on its own: one relic every 40.\n\nOn a map, finding the last place also unlocks any relic still locked.";
 }
 function relicRuleSentence(spec) {
   const mapExtra = spec.kind === "map"
-    ? " Clearing the last question of this map course also grants any relic still locked."
+    ? " Finding the last place on this map also unlocks any relic still locked."
     : "";
-  return "A relic is earned the first time new correct answers in " + spec.title + " reach " + relicMarks(spec) + ". A finished lesson does not award one, and a question you already knew does not count again." + mapExtra;
+  return "In " + spec.title + ", a new relic appears at " + relicMarks(spec) + " new correct answers. That is one relic every " + spec.perLevel + ". A question you already got right does not count again, and finishing a lesson does not give one by itself." + mapExtra;
+}
+function relicProgressRule(spec) {
+  const mapExtra = spec.kind === "map" ? " Finding the last place also unlocks any relic still locked." : "";
+  return "One relic every " + spec.perLevel + " new correct answers. A question you already got right does not count again." + mapExtra;
 }
 function relicSummaryNote(spec, foundCount, earnedNow) {
   const left = relicRemaining(spec, foundCount);
-  if (left === 0) return "Every relic in " + spec.title + " is unlocked. Each one was earned at a multiple of " + spec.perLevel + " new correct answers.";
+  if (left === 0) return "Every relic in " + spec.title + " is unlocked. Each one came from " + spec.perLevel + " new correct answers.";
   const head = earnedNow
-    ? "This relic comes from reaching a multiple of " + spec.perLevel + " new correct answers, not from finishing the lesson alone."
-    : "No relic this time.";
-  return head + " You earn one every " + spec.perLevel + " new correct answers in " + spec.title + ". " + left + " more new correct answers until the next.";
+    ? "You earned this relic by reaching " + spec.perLevel + " new correct answers, not just by finishing the lesson."
+    : "No new relic this time.";
+  return head + " One relic every " + spec.perLevel + " new correct answers in " + spec.title + ". " + left + " more new correct answers until the next.";
 }
 function noteRelic() {
   if (S.found.size % test.perLevel !== 0) return;
@@ -1716,7 +1720,6 @@ function render() {
   const t = current();
   if ((t?.id ?? null) !== lastTarget) { S.askAnswer = null; lastTarget = t?.id ?? null; }
   if (questionKind() === "mcq") ensureChoices();
-  const level = Math.min(Math.floor(S.found.size / test.perLevel) + 1, test.rewards.length);
   const nextReward = test.rewards.find(r => !S.unlocked.includes(r.level));
   const inLevel = S.found.size % test.perLevel;
   const house = HOUSES[currentHouse].name;
@@ -1728,7 +1731,7 @@ function render() {
   showBanner(test.key);
   $("menuItems").innerHTML = quizMenu(test.key);
   const foundLabel = test.kind === "map" ? "Found" : "Correct";
-  $("stats").innerHTML = [["Points", S.score], ["Streak", S.streak > 1 ? "✦ " + S.streak : "—"], ["Level", level], ["Best", S.best], [foundLabel, `${S.found.size}/${places.length}`]]
+  $("stats").innerHTML = [["Points", S.score], ["Streak", S.streak > 1 ? "✦ " + S.streak : "—"], ["Relics", S.unlocked.length], ["Best", S.best], [foundLabel, `${S.found.size}/${places.length}`]]
     .map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("") + `<div><dt>House</dt><dd>${esc(house)}</dd></div>`;
 
   $("mascot").className = `mascot ${S.party ? "mascot-party" : "mascot-bob"}`;
@@ -1771,7 +1774,8 @@ function render() {
     prog.innerHTML = `<div class="progress-relic">${relicSVG(nextReward.kind, nextReward.accent)}</div>
       <div class="progress-info"><span class="progress-label">Next relic: ${esc(nextReward.name)}</span>
       <div class="progress-track"><div class="progress-fill" style="width:${inLevel / test.perLevel * 100}%"></div></div>
-      <span class="progress-count">${inLevel}/${test.perLevel} new correct answers</span></div>`;
+      <span class="progress-count">${inLevel}/${test.perLevel} new correct answers</span>
+      <span class="progress-rule">${esc(relicProgressRule(test))}</span></div>`;
   } else prog.hidden = true;
 
   $("shelf").innerHTML = test.rewards.map(r => {
