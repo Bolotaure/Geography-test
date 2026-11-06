@@ -43,7 +43,7 @@
 :root[data-academy="azurequill"] { --house: #1e4d8c; --house-ink: #f3f7ff; }
 :root[data-academy="amberkeep"] { --house: #8a5a08; --house-ink: #fff8e8; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { min-height: 100%; background: var(--night); color: var(--parchment); font-family: var(--font-body); }
+html, body { min-height: 100%; background: var(--night); color: var(--parchment); font-family: var(--font-body); overflow-x: hidden; }
 body {
   background:
     radial-gradient(circle at 12% 8%, #ffd78a22 0 2px, transparent 3px),
@@ -60,8 +60,13 @@ button:disabled:not(.choice-right):not(.choice-wrong) { opacity: .45; }
 [hidden] { display: none !important; }
 .game-root {
   max-width: 1100px; min-height: 100vh; margin: 0 auto;
-  padding: 1rem clamp(.8rem, 3vw, 2.2rem) 6.5rem;
+  padding: 0 clamp(.8rem, 3vw, 2.2rem) 6.5rem;
   display: flex; flex-direction: column; gap: 1rem;
+}
+.quiz-banner {
+  display: block; width: 100vw; max-width: 100vw; height: clamp(150px, 32vw, 280px);
+  margin-left: calc(50% - 50vw); object-fit: cover; object-position: center 42%;
+  border-bottom: 3px solid var(--gold-deep);
 }
 .brand-kicker { letter-spacing: .16em; text-transform: uppercase; font-size: .72rem; color: var(--gold); font-weight: 700; }
 .game-title { font-family: var(--font-display); color: var(--candle); font-size: clamp(1.7rem, 4vw, 2.6rem); font-weight: 800; line-height: 1.15; text-shadow: 0 2px 0 #0006; }
@@ -341,7 +346,7 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
 .feedback { border-top: 4px solid transparent; animation: sheet .28s ease; }
 .feedback-ok { background: #d9f5e4; color: #145c38; border-top-color: #1f8a4d; }
 .feedback-no { background: #ffd9d4; color: #8c1c2c; border-top-color: #c43838; }
-.feedback-row { display: flex; gap: .8rem; align-items: center; max-width: 640px; margin: 0 auto .7rem; }
+.feedback-row { display: flex; gap: .8rem; align-items: flex-start; max-width: 640px; margin: 0 auto .7rem; }
 .feedback-owl { width: 64px; flex: none; }
 .feedback-owl svg { width: 64px; height: auto; }
 .feedback { max-height: 70vh; overflow: auto; }
@@ -408,6 +413,7 @@ body.lesson-mode .prompt-row { margin-bottom: 0; }
 </head>
 <body>
 <div class="game-root">
+  <img class="quiz-banner" id="quizBanner" alt="" hidden>
   <header class="topbar">
     <div class="pills" aria-label="Streak and points">
       <span class="pill" id="streakPill" title="Days in a row">🔥 0</span>
@@ -793,7 +799,7 @@ function R(level, name, kind, tagline, accent) { return { level, name, kind, tag
 const TESTS = {
   us: {
     key: "us", kind: "map", tab: "🇺🇸 States", menu: "🗺️ US States",
-    title: "State Atlas", subtitle: "Twenty lessons of five, from the big outlines to capitals and landmarks.",
+    title: "State Atlas", subtitle: "",
     noun: "state", nounPl: "states", whole: "the United States", perLevel: 8,
     places: US_STATES, water: US_WATER, lonely: "It doesn't touch any other state!",
     welcome: "Rowan unrolls the states. Tap the one he names.",
@@ -809,7 +815,7 @@ const TESTS = {
   },
   fr: {
     key: "fr", kind: "map", tab: "🇫🇷 France", menu: "🗼 French Regions",
-    title: "Regions of France", subtitle: "Twenty lessons of five: the map, then capitals, cities, départements, and landmarks.",
+    title: "Regions of France", subtitle: "",
     noun: "region", nounPl: "regions", whole: "France", perLevel: 3,
     places: FR_REGIONS, water: FR_WATER, lonely: "It doesn't touch any other French region!",
     welcome: "Rowan spreads the map of France. Tap the region he names.",
@@ -825,7 +831,7 @@ const TESTS = {
   },
   jp: {
     key: "jp", kind: "map", tab: "🇯🇵 Japan", menu: "🗾 Japanese Prefectures",
-    title: "Prefectures of Japan", subtitle: "Twenty lessons of five: the map, then capitals, cities, and landmarks.",
+    title: "Prefectures of Japan", subtitle: "",
     noun: "prefecture", nounPl: "prefectures", whole: "Japan", perLevel: 8, labelSize: 9, starSize: 10, insetCaption: "Southern islands",
     places: JP_PREFS, water: JP_WATER, lonely: "It doesn't touch any other prefecture!",
     welcome: "Rowan opens the map of Japan. Tap the prefecture he names.",
@@ -909,10 +915,10 @@ const TESTS = {
   },
   mixed: {
     key: "mixed", kind: "mixed", tab: "✨ Mixed", menu: "✨ Mixed quest",
-    title: "Mixed Quest", subtitle: "Twenty lessons. Leçon N asks five questions from every subject.",
+    title: "Mixed Quest", subtitle: "",
     noun: "question", nounPl: "questions", perLevel: 40, whole: "the realm",
     ask: "Your move.",
-    welcome: "Leçon by leçon, five questions from every subject.",
+    welcome: "Rowan shuffles every subject together.",
     champion: "Quest Champion",
     rewards: [
       R(1, "Quest Cauldron", "cauldron", "Words and maps simmer together.", "#1f6b4a"),
@@ -1165,6 +1171,31 @@ function migrateMixed() {
   }
   store.set("wqa-mixed-migrated", true);
 }
+const BANNERS = {
+  home: ["img/banner-mixed.webp", "A candlelit academy table with a map, a spellbook, and glowing runes"],
+  mixed: ["img/banner-mixed.webp", "A candlelit academy table with a map, a spellbook, and glowing runes"],
+  us: ["img/banner-us.webp", "A magical map of the United States by candlelight"],
+  fr: ["img/banner-fr.webp", "An enchanted map of France"],
+  jp: ["img/banner-jp.webp", "The islands of Japan under paper lanterns"],
+  "vocab-en": ["img/banner-vocab-en.webp", "An open spellbook of English words"],
+  "vocab-fr": ["img/banner-vocab-fr.webp", "A French grimoire and a quill"],
+  logic: ["img/banner-logic.webp", "Glowing number runes above a desk"],
+  conj: ["img/banner-conj.webp", "A quill writing glowing verb endings"],
+};
+function setSubtitle(text) {
+  const el = $("subtitle");
+  if (!el) return;
+  el.textContent = text || "";
+  el.hidden = !text;
+}
+function showBanner(key) {
+  const img = $("quizBanner");
+  if (!img) return;
+  const row = BANNERS[key] || BANNERS.home;
+  if (img.getAttribute("src") !== row[0]) img.setAttribute("src", row[0]);
+  img.alt = row[1];
+  img.hidden = false;
+}
 function showAcademy() {
   migrateMixed();
   if (test && S && Array.isArray(S.queue)) persist();
@@ -1181,7 +1212,8 @@ function showAcademy() {
   document.title = "Wizard's Quiz Academy";
   $("brand").textContent = "Wizard's Quiz Academy";
   $("title").textContent = "Wizard's Quiz Academy";
-  $("subtitle").textContent = "Vingt leçons. Sept niveaux, et le type change à chaque nœud.";
+  setSubtitle("");
+  showBanner("home");
   $("play").hidden = true;
   $("summary").hidden = true;
   $("backBtn").hidden = true;
@@ -1344,6 +1376,7 @@ function onPlaceClick(id) {
   if (S.explore) {
     sfx.click();
     S.peekId = id;
+    S.peekName = place.name;
     S.message = `That's ${place.name}. It sits in ${place.region}.`;
     later(() => { S.peekId = null; renderMap(); }, 1200);
     return render();
@@ -1630,11 +1663,14 @@ function toggleExplore() {
   if (questionKind() !== "map") return;
   sfx.click();
   S.explore = !S.explore;
+  S.peekId = null;
+  S.peekName = null;
+  S.selectedGeo = null;
   if (S.explore) S.practice = false;
   const t = current();
   S.message = S.explore
     ? `Explore. Tap any ${test.noun} and Rowan will name it.`
-    : t ? `Back to the quest. Where is ${t.name}?` : "Back to the quest.";
+    : (t ? `Quiz on. Where is ${t.name}?` : "Quiz on.");
   render();
 }
 function closeReward() {
@@ -1688,7 +1724,8 @@ function render() {
   document.title = test.title + " · Wizard's Quiz Academy";
   $("brand").textContent = "Wizard's Quiz Academy";
   $("title").textContent = test.title;
-  $("subtitle").textContent = test.subtitle;
+  setSubtitle(test.subtitle);
+  showBanner(test.key);
   $("menuItems").innerHTML = quizMenu(test.key);
   const foundLabel = test.kind === "map" ? "Found" : "Correct";
   $("stats").innerHTML = [["Points", S.score], ["Streak", S.streak > 1 ? "✦ " + S.streak : "—"], ["Level", level], ["Best", S.best], [foundLabel, `${S.found.size}/${places.length}`]]
@@ -1962,9 +1999,9 @@ function idsForLesson(n) {
 function buildPlan() {
   if (!test || !places || test.key === "mixed") return [];
   const bands = [
-    { title: "Apprentice", sub: "Leçons 1–7", from: 1, to: 7 },
-    { title: "Scholar", sub: "Leçons 8–14", from: 8, to: 14 },
-    { title: "Archmage", sub: "Leçons 15–20", from: 15, to: 20 },
+    { title: "Apprentice", sub: "", from: 1, to: 7 },
+    { title: "Scholar", sub: "", from: 8, to: 14 },
+    { title: "Archmage", sub: "", from: 15, to: 20 },
   ];
   return bands.map(b => ({
     title: b.title,
@@ -2023,18 +2060,18 @@ function renderPath() {
   document.title = test.title + " · Wizard's Quiz Academy";
   $("brand").textContent = "Wizard's Quiz Academy";
   $("title").textContent = test.title;
-  $("subtitle").textContent = test.subtitle;
+  setSubtitle(test.subtitle);
+  showBanner(test.key);
   const plan = buildPlan();
   const stars = store.get(`wqa-${test.key}-lesson-stars`, {});
   const flat = [];
   plan.forEach(u => u.lessons.forEach(ls => flat.push(ls)));
   let currentIndex = flat.findIndex(ls => !ls.ids.every(id => S.found.has(id)));
   if (currentIndex < 0) currentIndex = flat.length;
-  const blurb = "Twenty numbered lessons, five questions each.";
-  let html = `<div class="path-hero"><div class="home-owl" id="homeOwl" role="img" aria-label="Rowan the academy owl"></div><p>${blurb}</p></div>`;
+  let html = `<div class="path-hero"><div class="home-owl" id="homeOwl" role="img" aria-label="Rowan the academy owl"></div></div>`;
   let i = 0;
   plan.forEach(unit => {
-    html += `<section class="unit"><h2 class="unit-title">${esc(unit.title)}</h2><p class="unit-sub">${esc(unit.sub)}</p><div class="path">`;
+    html += `<section class="unit"><h2 class="unit-title">${esc(unit.title)}</h2>${unit.sub ? `<p class="unit-sub">${esc(unit.sub)}</p>` : ""}<div class="path">`;
     unit.lessons.forEach(ls => {
       const done = ls.ids.every(id => S.found.has(id));
       const isCurrent = i === currentIndex;
@@ -2063,13 +2100,13 @@ function renderPath() {
 function renderHomePath() {
   migrateMixed();
   const nodes = homeNodes();
-  let html = `<div class="path-hero"><div class="home-owl" id="homeOwl" role="img" aria-label="Rowan the academy owl"></div><p>Chaque leçon a sept niveaux. Le type change à chaque nœud.</p></div>`;
+  let html = `<div class="path-hero"><div class="home-owl" id="homeOwl" role="img" aria-label="Rowan the academy owl"></div></div>`;
   let lesson = 0;
   nodes.forEach((nd, i) => {
     if (nd.lesson !== lesson) {
       if (lesson) html += `</div></section>`;
       lesson = nd.lesson;
-      html += `<section class="unit"><h2 class="unit-title">Leçon ${lesson}</h2><p class="unit-sub">Sept niveaux, un type chacun</p><div class="path">`;
+      html += `<section class="unit"><h2 class="unit-title">Leçon ${lesson}</h2><div class="path">`;
     }
     const stars = store.get(`wqa-${nd.type}-lesson-stars`, {});
     const st = stars[nd.lesson] || 0;
@@ -2244,7 +2281,9 @@ function syncLessonChrome() {
     prompt.hidden = !(mapQ && t);
     if (mapQ && t) {
       const kind = t.label || (t.map === "fr" ? "French regions" : t.map === "jp" ? "Japanese prefectures" : "US states");
-      prompt.textContent = kind + " · Find " + t.name;
+      prompt.textContent = S.explore
+        ? (S.peekName ? "That's " + S.peekName + ". Tap to quiz when you are ready." : "Exploring. Tap a place to learn its name, then tap to quiz.")
+        : kind + " · Find " + t.name;
     }
   }
   if (S.locked && t && !S.practice) {
