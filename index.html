@@ -344,8 +344,10 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
 .feedback-row { display: flex; gap: .8rem; align-items: center; max-width: 640px; margin: 0 auto .7rem; }
 .feedback-owl { width: 64px; flex: none; }
 .feedback-owl svg { width: 64px; height: auto; }
+.feedback { max-height: 70vh; overflow: auto; }
 .feedback-title { font-family: var(--font-display); font-size: 1.25rem; }
 .feedback-body { font-weight: 700; }
+.feedback-example { margin: .45rem 0 0; font-style: italic; font-weight: 650; line-height: 1.35; font-size: .98rem; }
 .check-bar .big-btn, .feedback .big-btn { width: min(520px, 100%); margin: 0 auto; display: block; }
 .feedback-ok .big-btn { background: #1f8a4d; }
 .feedback-no .big-btn { background: #c43838; }
@@ -368,7 +370,8 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
 .summary-acc { font-weight: 800; color: var(--muted); }
 .summary-relics { display: flex; flex-wrap: wrap; gap: .7rem; justify-content: center; margin-top: .8rem; }
 .summary-relic svg { width: 96px; height: auto; }
-.summary-note { margin-top: .8rem; color: var(--muted); font-weight: 700; }
+.summary-note { margin-top: .8rem; color: var(--muted); font-weight: 700; line-height: 1.4; }
+.relic-rule { margin: .35rem 0 1rem; color: var(--muted); font-weight: 700; line-height: 1.4; text-align: left; font-size: .95rem; }
 .relic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; text-align: center; }
 .relic-card { background: #efe4cc; border-radius: 16px; padding: .6rem; }
 .relic-card svg { width: 100%; max-width: 120px; height: auto; }
@@ -476,6 +479,7 @@ body.lesson-mode .prompt-row { margin-bottom: 0; }
   <section id="relicsPane" hidden aria-label="Relics">
     <div class="relic-board">
       <h2 class="summary-title">Relic shelf</h2>
+      <p class="relic-rule" id="relicRule"></p>
       <div class="relic-grid" id="relicGrid"></div>
     </div>
   </section>
@@ -518,6 +522,7 @@ body.lesson-mode .prompt-row { margin-bottom: 0; }
     <div>
       <p class="feedback-title" id="feedbackTitle"></p>
       <p class="feedback-body" id="feedbackBody"></p>
+      <p class="feedback-example" id="feedbackExample" hidden></p>
     </div>
   </div>
   <button class="big-btn" id="continueBtn" type="button">Continue</button>
@@ -1207,6 +1212,7 @@ function mcqPlace(q, extra) {
     choices: (q.choices || []).map(String),
     answer: String(q.answer),
     explain: q.explain || q.gloss || "",
+    example: q.example || "",
     ask: q.ask || "",
     level: q.level || "",
     lesson: q.lesson || null,
@@ -1408,6 +1414,38 @@ function onPlaceClick(id) {
   }
   render();
 }
+function exampleSentence(q) {
+  if (!q || !q.word || !q.example) return "";
+  const fr = test && (test.contentLang === "fr" || test.key === "vocab-fr");
+  return (fr ? "Exemple : " : "Example: ") + q.example;
+}
+function relicMarks(spec) {
+  return spec.rewards.map(r => r.level * spec.perLevel).join(", ");
+}
+function relicRemaining(spec, foundCount) {
+  const every = spec.perLevel;
+  const cap = spec.rewards.length * every;
+  if (foundCount >= cap) return 0;
+  const into = foundCount % every;
+  return into === 0 ? every : every - into;
+}
+function relicHomeIntro() {
+  return "You earn a relic the first time your new correct answers in a subject hit each multiple of its pace: every 8 for US states and Japanese prefectures, every 3 for French regions, and every 15 for English, French, numbers, and verbs. Finishing a lesson does not award one. A question you already knew does not count again. On a map course, clearing the last question also grants any relic still locked.";
+}
+function relicRuleSentence(spec) {
+  const mapExtra = spec.kind === "map"
+    ? " Clearing the last question of this map course also grants any relic still locked."
+    : "";
+  return "A relic is earned the first time new correct answers in " + spec.title + " reach " + relicMarks(spec) + ". A finished lesson does not award one, and a question you already knew does not count again." + mapExtra;
+}
+function relicSummaryNote(spec, foundCount, earnedNow) {
+  const left = relicRemaining(spec, foundCount);
+  if (left === 0) return "Every relic in " + spec.title + " is unlocked. Each one was earned at a multiple of " + spec.perLevel + " new correct answers.";
+  const head = earnedNow
+    ? "This relic comes from reaching a multiple of " + spec.perLevel + " new correct answers, not from finishing the lesson alone."
+    : "No relic this time.";
+  return head + " You earn one every " + spec.perLevel + " new correct answers in " + spec.title + ". " + left + " more new correct answers until the next.";
+}
 function noteRelic() {
   if (S.found.size % test.perLevel !== 0) return;
   const reward = test.rewards.find(r => r.level === S.found.size / test.perLevel);
@@ -1474,11 +1512,11 @@ function onChoice(choice) {
     if (ok) {
       sfx.correct(); fireConfetti(false);
       if (S.firstTry) { S.missed.delete(q.id); saveMissed(); }
-      S.message = S.firstTry ? `${pick(CHEERS)} Cleared from review.` : `Right on the review.`;
+      S.message = (S.firstTry ? `${pick(CHEERS)} Cleared from review.` : `Right on the review.`) + (exampleSentence(q) ? " " + exampleSentence(q) : "");
     } else {
       S.firstTry = false;
       sfx.wrong();
-      S.message = `The charm slips. The true match was ${q.answer}.`;
+      S.message = `The charm slips. The true match was ${q.answer}.` + (exampleSentence(q) ? " " + exampleSentence(q) : "");
     }
     return render();
   }
@@ -1507,7 +1545,7 @@ function onChoice(choice) {
     if (!S.lesson || !S.lesson.replay) { S.missed.add(q.id); saveMissed(); }
     if (S.lesson) S.lesson.hearts = Math.max(0, S.lesson.hearts - 1);
     sfx.wrong();
-    S.message = `The spell fizzles. ${q.answer} was the true match.`;
+    S.message = `The spell fizzles. ${q.answer} was the true match.` + (exampleSentence(q) ? " " + exampleSentence(q) : "");
   }
   render();
 }
@@ -1696,12 +1734,12 @@ function render() {
     prog.innerHTML = `<div class="progress-relic">${relicSVG(nextReward.kind, nextReward.accent)}</div>
       <div class="progress-info"><span class="progress-label">Next relic: ${esc(nextReward.name)}</span>
       <div class="progress-track"><div class="progress-fill" style="width:${inLevel / test.perLevel * 100}%"></div></div>
-      <span class="progress-count">${inLevel}/${test.perLevel} ${esc(test.nounPl)}</span></div>`;
+      <span class="progress-count">${inLevel}/${test.perLevel} new correct answers</span></div>`;
   } else prog.hidden = true;
 
   $("shelf").innerHTML = test.rewards.map(r => {
     const owned = S.unlocked.includes(r.level);
-    return `<div class="shelf-item ${owned ? "shelf-owned" : "shelf-locked"}">${relicSVG(r.kind, r.accent)}<span class="shelf-name">${owned ? esc(r.name) : "Level " + r.level}</span></div>`;
+    return `<div class="shelf-item ${owned ? "shelf-owned" : "shelf-locked"}">${relicSVG(r.kind, r.accent)}<span class="shelf-name">${owned ? esc(r.name) : (r.level * test.perLevel) + " correct"}</span></div>`;
   }).join("");
 
   renderModal();
@@ -1839,9 +1877,10 @@ function renderModal() {
   if (S.reward) {
     const r = S.reward;
     m.innerHTML = `<div class="modal-backdrop" data-close="1"><div class="reward-modal" role="dialog" aria-modal="true" aria-labelledby="rewardName">
-      <div class="reward-banner">Level ${r.level} complete</div>
+      <div class="reward-banner">Relic earned</div>
       <div class="reward-img">${relicSVG(r.kind, r.accent)}</div>
       <h3 class="reward-name" id="rewardName">${esc(r.name)}</h3><p class="reward-tagline">${esc(r.tagline)}</p>
+      <p class="reward-tagline">Earned at ${r.level * test.perLevel} new correct answers in ${esc(test.title)}.</p>
       <button class="big-btn" type="button" data-action="close-reward">Onward</button></div></div>`;
   } else if (S.won) {
     const scoreLine = test.kind === "map"
@@ -2064,8 +2103,10 @@ function openHomeLevel(type, lesson, replay) {
 }
 function renderRelics() {
   const grid = $("relicGrid");
+  const rule = $("relicRule");
   if (!grid) return;
   if (pathHome || !test) {
+    if (rule) rule.textContent = relicHomeIntro();
     grid.innerHTML = MIX_SOURCES.map(key => {
       const spec = TESTS[key];
       const saved = store.get(`wqa-${key}-session`, null);
@@ -2078,9 +2119,11 @@ function renderRelics() {
     }).join("");
     return;
   }
+  if (rule) rule.textContent = relicRuleSentence(test);
   grid.innerHTML = test.rewards.map(r => {
     const owned = S.unlocked.includes(r.level);
-    return `<article class="relic-card ${owned ? "relic-owned" : "relic-locked"}">${relicSVG(r.kind, r.accent)}<h3>${owned ? esc(r.name) : "Locked"}</h3><p>${owned ? esc(r.tagline) : "Reach level " + r.level}</p></article>`;
+    const need = r.level * test.perLevel;
+    return `<article class="relic-card ${owned ? "relic-owned" : "relic-locked"}">${relicSVG(r.kind, r.accent)}<h3>${owned ? esc(r.name) : "Locked"}</h3><p>${owned ? esc(r.tagline) : "After " + need + " new correct answers"}</p></article>`;
   }).join("");
 }
 function renderProfile() {
@@ -2171,9 +2214,11 @@ function finishLesson() {
   $("summaryTitle").textContent = heartsOut ? "Out of hearts" : (complete ? "Lesson complete" : "Keep practicing");
   $("summaryXp").textContent = "+" + xp + " XP";
   $("summaryAcc").textContent = Math.round(acc * 100) + "% accurate" + (stars ? " · " + "★".repeat(stars) : "");
-  $("summaryRelics").innerHTML = relics.length
+  const relicNote = relicSummaryNote(test, S.found.size, relics.length > 0);
+  const missedNote = !relics.length && !complete ? `<p class="summary-note">Missed questions stay on this lesson until you land them.</p>` : "";
+  $("summaryRelics").innerHTML = (relics.length
     ? relics.map(r => `<div class="summary-relic">${relicSVG(r.kind, r.accent)}<p>${esc(r.name)}</p><p>${esc(r.tagline)}</p></div>`).join("")
-    : `<p class="summary-note">${complete ? "A clean lesson. The shelf is patient." : "Missed questions stay on this lesson until you land them."}</p>`;
+    : "") + missedNote + `<p class="summary-note">${esc(relicNote)}</p>`;
   persist();
   updatePills();
 }
@@ -2216,6 +2261,9 @@ function syncLessonChrome() {
       $("feedbackBody").textContent = ok
         ? (useful ? explain : "That's " + answer + ".")
         : "You tapped " + S.picked + ". The answer is " + answer + "." + (useful && !mapQ ? " " + explain : "");
+      const ex = $("feedbackExample");
+      const line = exampleSentence(t);
+      if (ex) { ex.hidden = !line; ex.textContent = line; }
       $("feedbackOwl").innerHTML = owlSVG({ scarf: HOUSES[currentHouse].scarf });
     }
   } else if (fb && bar) {

@@ -339,6 +339,7 @@
     ["wholesome", "Good for one's health or moral well-being.", "The film was wholesome family entertainment."],
     ["wordy", "Using too many words.", "Cut the wordy introduction."],
     ["yielding", "Giving way under pressure, rather than resisting.", "The yielding branch bent in the wind."],
+    ["ever-present","Always there, found in every place.","The ever-present hum of the city never quite stops."],
   ];
   const lex = {};
   rows.forEach(([word, def, ex]) => { lex[word] = { def: def, ex: ex }; });
