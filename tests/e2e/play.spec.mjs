@@ -220,6 +220,41 @@ test("home path alternates types and plays every lesson", async ({ page }) => {
   assertQuiet(errors);
 });
 
+test("tap to quiz leaves explore and accepts a map answer", async ({ page }) => {
+  const errors = await fresh(page, "#fr");
+  await page.waitForSelector(".node-current");
+  await page.locator(".node-current").click({ force: true });
+  await page.waitForSelector("#map svg path");
+  await expect(page.locator("#quizBanner")).toBeVisible();
+  await expect(page.locator("#quizBanner")).toHaveAttribute("src", /banner-fr\.webp/);
+  await expect(page.locator("#lessonPrompt")).toContainText("Find ");
+  await page.click("#exploreBtn");
+  await expect(page.locator("#exploreBtn")).toContainText("tap to quiz");
+  await expect(page.locator("#checkBar")).toBeHidden();
+  await expect(page.locator("#lessonPrompt")).toContainText("Exploring");
+  const sample = await page.evaluate(() => {
+    const path = document.querySelector("#map path[aria-label]");
+    path.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    return path.getAttribute("aria-label");
+  });
+  await expect(page.locator("#lessonPrompt")).toContainText(sample);
+  await page.click("#exploreBtn");
+  await expect(page.locator("#exploreBtn")).toHaveText("Explore");
+  await expect(page.locator("#checkBar")).toBeVisible();
+  await expect(page.locator("#lessonPrompt")).toContainText("Find ");
+  await expect(page.locator("#checkBtn")).toBeDisabled();
+  const target = (await page.locator("#lessonPrompt").innerText()).split("Find ").pop().trim();
+  await page.evaluate(name => {
+    const el = [...document.querySelectorAll("#map path[aria-label]")].find(p => p.getAttribute("aria-label") === name);
+    el.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  }, target);
+  await expect(page.locator("#checkBtn")).toBeEnabled();
+  await page.click("#checkBtn");
+  await expect(page.locator("#feedbackTitle")).toHaveText("Correct!");
+  await expect(page.locator(".game-subtitle")).toBeHidden();
+  assertQuiet(errors);
+});
+
 test("each single-subject course plays lesson 1", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "subject courses are played on desktop");
   test.setTimeout(300_000);
