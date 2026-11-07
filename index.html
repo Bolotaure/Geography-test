@@ -73,7 +73,12 @@ body.academy-home .course-head { order: -1; padding-top: .85rem; }
 .game-title { font-family: var(--font-display); color: var(--candle); font-size: clamp(1.7rem, 4vw, 2.6rem); font-weight: 800; line-height: 1.15; text-shadow: 0 2px 0 #0006; }
 .game-subtitle { color: #eadcc0; font-size: clamp(.95rem, 2.4vw, 1.12rem); margin-top: .2rem; }
 .activity-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
-.back-btn { color: var(--gold); font-weight: 700; min-height: 44px; padding: 0 .2rem .2rem 0; text-decoration: underline; text-underline-offset: 3px; }
+.back-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; margin-bottom: .15rem; padding: 0;
+  border-radius: 14px; background: #241828; border: 2px solid #5c4a32; color: var(--gold);
+  text-decoration: none;
+}
 .activity-menu-wrap { position: relative; flex-shrink: 0; }
 .activity-trigger, .mode-btn, .test-tab, .topic-btn, .house-btn, .choice, .zoom-btn {
   min-height: 44px;
@@ -488,7 +493,9 @@ body.feedback-open #progress { display: none !important; }
   <button class="path-reset" id="resetQuiz" type="button">Reset a quiz</button>
   <div class="course-head">
     <div>
-      <button class="back-btn" id="backBtn" type="button" hidden>← Academy</button>
+      <button class="back-btn" id="backBtn" type="button" hidden aria-label="Home">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg>
+      </button>
       <p class="brand-kicker" id="brand">Candlelight &amp; questions</p>
       <h1 class="game-title" id="title">Wizard's Quiz Academy</h1>
       <p class="game-subtitle" id="subtitle">A castle of maps, words, and number-charms.</p>
@@ -2333,7 +2340,7 @@ function renderPath() {
   $("title").textContent = test.title;
   setSubtitle(test.subtitle);
   showBanner(test.key);
-  if ($("backBtn")) { $("backBtn").hidden = false; $("backBtn").textContent = L("back"); }
+  if ($("backBtn")) { $("backBtn").hidden = false; $("backBtn").setAttribute("aria-label", uiLang() === "fr" ? "Académie" : "Home"); }
   if ($("resetQuiz")) $("resetQuiz").textContent = L("reset");
   const plan = buildPlan();
   const stars = store.get(`wqa-${test.key}-lesson-stars`, {});
