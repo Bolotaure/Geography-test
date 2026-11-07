@@ -523,9 +523,9 @@ body.feedback-open #progress { display: none !important; }
 }
 /* In a quiz, only the path scrolls: the page itself stays put, so the
    browser bars never collapse and nothing above or behind the path moves. */
-body:not(.academy-home):not(.lesson-mode) { height: 100vh; height: 100dvh; overflow: hidden; }
+html:has(body:not(.academy-home):not(.lesson-mode)), body:not(.academy-home):not(.lesson-mode) { height: 100vh; height: 100dvh; overflow: hidden; overscroll-behavior: none; }
 body:not(.academy-home):not(.lesson-mode) .game-root {
-  height: 100vh; height: 100dvh; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  height: 100vh; height: 100dvh; min-height: 0; overflow-y: auto; overscroll-behavior: none;
 }
 body.academy-home #pathBg, body.lesson-mode #pathBg { display: none; }
 .game-root { position: relative; z-index: 1; }
