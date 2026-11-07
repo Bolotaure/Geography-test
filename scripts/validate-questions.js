@@ -14,6 +14,26 @@ const root = path.join(__dirname, "..");
 const errors = [];
 function fail(msg) { errors.push(msg); }
 
+function exampleUsesWord(sentence, word) {
+  const esc = String(word).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp("(?<![\\p{L}\\p{N}])" + esc + "(?![\\p{L}\\p{N}])", "iu").test(String(sentence));
+}
+function foldForm(s) {
+  return String(s).normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+}
+function formMap(items) {
+  const m = new Map();
+  (items || []).forEach(q => {
+    [q.word, ...(q.choices || [])].forEach(w => {
+      if (!w) return;
+      const k = foldForm(w);
+      if (!m.has(k)) m.set(k, []);
+      m.get(k).push(q.id + " " + w);
+    });
+  });
+  return m;
+}
+
 function loadWindow(file) {
   const ctx = { window: {} };
   vm.createContext(ctx);
@@ -48,6 +68,8 @@ function checkBank(name, items, fields) {
       prompts.add(q.word);
       if (q.word === q.answer) fail(where + " answer equals the prompt");
       if (!String(q.gloss).includes(q.answer)) fail(where + " gloss does not name the answer");
+      if (!q.example || String(q.example).trim().length < 12) fail(where + " example missing or too short");
+      else if (!exampleUsesWord(q.example, q.word)) fail(where + " example does not use the prompt word");
     }
   });
 }
@@ -55,7 +77,7 @@ function checkBank(name, items, fields) {
 // Extra synonyms that must not sneak in as a second correct choice.
 const CLUSTERS = [
   ["ephemeral", "transitory", "fleeting", "momentary", "transient"],
-  ["ubiquitous", "omnipresent", "widespread"],
+  ["ubiquitous", "omnipresent", "ever-present", "widespread"],
   ["laconic", "terse", "curt"],
   ["succinct", "concise", "pithy", "brief"],
   ["verbose", "prolix", "wordy", "long-winded"],
@@ -148,106 +170,105 @@ const CLUSTERS = [
   ["taciturn", "reserved"],
   ["bombastic", "pompous"],
   ["ostentatious", "flamboyant", "showy"],
-  ["éphémère", "fugace"],
-  ["passager", "temporaire"],
-  ["ubiquiste", "omniprésent"],
-  ["laconique", "lapidaire"],
-  ["érudit", "savant"],
-  ["pragmatique", "pratique"],
-  ["ambigu", "équivoque"],
   ["altruiste", "désintéressé"],
-  ["candide", "ingénu", "naïf"],
-  ["crédule", "naïf", "ingénu"],
-  ["assidu", "appliqué"],
   ["austère", "dépouillé"],
-  ["loquace", "bavard"],
-  ["méticuleux", "minutieux"],
-  ["résilient", "résistant"],
   ["opiniâtre", "entêté"],
-  ["prolixe", "verbeux"],
-  ["lucide", "clair"],
-  ["abscons", "obscur"],
-  ["prolifique", "fécond"],
-  ["embryonnaire", "naissant"],
-  ["désuet", "obsolète"],
-  ["ardu", "pénible"],
-  ["magnanime", "généreux"],
-  ["parcimonieux", "chiche"],
-  ["vorace", "glouton"],
-  ["zélé", "fervent"],
-  ["apathique", "indifférent"],
-  ["probant", "concluant"],
-  ["éloquent", "disert"],
-  ["succinct", "bref"],
-  ["redondant", "superflu"],
-  ["profond", "pénétrant"],
-  ["superficiel", "sommaire"],
-  ["impartial", "équitable"],
-  ["tendancieux", "biaisé"],
-  ["clandestin", "secret"],
+  ["désuet", "périmé"],
+  ["bavard", "volubile", "loquace"],
+  ["pingre", "ladre", "avare"],
+  ["prodigue", "dépensier"],
+  ["honnête", "intègre"],
+  ["fourbe", "perfide"],
+  ["patient", "persévérant"],
+  ["fébrile", "agité"],
+  ["tapageur", "bruyant"],
+  ["feutré", "discret"],
+  ["colossal", "immense"],
+  ["infime", "minuscule"],
+  ["vaillant", "courageux"],
+  ["couard", "lâche", "poltron", "pusillanime"],
+  ["orgueilleux", "hautain"],
+  ["effacé", "discret"],
+  ["infortuné", "malheureux"],
+  ["passager", "provisoire"],
+  ["limpide", "cristallin"],
   ["manifeste", "évident"],
-  ["furtif", "sournois"],
-  ["exorbitant", "excessif"],
   ["dérisoire", "négligeable"],
-  ["copieux", "abondant"],
-  ["clairsemé", "épars"],
-  ["limpide", "transparent"],
-  ["perpétuel", "éternel"],
-  ["sporadique", "intermittent"],
-  ["chronique", "persistant"],
-  ["anodin", "inoffensif"],
-  ["virulent", "venimeux"],
-  ["pernicieux", "néfaste"],
-  ["salutaire", "bénéfique"],
-  ["délétère", "nocif"],
-  ["vénéneux", "toxique"],
+  ["prohibitif", "démesuré"],
+  ["objectif", "équitable"],
+  ["acerbe", "mordant"],
   ["salubre", "sain"],
-  ["robuste", "solide"],
-  ["frêle", "fragile"],
-  ["chétif", "faible"],
-  ["vigoureux", "énergique"],
-  ["léthargique", "somnolent"],
-  ["indolent", "paresseux"],
-  ["industrieux", "travailleur"],
-  ["serein", "paisible"],
-  ["turbulent", "agité"],
-  ["placide", "tranquille"],
+  ["chétif", "malingre"],
+  ["nonchalant", "paresseux"],
+  ["chahuteur", "agité"],
   ["irascible", "colérique"],
   ["courroucé", "furieux"],
-  ["jovial", "enjoué"],
-  ["morose", "maussade"],
+  ["guilleret", "enjoué"],
+  ["renfrogné", "maussade"],
   ["allègre", "joyeux"],
-  ["sceptique", "dubitatif"],
-  ["douteux", "incertain"],
-  ["inéluctable", "inévitable"],
-  ["tributaire", "dépendant"],
-  ["autonome", "indépendant"],
-  ["accessoire", "secondaire"],
+  ["fugace", "évanescent"],
+  ["répandu", "omniprésent"],
+  ["lapidaire", "bref"],
+  ["terre-à-terre", "réaliste"],
+  ["ingénu", "naïf"],
+  ["appliqué", "studieux"],
+  ["minutieux", "pointilleux"],
+  ["coriace", "résistant"],
+  ["verbeux", "diffus"],
+  ["abscons", "nébuleux"],
+  ["fécond", "fructueux"],
+  ["embryonnaire", "naissant"],
+  ["harassant", "exténuant"],
+  ["clément", "indulgent"],
+  ["occulte", "caché"],
+  ["plantureux", "opulent"],
+  ["clairsemé", "dispersé"],
+  ["sempiternel", "incessant"],
+  ["épisodique", "occasionnel"],
+  ["lancinant", "obsédant"],
+  ["funeste", "néfaste"],
+  ["bienfaisant", "profitable"],
+  ["nocif", "nuisible"],
+  ["costaud", "solide"],
+  ["fluet", "grêle"],
+  ["alerte", "éveillé"],
+  ["assoupi", "ensommeillé"],
+  ["besogneux", "laborieux"],
+  ["paisible", "calme"],
+  ["flegmatique", "impassible"],
+  ["inéluctable", "imparable"],
+  ["tributaire", "assujetti"],
+  ["émancipé", "affranchi"],
+  ["accessoire", "subsidiaire"],
   ["primordial", "capital"],
   ["insignifiant", "mineur"],
-  ["crucial", "vital"],
-  ["déterminant", "décisif"],
-  ["périphérique", "marginal"],
-  ["intrinsèque", "inhérent"],
-  ["extrinsèque", "extérieur"],
-  ["inné", "congénital"],
-  ["héréditaire", "hérité"],
-  ["inédit", "original"],
-  ["banal", "rebattu"],
+  ["majeur", "vital"],
+  ["péremptoire", "catégorique"],
+  ["latéral", "annexe"],
+  ["foncier", "constitutif"],
+  ["adventice", "surajouté"],
+  ["natif", "congénital"],
+  ["atavique", "ancestral"],
+  ["probant", "concluant"],
+  ["inédit", "inouï"],
+  ["quelconque", "rebattu"],
   ["éculé", "usé"],
-  ["novateur", "inventif"],
-  ["conventionnel", "traditionnel"],
-  ["radical", "extrême"],
-  ["modéré", "tempéré"],
+  ["novateur", "pionnier"],
+  ["convenu", "classique"],
+  ["mesuré", "raisonnable"],
   ["hermétique", "impénétrable"],
   ["sibyllin", "énigmatique"],
-  ["taciturne", "réservé"],
-  ["pompeux", "grandiloquent"],
-  ["ostentatoire", "tape-à-l'œil"],
-  ["fastidieux", "ennuyeux"],
+  ["taiseux", "renfermé"],
+  ["ampoulé", "grandiloquent"],
+  ["voyant", "tape-à-l'œil"],
+  ["assommant", "barbant"],
   ["actuel", "présent"],
   ["sympathique", "aimable"],
   ["versatile", "changeant"],
+  ["tendancieux", "orienté"],
+  ["velléitaire", "irrésolu"],
+  ["pléonastique", "superfétatoire"],
+  ["atrabilaire", "acariâtre"],
 ];
 
 function checkClusters(items) {
@@ -267,8 +288,8 @@ const wlogic = loadWindow("logic.js");
 const wconj = loadWindow("conj-fr.js");
 const enLex = require(path.join(root, "vocab-en-lex.js"));
 const frLex = require(path.join(root, "vocab-fr-lex.js"));
-checkBank("VOCAB_EN", win.VOCAB_EN, ["id", "word", "answer", "choices", "gloss"]);
-checkBank("VOCAB_FR", wfr.VOCAB_FR, ["id", "word", "answer", "choices", "gloss"]);
+checkBank("VOCAB_EN", win.VOCAB_EN, ["id", "word", "answer", "choices", "gloss", "example"]);
+checkBank("VOCAB_FR", wfr.VOCAB_FR, ["id", "word", "answer", "choices", "gloss", "example"]);
 checkBank("LOGIC", wlogic.LOGIC_QUESTIONS, ["id", "seq", "answer", "choices", "explain", "level"]);
 checkBank("CONJ_FR", wconj.CONJ_FR, ["id", "prompt", "ask", "answer", "choices", "explain"]);
 checkClusters([].concat(win.VOCAB_EN || [], wfr.VOCAB_FR || []));
@@ -285,6 +306,42 @@ function checkLex(name, bank, lex) {
 }
 checkLex("EN", win.VOCAB_EN, enLex);
 checkLex("FR", wfr.VOCAB_FR, frLex);
+
+const frForms = formMap(wfr.VOCAB_FR);
+formMap(win.VOCAB_EN).forEach((where, key) => {
+  if (frForms.has(key)) fail("EN/FR share a word: " + key + " (" + where.join(", ") + " | " + frForms.get(key).join(", ") + ")");
+});
+
+function stem(s) {
+  return foldForm(s).replace(/[^a-z]/g, "");
+}
+const COGNATE_TAILS = /^(e|es|ous|eux|euse|ique|iste|ate|etic|al|el|if|ive|ent|ant|ing|eur|eux)?$/;
+function obviousCognate(a, b) {
+  if (!a || !b || a.length < 5 || b.length < 5) return false;
+  if (a === b) return true;
+  const [short, long] = a.length <= b.length ? [a, b] : [b, a];
+  if (long.startsWith(short) && long.length - short.length <= 3 && short.length >= 6) return true;
+  let i = 0;
+  const n = Math.min(a.length, b.length);
+  while (i < n && a[i] === b[i]) i++;
+  const ta = a.slice(i), tb = b.slice(i);
+  if (i >= 6 && ta.length <= 4 && tb.length <= 4) return true;
+  return i >= 5 && COGNATE_TAILS.test(ta) && COGNATE_TAILS.test(tb);
+}
+function taughtForms(items) {
+  const out = [];
+  (items || []).forEach(q => {
+    [q.word, q.answer].forEach(w => {
+      if (w) out.push({ id: q.id, w, s: stem(w) });
+    });
+  });
+  return out;
+}
+taughtForms(win.VOCAB_EN).forEach(en => {
+  taughtForms(wfr.VOCAB_FR).forEach(fr => {
+    if (obviousCognate(en.s, fr.s)) fail("EN/FR cognate: " + en.id + " " + en.w + " ~ " + fr.id + " " + fr.w);
+  });
+});
 
 const logic = wlogic.LOGIC_QUESTIONS || [];
 logic.forEach(q => {

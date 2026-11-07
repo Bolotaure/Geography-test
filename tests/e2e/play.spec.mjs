@@ -220,6 +220,122 @@ test("home path alternates types and plays every lesson", async ({ page }) => {
   assertQuiet(errors);
 });
 
+test("tap to quiz leaves explore and accepts a map answer", async ({ page }) => {
+  const errors = await fresh(page, "#fr");
+  await page.waitForSelector(".node-current");
+  await page.locator(".node-current").click({ force: true });
+  await page.waitForSelector("#map svg path");
+  await expect(page.locator("#quizBanner")).toBeVisible();
+  await expect(page.locator("#quizBanner")).toHaveAttribute("src", /banner-fr\.webp/);
+  await expect(page.locator("#lessonPrompt")).toContainText("Find ");
+  await page.click("#exploreBtn");
+  await expect(page.locator("#exploreBtn")).toContainText("tap to quiz");
+  await expect(page.locator("#checkBar")).toBeHidden();
+  await expect(page.locator("#lessonPrompt")).toContainText("Exploring");
+  const sample = await page.evaluate(() => {
+    const path = document.querySelector("#map path[aria-label]");
+    path.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    return path.getAttribute("aria-label");
+  });
+  await expect(page.locator("#lessonPrompt")).toContainText(sample);
+  await page.click("#exploreBtn");
+  await expect(page.locator("#exploreBtn")).toHaveText("Explore");
+  await expect(page.locator("#checkBar")).toBeVisible();
+  await expect(page.locator("#lessonPrompt")).toContainText("Find ");
+  await expect(page.locator("#checkBtn")).toBeDisabled();
+  const target = (await page.locator("#lessonPrompt").innerText()).split("Find ").pop().trim();
+  await page.evaluate(name => {
+    const el = [...document.querySelectorAll("#map path[aria-label]")].find(p => p.getAttribute("aria-label") === name);
+    el.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  }, target);
+  await expect(page.locator("#checkBtn")).toBeEnabled();
+  await page.click("#checkBtn");
+  await expect(page.locator("#feedbackTitle")).toHaveText("Correct!");
+  await expect(page.locator(".game-subtitle")).toBeHidden();
+  assertQuiet(errors);
+});
+
+test("synonym feedback shows an example sentence", async ({ page }) => {
+  const errors = errorsOf(page);
+  for (const [hash, label] of [["#vocab-fr", "Exemple : "], ["#vocab-en", "Example: "]]) {
+    await page.goto("/index.html?syn=1" + hash, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => localStorage.clear());
+    await page.goto("/index.html?syn=2" + hash, { waitUntil: "domcontentloaded" });
+    await page.waitForSelector(".node-current");
+    await page.locator(".node-current").click({ force: true });
+    const word = (await page.locator(".quiz-word").innerText()).trim();
+    const wrong = hash === "#vocab-fr";
+    await answerCurrent(page, { wrong });
+    await page.waitForSelector("#feedbackExample:not([hidden])");
+    await page.waitForFunction(() => {
+      const btn = document.querySelector("#continueBtn").getBoundingClientRect();
+      return btn.height >= 44 && btn.top >= 0 && btn.bottom <= window.innerHeight + 1;
+    });
+    const line = await page.locator("#feedbackExample").innerText();
+    expect(line.startsWith(label)).toBe(true);
+    expect(line.toLocaleLowerCase("fr")).toContain(word.toLocaleLowerCase("fr"));
+    if (wrong) await expect(page.locator("#feedback")).toHaveClass(/feedback-no/);
+    else await expect(page.locator("#feedback")).toHaveClass(/feedback-ok/);
+    const layout = await page.evaluate(() => {
+      const fb = document.querySelector("#feedback");
+      const cs = getComputedStyle(fb);
+      const btn = document.querySelector("#continueBtn").getBoundingClientRect();
+      const banner = document.querySelector("#quizBanner").getBoundingClientRect();
+      const box = fb.getBoundingClientRect();
+      let choiceThrough = false;
+      document.querySelectorAll("#quizCard .choice").forEach(choice => {
+        const r = choice.getBoundingClientRect();
+        const y = (Math.max(r.top, box.top) + Math.min(r.bottom, box.bottom)) / 2;
+        const x = Math.min(r.right - 6, box.right - 12);
+        if (y < box.top + 2 || y > box.bottom - 2 || x < box.left) return;
+        const top = document.elementFromPoint(x, y);
+        if (top && top.closest(".choice")) choiceThrough = true;
+      });
+      const scroll = fb.querySelector(".feedback-scroll");
+      return {
+        opacity: cs.opacity,
+        bg: cs.backgroundColor,
+        btn: { t: btn.top, b: btn.bottom, h: btn.height },
+        innerH: window.innerHeight,
+        btnInView: btn.top >= 0 && btn.bottom <= window.innerHeight + 1 && btn.height >= 44,
+        bannerTop: banner.top,
+        bannerSeen: banner.bottom > 24 && banner.width >= window.innerWidth - 2,
+        choiceThrough,
+        canScroll: !!scroll,
+      };
+    });
+    expect(layout.opacity, JSON.stringify(layout)).toBe("1");
+    expect(layout.bg, JSON.stringify(layout)).not.toBe("rgba(0, 0, 0, 0)");
+    expect(layout.choiceThrough, JSON.stringify(layout)).toBe(false);
+    expect(layout.btnInView, JSON.stringify(layout)).toBe(true);
+    expect(layout.bannerSeen).toBe(true);
+    expect(layout.bannerTop).toBeLessThan(8);
+    expect(layout.canScroll).toBe(true);
+    if (wrong) {
+      const scrolled = await page.evaluate(() => {
+        const body = document.querySelector("#feedbackBody");
+        const ex = document.querySelector("#feedbackExample");
+        body.textContent += " " + "Cette explication reste lisible quand elle est longue. ".repeat(14);
+        ex.textContent += " " + "Une phrase d'exemple plus longue pour remplir le panneau. ".repeat(8);
+        const scroll = document.querySelector(".feedback-scroll");
+        const before = document.querySelector("#continueBtn").getBoundingClientRect();
+        const overflow = scroll.scrollHeight > scroll.clientHeight + 8;
+        scroll.scrollTop = scroll.scrollHeight;
+        const after = document.querySelector("#continueBtn").getBoundingClientRect();
+        return {
+          overflow,
+          btnStable: Math.abs(before.top - after.top) < 1,
+          btnInView: after.top >= 0 && after.bottom <= window.innerHeight + 1,
+        };
+      });
+      expect(scrolled.overflow).toBe(true);
+      expect(scrolled.btnStable).toBe(true);
+      expect(scrolled.btnInView).toBe(true);
+    }
+  }
+  assertQuiet(errors);
+});
+
 test("each single-subject course plays lesson 1", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "subject courses are played on desktop");
   test.setTimeout(300_000);
