@@ -20,6 +20,20 @@ function V(inf, aux, pp, present, imparfait, futur, note) {
   return { inf, aux, pp, present, imparfait, futur, note: note || "" };
 }
 
+// 1 = -er (except aller). 2 = regular -ir with -iss-. 3 = everything else.
+// Ending in -ir is not enough: partir and aller are 3rd group.
+const VERB_GROUP = {
+  parler: 1, aimer: 1, jouer: 1, chanter: 1, regarder: 1, écouter: 1, travailler: 1,
+  finir: 2, choisir: 2, réussir: 2, grandir: 2, remplir: 2, obéir: 2,
+  être: 3, avoir: 3, aller: 3, partir: 3, faire: 3, venir: 3,
+  pouvoir: 3, vouloir: 3, prendre: 3, voir: 3, devoir: 3,
+};
+function groupOf(inf) {
+  const g = VERB_GROUP[inf];
+  if (!g) throw new Error("no verb group for " + inf);
+  return g;
+}
+
 // Forms are the words after the pronoun. "je" + vowel is elided later.
 const VERBS = [
   V("parler", "avoir", "parlé",
@@ -102,6 +116,46 @@ const VERBS = [
     ["devais", "devais", "devait", "devions", "deviez", "devaient"],
     ["devrai", "devras", "devra", "devrons", "devrez", "devront"],
     "Devoir est irrégulier. Le participe passé masculin singulier est « dû »."),
+  V("chanter", "avoir", "chanté",
+    ["chante", "chantes", "chante", "chantons", "chantez", "chantent"],
+    ["chantais", "chantais", "chantait", "chantions", "chantiez", "chantaient"],
+    ["chanterai", "chanteras", "chantera", "chanterons", "chanterez", "chanteront"],
+    "Verbe régulier en -er."),
+  V("regarder", "avoir", "regardé",
+    ["regarde", "regardes", "regarde", "regardons", "regardez", "regardent"],
+    ["regardais", "regardais", "regardait", "regardions", "regardiez", "regardaient"],
+    ["regarderai", "regarderas", "regardera", "regarderons", "regarderez", "regarderont"],
+    "Verbe régulier en -er."),
+  V("écouter", "avoir", "écouté",
+    ["écoute", "écoutes", "écoute", "écoutons", "écoutez", "écoutent"],
+    ["écoutais", "écoutais", "écoutait", "écoutions", "écoutiez", "écoutaient"],
+    ["écouterai", "écouteras", "écoutera", "écouterons", "écouterez", "écouteront"],
+    "Verbe régulier en -er."),
+  V("travailler", "avoir", "travaillé",
+    ["travaille", "travailles", "travaille", "travaillons", "travaillez", "travaillent"],
+    ["travaillais", "travaillais", "travaillait", "travaillions", "travailliez", "travaillaient"],
+    ["travaillerai", "travailleras", "travaillera", "travaillerons", "travaillerez", "travailleront"],
+    "Verbe régulier en -er."),
+  V("grandir", "avoir", "grandi",
+    ["grandis", "grandis", "grandit", "grandissons", "grandissez", "grandissent"],
+    ["grandissais", "grandissais", "grandissait", "grandissions", "grandissiez", "grandissaient"],
+    ["grandirai", "grandiras", "grandira", "grandirons", "grandirez", "grandiront"],
+    "Verbe du 2e groupe : le pluriel du présent et l'imparfait prennent -iss-."),
+  V("remplir", "avoir", "rempli",
+    ["remplis", "remplis", "remplit", "remplissons", "remplissez", "remplissent"],
+    ["remplissais", "remplissais", "remplissait", "remplissions", "remplissiez", "remplissaient"],
+    ["remplirai", "rempliras", "remplira", "remplirons", "remplirez", "rempliront"],
+    "Verbe du 2e groupe, comme finir."),
+  V("obéir", "avoir", "obéi",
+    ["obéis", "obéis", "obéit", "obéissons", "obéissez", "obéissent"],
+    ["obéissais", "obéissais", "obéissait", "obéissions", "obéissiez", "obéissaient"],
+    ["obéirai", "obéiras", "obéira", "obéirons", "obéirez", "obéiront"],
+    "Verbe du 2e groupe."),
+  V("partir", "être", "parti",
+    ["pars", "pars", "part", "partons", "partez", "partent"],
+    ["partais", "partais", "partait", "partions", "partiez", "partaient"],
+    ["partirai", "partiras", "partira", "partirons", "partirez", "partiront"],
+    "Partir est du 3e groupe, malgré -ir : pas de -iss-. Le passé composé se forme avec être."),
 ];
 
 function joinPronoun(pronoun, rest) {
@@ -246,6 +300,16 @@ function buildConjugationQuestions() {
   check("voir", "present", 3, "nous voyons");
   check("devoir", "pc", 0, "j'ai dû");
   check("devoir", "futur", 4, "vous devrez");
+  check("chanter", "present", 3, "nous chantons");
+  check("écouter", "present", 0, "j'écoute");
+  check("grandir", "present", 5, "ils grandissent");
+  check("obéir", "present", 0, "j'obéis");
+  check("partir", "present", 4, "vous partez");
+  check("partir", "present", 5, "ils partent");
+  check("partir", "pc", 0, "je suis parti");
+  check("partir", "pc", 3, "nous sommes partis");
+  check("partir", "pc", 4, "vous êtes parti");
+  check("partir", "futur", 0, "je partirai");
 
   const questions = [];
   const usedPrompts = new Set();
@@ -377,8 +441,80 @@ function buildConjugationQuestions() {
   });
 
   if (questions.length < 100) throw new Error("only " + questions.length);
-  return questions.slice(0, 100).map((q, i) => ({
-    id: "C" + String(i + 1).padStart(3, "0"),
+
+  const legacy = require("./conj-legacy-ids.json");
+  questions.forEach((q, i) => {
+    q._seq = i;
+    if (legacy[q.prompt]) {
+      q.id = legacy[q.prompt];
+      q._legacy = true;
+    }
+  });
+  let nextId = 101;
+  questions.filter(q => !q.id).sort((a, b) => a.prompt.localeCompare(b.prompt, "fr")).forEach(q => {
+    q.id = "C" + String(nextId).padStart(3, "0");
+    nextId += 1;
+  });
+
+  function verbFromQuestion(q) {
+    const t = q.prompt;
+    const named = t.match(/^Verbe ([^,]+),/) || t.match(/du verbe (.+)$/);
+    if (named) return named[1].trim();
+    if (/infinitif/i.test(t)) return q.answer;
+    throw new Error("no verb in " + t);
+  }
+  function roundRobin(items, quota) {
+    const byVerb = new Map();
+    items.forEach(q => {
+      const v = verbFromQuestion(q);
+      if (!byVerb.has(v)) byVerb.set(v, []);
+      byVerb.get(v).push(q);
+    });
+    const verbs = [...byVerb.keys()].sort((a, b) => a.localeCompare(b, "fr"));
+    verbs.forEach(v => byVerb.get(v).sort((a, b) => a._seq - b._seq));
+    const out = [];
+    let guard = 0;
+    while (out.length < quota && guard < 10000) {
+      guard += 1;
+      let progressed = false;
+      for (const v of verbs) {
+        const list = byVerb.get(v);
+        if (!list.length) continue;
+        out.push(list.shift());
+        progressed = true;
+        if (out.length >= quota) break;
+      }
+      if (!progressed) break;
+    }
+    if (out.length < quota) throw new Error("not enough questions for quota " + quota + " (got " + out.length + ")");
+    return out;
+  }
+  function legacyFirst(items, quota) {
+    const legacyQs = roundRobin(items.filter(q => q._legacy), Math.min(quota, items.filter(q => q._legacy).length));
+    const fresh = quota > legacyQs.length ? roundRobin(items.filter(q => !q._legacy), quota - legacyQs.length) : [];
+    return roundRobin(legacyQs.concat(fresh), quota);
+  }
+  const buckets = { 1: [], 2: [], 3: [] };
+  questions.forEach(q => buckets[groupOf(verbFromQuestion(q))].push(q));
+  const partir = buckets[3].filter(q => verbFromQuestion(q) === "partir");
+  const other3 = buckets[3].filter(q => verbFromQuestion(q) !== "partir");
+  const picked = {
+    1: legacyFirst(buckets[1], 34),
+    2: legacyFirst(buckets[2], 33),
+    3: roundRobin(partir.concat(legacyFirst(other3, 33 - partir.length)), 33),
+  };
+  const ordered = [];
+  const cursor = { 1: 0, 2: 0, 3: 0 };
+  let g = 1;
+  while (ordered.length < 100) {
+    const list = picked[g];
+    if (cursor[g] >= list.length) throw new Error("group " + g + " ran out at " + ordered.length);
+    ordered.push(list[cursor[g]]);
+    cursor[g] += 1;
+    g = g === 3 ? 1 : g + 1;
+  }
+  return ordered.map(q => ({
+    id: q.id,
     prompt: q.prompt,
     ask: q.ask,
     choices: q.choices,
@@ -405,6 +541,14 @@ function main() {
   console.log("wrote", out, qs.length);
 }
 
-module.exports = { buildConjugationQuestions, serializeConj, VERBS, fullForm };
+function verbFromQuestion(q) {
+  const t = String(q.prompt || "");
+  const named = t.match(/^Verbe ([^,]+),/) || t.match(/du verbe (.+)$/);
+  if (named) return named[1].trim();
+  if (/infinitif/i.test(t)) return q.answer;
+  return "";
+}
+
+module.exports = { buildConjugationQuestions, serializeConj, VERBS, fullForm, groupOf, verbFromQuestion, VERB_GROUP };
 
 if (require.main === module) main();
