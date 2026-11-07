@@ -518,9 +518,14 @@ body.feedback-open #progress { display: none !important; }
   gap: .8rem; text-align: center; padding: 2rem;
 }
 #pathBg {
-  position: fixed; top: 0; left: 0; right: 0; height: 100vh; height: 100lvh; z-index: 0; pointer-events: none;
-  transform: translateZ(0);
-  background-color: var(--night); background-position: center; background-size: cover;
+  position: fixed; top: var(--path-top, 0px); left: 0; right: 0; bottom: 0; z-index: 0; pointer-events: none;
+  background-color: var(--night); background-position: center; background-size: contain; background-repeat: no-repeat;
+}
+/* In a quiz, only the path scrolls: the page itself stays put, so the
+   browser bars never collapse and nothing above or behind the path moves. */
+body:not(.academy-home):not(.lesson-mode) { height: 100vh; height: 100dvh; overflow: hidden; }
+body:not(.academy-home):not(.lesson-mode) .game-root {
+  height: 100vh; height: 100dvh; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
 }
 body.academy-home #pathBg, body.lesson-mode #pathBg { display: none; }
 .game-root { position: relative; z-index: 1; }
@@ -853,6 +858,11 @@ function paintMascots() {
   const home = $("homeOwl"); if (home) home.innerHTML = svg;
   const mascot = $("mascot"); if (mascot) mascot.innerHTML = svg;
 }
+function syncPathTop() {
+  const top = document.querySelector(".page-top");
+  if (top) document.documentElement.style.setProperty("--path-top", Math.round(top.getBoundingClientRect().bottom) + "px");
+}
+if (window.ResizeObserver) new ResizeObserver(syncPathTop).observe(document.querySelector(".page-top"));
 function drawPathRails() {
   document.querySelectorAll(".path").forEach(path => {
     const old = path.querySelector(".path-rail");
@@ -872,7 +882,7 @@ function drawPathRails() {
     path.insertAdjacentHTML("afterbegin", `<svg class="path-rail" aria-hidden="true"><path d="${d}"/></svg>`);
   });
 }
-window.addEventListener("resize", () => { if (document.querySelector(".path .node")) drawPathRails(); });
+window.addEventListener("resize", () => { if (document.querySelector(".path .node")) drawPathRails(); syncPathTop(); });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (document.querySelector(".path .node")) drawPathRails(); });
 function applyHouse(id) {
   if (!HOUSES[id]) id = "emberwyck";
@@ -2435,6 +2445,7 @@ function showTab(name) {
   }
   if (name === "relics") renderRelics();
   if (name === "profile") renderProfile();
+  if (name === "relics" || name === "profile") { document.querySelector(".game-root").scrollTop = 0; window.scrollTo(0, 0); }
   updatePills();
 }
 function renderPath() {
@@ -2442,6 +2453,7 @@ function renderPath() {
   if (!test) return;
   const bg = $("pathBg");
   if (bg) bg.style.backgroundImage = `linear-gradient(#0d081466, #0d081466), url("img/bg-${test.key}.webp")`;
+  syncPathTop();
   document.title = test.title + " · Wizard's Quiz Academy";
   setBrand("");
   $("title").textContent = test.title;

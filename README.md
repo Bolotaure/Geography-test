@@ -10,7 +10,7 @@ On a phone or tablet the app works only upright. Turn it sideways and a portrait
 
 The home screen is a list of eight quizzes. **Grand Quest** is first. Each card is split in two: on the left the title, the next lesson (1 to 21 for Grand Quest, 1 to 20 for the others) and a progress bar; on the right the same image as that quiz's banner. Tap a card and the screen fades through black into that quiz. The home icon fades back through black.
 
-The title stays pinned above the banner. Inside a quiz, the title and the banner both stay fixed and only the lesson path scrolls. Inside a quiz the title is centred, with the home icon to its left and the menu button to its right. On home the title sits on the left and the menu button to its right. It opens three items:
+The title stays pinned above the banner. Inside a quiz, the page itself does not scroll: the title and the banner stay fixed and only the lesson path scrolls, so the browser bars never collapse. Inside a quiz the title is centred, with the home icon to its left and the menu button to its right. On home the title sits on the left and the menu button to its right. It opens three items:
 
 - **Reset a quiz.** From home, pick which quiz to clear. Inside a quiz, it resets that quiz. Either way it asks first. Score, progress, and relics for that quiz go back to the start. Other quizzes are left alone.
 - **Relics.** The relic card has its own home icon.
@@ -95,4 +95,4 @@ Libraries in `lib/` (d3, topojson-client, canvas-confetti, all ISC licence) are 
 
 US map: `us-states.js`, from `us-atlas`. France map: `fr-regions.js`, simplified from [gregoiredavid/france-geojson](https://github.com/gregoiredavid/france-geojson) (Licence Ouverte / Etalab). Japan map: `jp-prefectures.js`, simplified from [dataofjapan/land](https://github.com/dataofjapan/land).
 
-The owl, the relics in `relics.js`, and the castle are original drawings. Each quiz's lesson path sits on its own background picture, `img/bg-<quiz>.webp`, generated for this project. It shows behind the path and the Relics and Profile screens of that quiz, not on home or during a lesson. No studio logos, film stills, or proprietary fonts. The interface uses [Nunito](https://fonts.google.com/specimen/Nunito).
+The owl, the relics in `relics.js`, and the castle are original drawings. Each quiz's lesson path sits on its own background picture, `img/bg-<quiz>.webp`, generated for this project. The pictures are square and shown whole, fixed in the space under the banner. They show behind the path and the Relics and Profile screens of that quiz, not on home or during a lesson. No studio logos, film stills, or proprietary fonts. The interface uses [Nunito](https://fonts.google.com/specimen/Nunito).
