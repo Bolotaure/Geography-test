@@ -43,7 +43,7 @@
 :root[data-academy="azurequill"] { --house: #1e4d8c; --house-ink: #f3f7ff; }
 :root[data-academy="amberkeep"] { --house: #8a5a08; --house-ink: #fff8e8; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { min-height: 100%; background: var(--night); color: var(--parchment); font-family: var(--font-body); overflow-x: clip; overflow-anchor: none; }
+html, body { min-height: 100%; background: var(--night); color: var(--parchment); font-family: var(--font-body); overflow-x: hidden; overflow-anchor: none; }
 body {
   background:
     radial-gradient(circle at 12% 8%, #ffd78a22 0 2px, transparent 3px),
@@ -59,21 +59,23 @@ button:disabled { cursor: not-allowed; }
 button:disabled:not(.choice-right):not(.choice-wrong) { opacity: .45; }
 [hidden] { display: none !important; }
 .game-root {
+  --pad: clamp(.8rem, 3vw, 2.2rem);
   max-width: 1100px; min-height: 100vh; margin: 0 auto;
-  padding: 0 clamp(.8rem, 3vw, 2.2rem) 6.5rem;
+  padding: 0 var(--pad) 2.2rem;
   display: flex; flex-direction: column; gap: 1rem;
 }
 .quiz-banner {
-  display: block; width: 100vw; max-width: 100vw; height: clamp(150px, 32vw, 280px);
-  margin-left: calc(50% - 50vw); object-fit: cover; object-position: center 42%;
+  display: block; width: calc(100% + 2 * var(--pad)); max-width: none; height: clamp(150px, 32vw, 280px);
+  margin-left: calc(-1 * var(--pad)); object-fit: cover; object-position: center 42%;
   border-bottom: 3px solid var(--gold-deep);
 }
 .course-head {
   display: flex; align-items: flex-start; order: -1;
   position: sticky; top: 0; z-index: 20;
   background: #140e1c;
-  margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw);
-  padding: .85rem calc(50vw - 50%) .45rem;
+  width: calc(100% + 2 * var(--pad));
+  margin-left: calc(-1 * var(--pad)); margin-right: calc(-1 * var(--pad));
+  padding: .85rem var(--pad) .45rem;
 }
 body.lesson-mode .course-head { position: static; }
 .brand-kicker { letter-spacing: .16em; text-transform: uppercase; font-size: .72rem; color: var(--gold); font-weight: 700; }
@@ -291,6 +293,24 @@ body.lesson-mode .course-head { position: static; }
 .big-btn:hover { transform: translateY(-1px); }
 button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 .topbar { display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
+.menu-wrap { position: relative; flex-shrink: 0; }
+.menu-btn {
+  width: 44px; height: 44px; border-radius: 14px; background: #241828; border: 2px solid #5c4a32;
+  color: var(--gold); display: inline-flex; align-items: center; justify-content: center;
+}
+.app-menu {
+  position: absolute; right: 0; top: calc(100% + 6px); z-index: 40;
+  background: var(--parchment); color: var(--ink); border: 1px solid var(--gold-deep); border-radius: 14px;
+  min-width: 210px; padding: .35rem; box-shadow: 0 16px 40px #0008;
+  display: flex; flex-direction: column;
+}
+.app-menu button {
+  text-align: left; font-weight: 800; min-height: 44px; padding: .45rem .75rem; border-radius: 10px;
+}
+.app-menu button:hover, .app-menu button:focus-visible { background: #efe4cc; }
+body.lesson-mode .menu-wrap { display: none !important; }
+#bottomNav { display: none !important; }
+.pane-back { color: var(--gold-deep); font-weight: 800; min-height: 44px; margin-bottom: .4rem; }
 .pills { display: flex; flex-wrap: wrap; gap: .4rem; }
 .pill {
   background: #241828cc; border: 2px solid #5c4a32; border-radius: 999px;
@@ -509,8 +529,18 @@ body.feedback-open #progress { display: none !important; }
       <span class="pill" id="streakPill" title="Days in a row">🔥 0 days</span>
       <span class="pill" id="xpPill" title="Experience">✦ 0</span>
     </div>
+    <div class="menu-wrap">
+      <button class="menu-btn" id="menuBtn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="appMenu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <div class="app-menu" id="appMenu" role="menu" hidden>
+        <button type="button" role="menuitem" id="menuReset">Reset a quiz</button>
+        <button type="button" role="menuitem" id="menuRelics">Relics</button>
+        <button type="button" role="menuitem" id="menuProfile">Profile</button>
+      </div>
+    </div>
   </header>
-  <button class="path-reset" id="resetQuiz" type="button">Reset a quiz</button>
+  <button class="path-reset" id="resetQuiz" type="button" hidden>Reset a quiz</button>
   <div class="course-head">
     <div>
       <button class="back-btn" id="backBtn" type="button" hidden aria-label="Home">
@@ -582,6 +612,7 @@ body.feedback-open #progress { display: none !important; }
 
   <section id="relicsPane" hidden aria-label="Relics">
     <div class="relic-board">
+      <button class="pane-back" id="relicsBack" type="button">← Learn</button>
       <h2 class="summary-title">Relic shelf</h2>
       <p class="relic-rule" id="relicRule"></p>
       <div class="relic-grid" id="relicGrid"></div>
@@ -590,6 +621,7 @@ body.feedback-open #progress { display: none !important; }
 
   <section id="profilePane" hidden aria-label="Profile">
     <div class="profile-card">
+      <button class="pane-back" id="profileBack" type="button">← Learn</button>
       <h2 class="summary-title">Your house</h2>
       <div class="house-picker" role="radiogroup" aria-label="Choose a house">
         <button class="house-btn" type="button" role="radio" data-house="emberwyck" aria-checked="false"><span class="swatch" style="background:#8c1c2c"></span>Emberwyck</button>
@@ -1425,6 +1457,7 @@ function showAcademy() {
   renderHomePath();
   const reset = $("resetQuiz");
   if (reset) reset.textContent = "Reset a quiz";
+  syncMenuLabels();
 }
 
 let fading = false;
@@ -2379,6 +2412,7 @@ function renderPath() {
   showBanner(test.key);
   if ($("backBtn")) { $("backBtn").hidden = false; $("backBtn").setAttribute("aria-label", uiLang() === "fr" ? "Académie" : "Home"); }
   if ($("resetQuiz")) $("resetQuiz").textContent = L("reset");
+  syncMenuLabels();
   const plan = buildPlan();
   const stars = store.get(`wqa-${test.key}-lesson-stars`, {});
   const flat = [];
@@ -2431,19 +2465,21 @@ function renderHomePath() {
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
   window.scrollTo(0, 0);
 }
-function settleHomeScroll() {
-  const apply = () => {
-    if (!document.body.classList.contains("academy-home")) return;
-    const node = document.querySelector("#learnPane .node-current");
-    if (node && node.dataset.lecon && node.dataset.lecon !== "1") {
-      const top = node.getBoundingClientRect().top;
-      if (top < 70 || top > window.innerHeight - 140) node.scrollIntoView({ block: "center", behavior: "auto" });
-      return;
-    }
-    window.scrollTo(0, 0);
-  };
-  apply();
-  if (document.readyState !== "complete") window.addEventListener("load", apply, { once: true });
+function syncMenuLabels() {
+  const fr = uiLang() === "fr";
+  const reset = $("menuReset");
+  if (reset) reset.textContent = !test || pathHome ? (fr ? "Réinitialiser un quiz" : "Reset a quiz") : L("reset");
+  if ($("menuRelics")) $("menuRelics").textContent = fr ? "Reliques" : "Relics";
+  if ($("menuProfile")) $("menuProfile").textContent = fr ? "Profil" : "Profile";
+  const back = fr ? "← Apprendre" : "← Learn";
+  if ($("relicsBack")) $("relicsBack").textContent = back;
+  if ($("profileBack")) $("profileBack").textContent = back;
+}
+function closeAppMenu() {
+  const menu = $("appMenu");
+  if (!menu) return;
+  menu.hidden = true;
+  if ($("menuBtn")) $("menuBtn").setAttribute("aria-expanded", "false");
 }
 function openHomeLevel(type, lesson, replay) {
   if (!TESTS[type]) return;
@@ -2776,10 +2812,24 @@ $("resetAsk").addEventListener("click", e => {
   const pick = e.target.closest("[data-reset]");
   if (pick) openResetConfirm(pick.dataset.reset);
 });
-$("resetQuiz").addEventListener("click", () => {
+$("menuBtn").addEventListener("click", e => {
+  e.stopPropagation();
+  syncMenuLabels();
+  const menu = $("appMenu");
+  const open = menu.hidden;
+  menu.hidden = !open;
+  $("menuBtn").setAttribute("aria-expanded", String(open));
+});
+$("menuReset").addEventListener("click", () => {
+  closeAppMenu();
   if (pathHome || !test) openResetPicker();
   else openResetConfirm(test.key);
 });
+$("menuRelics").addEventListener("click", () => { closeAppMenu(); showTab("relics"); });
+$("menuProfile").addEventListener("click", () => { closeAppMenu(); showTab("profile"); });
+$("relicsBack").addEventListener("click", () => showTab("learn"));
+$("profileBack").addEventListener("click", () => showTab("learn"));
+document.addEventListener("click", e => { if (!e.target.closest(".menu-wrap")) closeAppMenu(); });
 $("checkBtn").addEventListener("click", checkAnswer);
 $("continueBtn").addEventListener("click", continueQuestion);
 $("summaryContinue").addEventListener("click", () => {
@@ -2794,7 +2844,7 @@ $("zoomIn").addEventListener("click", () => zoomBy(1.6));
 $("zoomOut").addEventListener("click", () => zoomBy(1 / 1.6));
 $("zoomReset").addEventListener("click", () => { if (zoomBehaviour) d3.select("#map svg").transition().duration(250).call(zoomBehaviour.transform, d3.zoomIdentity); });
 document.addEventListener("keydown", e => {
-  if (e.key === "Escape") { if (S.reward) closeReward(); return; }
+  if (e.key === "Escape") { closeAppMenu(); if (S.reward) closeReward(); return; }
   if (S.reward) return;
   if (questionKind() === "mcq" && !S.locked && /^[1-4]$/.test(e.key)) {
     const choice = S.choiceOrder && S.choiceOrder[Number(e.key) - 1];
