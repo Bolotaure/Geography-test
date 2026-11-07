@@ -422,6 +422,19 @@ body.lesson-mode #resetQuiz { display: none !important; }
 .profile-list span { color: var(--muted); font-weight: 700; white-space: nowrap; }
 .relic-group { margin: 0 0 1.15rem; }
 .relic-group h3 { font-family: var(--font-display); font-size: 1.05rem; color: var(--gold-deep); margin: .15rem 0 .45rem; }
+.subject-list { display: flex; flex-direction: column; gap: .65rem; max-width: 440px; margin: 0 auto; }
+.subject-card {
+  display: flex; align-items: center; gap: .75rem; width: 100%; text-align: left;
+  background: #1c1424ee; color: var(--parchment); border: 2px solid #5c4a32; border-radius: 18px;
+  padding: .7rem .85rem; min-height: 76px;
+}
+.subject-card:hover, .subject-card:focus-visible { border-color: var(--gold); }
+.subject-ico { font-size: 1.7rem; width: 2.4rem; text-align: center; flex: 0 0 auto; }
+.subject-copy { flex: 1; min-width: 0; }
+.subject-copy strong { display: block; font-family: var(--font-display); color: var(--candle); font-size: 1.05rem; }
+.subject-meta { color: #eadcc0; font-size: .92rem; font-weight: 700; }
+.subject-bar { height: 8px; background: #120c18; border-radius: 99px; margin-top: .35rem; overflow: hidden; border: 1px solid #5c4a32; }
+.subject-bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--house), var(--gold)); }
 .quit-actions { display: flex; gap: .6rem; justify-content: center; margin-top: 1rem; }
 .quit-actions .big-btn { min-width: 7.5rem; }
 body.lesson-mode .mascot,
@@ -1027,7 +1040,7 @@ const TESTS = {
   },
   mixed: {
     key: "mixed", kind: "mixed", tab: "✨ Mixed", menu: "✨ Mixed quest",
-    title: "Mixed Quest", subtitle: "",
+    title: "Mixed Quest", subtitle: "Five questions from different subjects.",
     noun: "question", nounPl: "questions", perLevel: 40, whole: "the realm",
     ask: "Your move.",
     welcome: "Rowan shuffles every subject together.",
@@ -1338,7 +1351,7 @@ function showAcademy() {
   document.title = "Wizard's Quiz Academy";
   setBrand("");
   $("title").textContent = "Wizard's Quiz Academy";
-  setSubtitle("");
+  setSubtitle("Choose a quiz.");
   showBanner("home");
   $("play").hidden = true;
   $("summary").hidden = true;
@@ -1391,7 +1404,7 @@ const TYPE_SHORT = {
   "vocab-en": "Anglais", "vocab-fr": "Français", logic: "Nombres", conj: "Conjugaison",
 };
 const TYPE_ICON = {
-  us: "🗺️", fr: "🗼", jp: "🗾", "vocab-en": "📖", "vocab-fr": "📘", logic: "🔢", conj: "✍️",
+  us: "🗺️", fr: "🗼", jp: "🗾", "vocab-en": "📖", "vocab-fr": "📘", logic: "🔢", conj: "✍️", mixed: "✨",
 };
 let pathHome = false;
 function lessonNumber(q, i) { return q.lesson || Math.floor(i / 5) + 1; }
@@ -1845,7 +1858,7 @@ function openResetConfirm(key) {
 function openResetPicker() {
   $("resetTitle").textContent = "Reset a quiz";
   $("resetBody").textContent = "Choose which quiz to start over. The others stay.";
-  $("resetPick").innerHTML = MIX_SOURCES.map(key => `<button class="path-reset" type="button" data-reset="${key}">${esc(TESTS[key].title)}</button>`).join("");
+  $("resetPick").innerHTML = MIX_SOURCES.concat("mixed").map(key => `<button class="path-reset" type="button" data-reset="${key}">${esc(TESTS[key].title)}</button>`).join("");
   $("resetPick").hidden = false;
   $("resetGo").hidden = true;
   $("resetStay").textContent = "Cancel";
@@ -1853,7 +1866,7 @@ function openResetPicker() {
 }
 function resetQuiz(key) {
   const spec = TESTS[key];
-  if (!spec || key === "mixed") return;
+  if (!spec) return;
   ["session", "best", "unlocked", "missed", "lesson-stars"].forEach(part => {
     try { localStorage.removeItem("wqa-" + key + "-" + part); } catch {}
   });
@@ -1905,7 +1918,7 @@ function render() {
   const t = current();
   if ((t?.id ?? null) !== lastTarget) { S.askAnswer = null; lastTarget = t?.id ?? null; }
   if (questionKind() === "mcq") ensureChoices();
-  const relicCount = test.key === "mixed" ? S.unlocked.length : relicOwnedLessons(test.key).size;
+  const relicCount = relicOwnedLessons(test.key).size;
   const house = HOUSES[currentHouse].name;
 
   document.title = test.title + " · Wizard's Quiz Academy";
@@ -1954,8 +1967,8 @@ function render() {
 
   const prog = $("progress");
   if (prog) prog.hidden = true;
-  const badges = test.key === "mixed" ? test.rewards : lessonRelics(test);
-  const ownedRelics = test.key === "mixed" ? new Set(S.unlocked) : relicOwnedLessons(test.key);
+  const badges = lessonRelics(test);
+  const ownedRelics = relicOwnedLessons(test.key);
   $("shelf").innerHTML = badges.map(r => {
     const owned = ownedRelics.has(r.level);
     return `<div class="shelf-item ${owned ? "shelf-owned" : "shelf-locked"}">${relicSVG(r.kind, r.accent)}<span class="shelf-name">${esc(r.name)}</span></div>`;
@@ -2132,7 +2145,6 @@ function bumpDayStreak() {
 function totalXp() {
   let n = store.get("wqa-bonus-xp", 0) || 0;
   Object.keys(TESTS).forEach(k => {
-    if (k === "mixed") return;
     if (test && k === test.key && S && typeof S.score === "number") n += S.score;
     else n += (store.get(`wqa-${k}-session`, null) || {}).score || 0;
   });
@@ -2144,7 +2156,29 @@ function typeSession(key) {
   return { found: new Set((saved && saved.found) || []), score: (saved && saved.score) || 0 };
 }
 function typeLessonIds(key, lesson) {
-  return catalogFor(key).filter(p => p.lesson === lesson).map(p => p.id);
+  const list = catalogFor(key);
+  if (key === "mixed") return mixedLessonIds(list, lesson);
+  return list.filter(p => p.lesson === lesson).map(p => p.id);
+}
+function mixedLessonIds(list, n) {
+  const ids = [];
+  const start = (n - 1) % MIX_SOURCES.length;
+  for (let i = 0; i < 5; i++) {
+    const src = MIX_SOURCES[(start + i) % MIX_SOURCES.length];
+    const group = list.filter(p => p.source === src && p.lesson === n);
+    if (group.length) ids.push(group[(n - 1) % group.length].id);
+  }
+  return ids;
+}
+function subjectProgress(type) {
+  const session = typeSession(type);
+  let done = 0;
+  for (let n = 1; n <= 20; n++) {
+    const ids = typeLessonIds(type, n);
+    if (ids.length && slotDone(type, n, ids, session.found)) done++;
+    else break;
+  }
+  return { done, next: done >= 20 ? 20 : done + 1, total: 20 };
 }
 function conjKeptLessons() {
   const rec = store.get("wqa-conj-lesson-kept", null);
@@ -2174,16 +2208,10 @@ function indexLessons(units) {
   }));
 }
 function idsForLesson(n) {
-  if (test.key === "mixed") {
-    const groups = MIX_SOURCES.map(src => places.filter(p => p.source === src && p.lesson === n));
-    const ids = [];
-    for (let i = 0; i < 5; i++) groups.forEach(g => { if (g[i]) ids.push(g[i].id); });
-    return ids;
-  }
-  return places.filter(p => p.lesson === n).map(p => p.id);
+  return typeLessonIds(test.key, n);
 }
 function buildPlan() {
-  if (!test || !places || test.key === "mixed") return [];
+  if (!test || !places) return [];
   const bands = [
     { title: "Apprentice", sub: "", from: 1, to: 7 },
     { title: "Scholar", sub: "", from: 8, to: 14 },
@@ -2297,28 +2325,15 @@ function renderPath() {
 function renderHomePath() {
   document.body.classList.add("academy-home");
   migrateMixed();
-  const nodes = homeNodes();
-  let html = "";
-  let lesson = 0;
-  nodes.forEach((nd, i) => {
-    if (nd.lesson !== lesson) {
-      if (lesson) html += `</div></section>`;
-      lesson = nd.lesson;
-      html += `<section class="unit"><h2 class="unit-title">Leçon ${lesson}</h2><div class="path">`;
-    }
-    const stars = store.get(`wqa-${nd.type}-lesson-stars`, {});
-    const st = stars[nd.lesson] || 0;
-    const side = i % 3 === 0 ? "node-left" : i % 3 === 1 ? "node-mid" : "node-right";
-    const cls = ["node", nd.done ? "node-done" : "", nd.current ? "node-current" : "", nd.locked ? "node-locked" : ""].filter(Boolean).join(" ");
-    const badge = nd.done ? (st >= 3 ? "♛" : "★".repeat(Math.max(st, 1))) : "";
-    const owl = nd.showOwl ? `<span class="node-owl">${owlSVG({ scarf: HOUSES[currentHouse].scarf })}</span>` : "";
-    const label = `Leçon ${nd.lesson} · Niveau ${nd.niveau} · ${TYPE_SHORT[nd.type]}`;
-    html += `<div class="node-slot ${side}"><button class="${cls}" type="button" data-type="${nd.type}" data-lecon="${nd.lesson}" data-replay="${nd.done ? "1" : "0"}"${nd.locked ? " disabled" : ""} aria-label="${esc(label)}">${owl}<span class="node-mark node-icon" aria-hidden="true">${TYPE_ICON[nd.type]}</span>${badge ? `<span class="node-badge">${badge}</span>` : ""}</button><span class="node-caption">Niveau ${nd.niveau}</span><span class="node-caption">${esc(TYPE_SHORT[nd.type])}</span></div>`;
-  });
-  if (lesson) html += `</div></section>`;
+  const html = `<div class="subject-list">` + MIX_SOURCES.concat("mixed").map(type => {
+    const spec = TESTS[type];
+    const prog = subjectProgress(type);
+    const width = Math.round(prog.done / prog.total * 100);
+    const meta = prog.done >= 20 ? "Finished" : "Lesson " + prog.next + " of " + prog.total;
+    return `<button class="subject-card" type="button" data-course="${type}"><span class="subject-ico" aria-hidden="true">${TYPE_ICON[type] || "✨"}</span><span class="subject-copy"><strong>${esc(spec.title)}</strong><span class="subject-meta">${esc(meta)}</span><span class="subject-bar" aria-hidden="true"><span style="width:${width}%"></span></span></span></button>`;
+  }).join("") + `</div>`;
   $("path").innerHTML = html;
   paintMascots();
-  settleHomeScroll();
   updatePills();
 }
 function settleHomeScroll() {
@@ -2352,7 +2367,7 @@ function renderRelics() {
   if (!grid) return;
   if (pathHome || !test) {
     if (rule) rule.textContent = relicHomeIntro();
-    grid.innerHTML = MIX_SOURCES.map(key => {
+    grid.innerHTML = MIX_SOURCES.concat("mixed").map(key => {
       const spec = TESTS[key];
       const owned = relicOwnedLessons(key);
       const cards = lessonRelics(spec).map(r => {
@@ -2377,9 +2392,8 @@ function renderProfile() {
     const session = store.get(`wqa-${x.key}-session`, null);
     const found = live ? S.found.size : (session && session.found ? session.found.length : 0);
     const score = live ? S.score : (session && session.score) || 0;
-    const total = x.key === "mixed" ? 700 : 100;
-    if (x.key === "mixed") return "";
-    return `<li><strong>${esc(x.title)}</strong><span>${found}${total === "all" ? "" : "/" + total} · ${score} XP</span></li>`;
+    const total = 100;
+    return `<li><strong>${esc(x.title)}</strong><span>${found}/${total} · ${score} XP</span></li>`;
   }).join("");
   $("profileStats").innerHTML = `<p class="profile-line">Day streak <b>${day.n || 0}</b></p><p class="profile-line">Total XP <b>${totalXp()}</b></p><ul class="profile-list">${rows}</ul>`;
 }
@@ -2557,8 +2571,8 @@ function syncLessonChrome() {
 
 function quizMenu(playingKey) {
   const here = pathHome && view === "learn" ? `<span class="activity-current">Here</span>` : "";
-  const home = `<button class="activity-item" type="button" role="menuitem" data-test="home">🏰 Leçons ${here}</button>`;
-  const items = Object.values(TESTS).filter(x => x.key !== "mixed").map(x => {
+  const home = `<button class="activity-item" type="button" role="menuitem" data-test="home">🏰 Academy ${here}</button>`;
+  const items = Object.values(TESTS).map(x => {
     const session = store.get(`wqa-${x.key}-session`, null);
     const done = session && Array.isArray(session.found) ? session.found.length : 0;
     const mark = x.key === playingKey ? `<span class="activity-current">Playing</span>` : (done ? `<span class="activity-current">${session.won ? "Done" : done}</span>` : "");
@@ -2615,7 +2629,7 @@ $("modal").addEventListener("click", e => {
 });
 function switchTo(key) {
   closeMenu();
-  if (key === "home" || key === "mixed") {
+  if (key === "home") {
     sfx.click();
     if (view === "lesson" && S) S.lesson = null;
     showAcademy();
@@ -2635,6 +2649,12 @@ function onTestClick(e) {
   if (b) switchTo(b.dataset.test);
 }
 $("learnPane").addEventListener("click", e => {
+  const courseBtn = e.target.closest("[data-course]");
+  if (courseBtn) {
+    sfx.click();
+    selectTest(courseBtn.dataset.course);
+    return;
+  }
   const levelBtn = e.target.closest("[data-type]");
   if (levelBtn && !levelBtn.disabled) {
     openHomeLevel(levelBtn.dataset.type, +levelBtn.dataset.lecon, levelBtn.dataset.replay === "1");
@@ -2718,7 +2738,7 @@ document.addEventListener("keydown", e => {
 });
 window.addEventListener("hashchange", () => {
   const k = location.hash.slice(1);
-  if (!k || k === "home" || k === "mixed") {
+  if (!k || k === "home") {
     if (!pathHome || (view !== "learn" && view !== "lesson" && view !== "summary")) showAcademy();
     return;
   }
@@ -2730,7 +2750,7 @@ refreshBests();
 migrateMixed();
 if (window.applyConjMigration) applyConjMigration(store, window.CONJ_FR || []);
 const boot = location.hash.slice(1);
-if (TESTS[boot] && boot !== "mixed") selectTest(boot);
+if (TESTS[boot]) selectTest(boot);
 else showAcademy();
 </script>
 </body>
