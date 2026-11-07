@@ -577,6 +577,7 @@ body.feedback-open #progress { display: none !important; }
 <script src="vocab-fr.js"></script>
 <script src="logic.js"></script>
 <script src="conj-fr.js"></script>
+<script src="scripts/conj-progress.js"></script>
 <script src="vocab-en-lex.js"></script>
 <script src="vocab-fr-lex.js"></script>
 <script src="relics.js"></script>
@@ -1993,6 +1994,14 @@ function typeSession(key) {
 function typeLessonIds(key, lesson) {
   return catalogFor(key).filter(p => p.lesson === lesson).map(p => p.id);
 }
+function conjKeptLessons() {
+  const rec = store.get("wqa-conj-lesson-kept", null);
+  return new Set((rec && rec.lessons) || []);
+}
+function slotDone(type, lessonNumber, ids, foundSet) {
+  if (type === "conj" && conjKeptLessons().has(lessonNumber)) return true;
+  return ids.length > 0 && ids.every(id => foundSet.has(id));
+}
 function updatePills() {
   const day = store.get("wqa-day-streak", { n: 0 });
   const streak = $("streakPill"), xp = $("xpPill"), hearts = $("heartsPill");
@@ -2049,7 +2058,7 @@ function homeNodes() {
     MIX_SOURCES.forEach((type, i) => {
       const ids = typeLessonIds(type, lesson);
       const found = typeSession(type).found;
-      const done = ids.length === 5 && ids.every(id => found.has(id));
+      const done = slotDone(type, lesson, ids, found);
       nodes.push({ lesson, niveau: i + 1, type, ids, done });
     });
   }
@@ -2097,14 +2106,14 @@ function renderPath() {
   const stars = store.get(`wqa-${test.key}-lesson-stars`, {});
   const flat = [];
   plan.forEach(u => u.lessons.forEach(ls => flat.push(ls)));
-  let currentIndex = flat.findIndex(ls => !ls.ids.every(id => S.found.has(id)));
+  let currentIndex = flat.findIndex(ls => !slotDone(test.key, ls.number || ls.index, ls.ids, S.found));
   if (currentIndex < 0) currentIndex = flat.length;
   let html = `<div class="path-hero"><div class="home-owl" id="homeOwl" role="img" aria-label="Rowan the academy owl"></div></div>`;
   let i = 0;
   plan.forEach(unit => {
     html += `<section class="unit"><h2 class="unit-title">${esc(unit.title)}</h2>${unit.sub ? `<p class="unit-sub">${esc(unit.sub)}</p>` : ""}<div class="path">`;
     unit.lessons.forEach(ls => {
-      const done = ls.ids.every(id => S.found.has(id));
+      const done = slotDone(test.key, ls.number || ls.index, ls.ids, S.found);
       const isCurrent = i === currentIndex;
       const locked = !done && i > currentIndex;
       const st = stars[ls.number] || stars[ls.index] || 0;
@@ -2503,6 +2512,7 @@ window.addEventListener("hashchange", () => {
 applyHouse(store.get("wqa-house", "emberwyck"));
 refreshBests();
 migrateMixed();
+if (window.applyConjMigration) applyConjMigration(store, window.CONJ_FR || []);
 const boot = location.hash.slice(1);
 if (TESTS[boot] && boot !== "mixed") selectTest(boot);
 else showAcademy();

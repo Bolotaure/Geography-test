@@ -2,7 +2,7 @@
   "name": "wizards-quiz-academy",
   "private": true,
   "scripts": {
-    "test:data": "node --test tests/data.test.mjs && node scripts/validate-questions.js",
+    "test:data": "node --test tests/data.test.mjs tests/conj-progress.test.mjs && node scripts/validate-questions.js",
     "test:e2e": "playwright test",
     "test": "npm run test:data && npm run test:e2e"
   },
