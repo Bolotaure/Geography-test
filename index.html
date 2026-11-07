@@ -2703,7 +2703,8 @@ function switchTo(key) {
   if (key === "home") {
     sfx.click();
     if (view === "lesson" && S) S.lesson = null;
-    showAcademy();
+    if (pathHome) showAcademy();
+    else fadeThrough(() => showAcademy());
     return;
   }
   if (!TESTS[key]) return;
@@ -2800,7 +2801,8 @@ document.addEventListener("keydown", e => {
 window.addEventListener("hashchange", () => {
   const k = location.hash.slice(1);
   if (!k || k === "home") {
-    if (!pathHome || (view !== "learn" && view !== "lesson" && view !== "summary")) showAcademy();
+    if (!pathHome) fadeThrough(() => showAcademy());
+    else if (view !== "learn" && view !== "lesson" && view !== "summary") showAcademy();
     return;
   }
   if (TESTS[k] && (!test || k !== test.key || pathHome || (view !== "learn" && view !== "lesson"))) selectTest(k);
