@@ -375,7 +375,7 @@ test("question count follows the lesson and the home title is single", async ({ 
   await expect(page.locator("#questionCount")).toHaveText("Question 1/5");
   await expect(page.locator("#lessonPrompt")).toContainText("Find ");
   await page.click("#quitLesson");
-  await expect(page.locator("#brand")).toBeVisible();
+  await expect(page.locator("#brand")).toBeHidden();
   await expect(page.locator("#title")).toHaveText("Regions of France");
   assertQuiet(errors);
 });
