@@ -330,10 +330,13 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
   border-radius: 999px; background: var(--parchment); color: var(--ink); font-weight: 800;
 }
 .path-reset {
-  display: block; margin: 0 auto 1.2rem; min-height: 44px; padding: .4rem 1rem;
-  border-radius: 999px; background: transparent; color: #eadcc0; font-weight: 700;
-  border: 2px solid #5c4a32;
+  display: block; margin: 0 auto; min-height: 44px; padding: .45rem 1.1rem;
+  border-radius: 999px; background: var(--parchment); color: var(--ink); font-weight: 800;
+  border: 2px solid var(--gold-deep);
 }
+body.lesson-mode #resetQuiz { display: none !important; }
+.reset-pick { display: flex; flex-direction: column; gap: .45rem; margin-top: .85rem; }
+.reset-pick .path-reset { width: 100%; }
 .lesson-head { display: flex; align-items: center; gap: .7rem; }
 .quit-btn {
   width: 44px; height: 44px; border-radius: 14px; background: #241828; border: 2px solid #5c4a32;
@@ -469,6 +472,7 @@ body.feedback-open #progress { display: none !important; }
       </div>
     </div>
   </header>
+  <button class="path-reset" id="resetQuiz" type="button">Reset a quiz</button>
   <div class="course-head">
     <div>
       <button class="back-btn" id="backBtn" type="button" hidden>← Academy</button>
@@ -590,6 +594,7 @@ body.feedback-open #progress { display: none !important; }
   <div class="modal-backdrop"><div class="reward-modal" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
     <h3 class="reward-name" id="resetTitle">Reset this quiz?</h3>
     <p class="reward-tagline" id="resetBody">Lessons, badges, and points for this quiz go back to the start.</p>
+    <div class="reset-pick" id="resetPick" hidden></div>
     <div class="quit-actions">
       <button class="big-btn" id="resetStay" type="button">Cancel</button>
       <button class="mode-btn" id="resetGo" type="button">Reset</button>
@@ -705,7 +710,8 @@ const COPY = {
     soundOn: "Sound", soundOff: "Muted",
     missedNote: "Missed questions stay on this lesson until you land them.",
     accurate: "accurate", back: "← Academy",
-    reset: "Reset this quiz", resetTitle: "Reset this quiz?",
+    reset: "Reset this quiz", resetHome: "Reset a quiz", resetTitle: "Reset this quiz?",
+    resetPick: "Choose which quiz to start over. The others stay.",
     resetBody: "Lessons, badges, and points for this quiz go back to the start. The other quizzes stay.",
     resetGo: "Reset", cancel: "Cancel",
     homeSub: "Pick a subject. Each one unlocks on its own.",
@@ -722,7 +728,8 @@ const COPY = {
     soundOn: "Son", soundOff: "Muet",
     missedNote: "Les questions manquées restent dans cette leçon.",
     accurate: "de justes", back: "← Académie",
-    reset: "Réinitialiser ce quiz", resetTitle: "Réinitialiser ce quiz ?",
+    reset: "Réinitialiser ce quiz", resetHome: "Réinitialiser un quiz", resetTitle: "Réinitialiser ce quiz ?",
+    resetPick: "Choisis le quiz à recommencer. Les autres restent.",
     resetBody: "Les leçons, les badges et les points de ce quiz repartent de zéro. Les autres quiz restent.",
     resetGo: "Réinitialiser", cancel: "Annuler",
     homeSub: "Choisis une matière. Chacune avance toute seule.",
@@ -1352,6 +1359,8 @@ function showAcademy() {
     b.setAttribute("aria-current", on ? "page" : "false");
   });
   renderHomePath();
+  const reset = $("resetQuiz");
+  if (reset) reset.textContent = "Reset a quiz";
 }
 
 function mcqPlace(q, extra) {
@@ -1818,21 +1827,47 @@ function closeReward() {
   if (t && test && test.kind === "map") S.message = `Where is ${t.name}?`;
   render();
 }
-function resetCurrentQuiz() {
-  if (!test || pathHome || test.key === "mixed") return;
-  const key = test.key;
+function openResetConfirm(key) {
+  const spec = TESTS[key];
+  if (!spec) return;
+  $("resetAsk").dataset.key = key;
+  const fr = key === "vocab-fr" || key === "conj";
+  $("resetTitle").textContent = fr ? "Réinitialiser ce quiz ?" : "Reset this quiz?";
+  $("resetBody").textContent = fr
+    ? "Les leçons, les badges et les points de " + spec.title + " repartent de zéro. Les autres quiz restent."
+    : "Lessons, badges, and points for " + spec.title + " go back to the start. The other quizzes stay.";
+  $("resetStay").textContent = fr ? "Annuler" : "Cancel";
+  $("resetGo").hidden = false;
+  $("resetGo").textContent = fr ? "Réinitialiser" : "Reset";
+  $("resetPick").hidden = true;
+  $("resetAsk").hidden = false;
+}
+function openResetPicker() {
+  $("resetTitle").textContent = "Reset a quiz";
+  $("resetBody").textContent = "Choose which quiz to start over. The others stay.";
+  $("resetPick").innerHTML = MIX_SOURCES.map(key => `<button class="path-reset" type="button" data-reset="${key}">${esc(TESTS[key].title)}</button>`).join("");
+  $("resetPick").hidden = false;
+  $("resetGo").hidden = true;
+  $("resetStay").textContent = "Cancel";
+  $("resetAsk").hidden = false;
+}
+function resetQuiz(key) {
+  const spec = TESTS[key];
+  if (!spec || key === "mixed") return;
   ["session", "best", "unlocked", "missed", "lesson-stars"].forEach(part => {
     try { localStorage.removeItem("wqa-" + key + "-" + part); } catch {}
   });
   if (key === "conj") {
     try { localStorage.removeItem("wqa-conj-lesson-kept"); } catch {}
   }
-  sessionToState(blankSession(), test.welcome);
-  persist();
-  view = "learn";
-  $("summary").hidden = true;
   $("resetAsk").hidden = true;
-  showTab("learn");
+  if (!pathHome && test && test.key === key) {
+    sessionToState(blankSession(), spec.welcome);
+    persist();
+    view = "learn";
+    $("summary").hidden = true;
+    showTab("learn");
+  } else showAcademy();
   updatePills();
 }
 function playAgain() {
@@ -2222,13 +2257,14 @@ function renderPath() {
   setSubtitle(test.subtitle);
   showBanner(test.key);
   if ($("backBtn")) { $("backBtn").hidden = false; $("backBtn").textContent = L("back"); }
+  if ($("resetQuiz")) $("resetQuiz").textContent = L("reset");
   const plan = buildPlan();
   const stars = store.get(`wqa-${test.key}-lesson-stars`, {});
   const flat = [];
   plan.forEach(u => u.lessons.forEach(ls => flat.push(ls)));
   let currentIndex = flat.findIndex(ls => !slotDone(test.key, ls.number || ls.index, ls.ids, S.found));
   if (currentIndex < 0) currentIndex = flat.length;
-  let html = `<button class="path-reset" id="resetQuiz" type="button">${esc(L("reset"))}</button>`;
+  let html = "";
   let i = 0;
   plan.forEach(unit => {
     html += `<section class="unit"><h2 class="unit-title">${esc(unit.title)}</h2>${unit.sub ? `<p class="unit-sub">${esc(unit.sub)}</p>` : ""}<div class="path">`;
@@ -2610,14 +2646,6 @@ $("learnPane").addEventListener("click", e => {
     if (ls) startLesson(ls.index, ls.ids, lessonBtn.dataset.replay === "1");
     return;
   }
-  if (e.target.closest("#resetQuiz")) {
-    $("resetTitle").textContent = L("resetTitle");
-    $("resetBody").textContent = L("resetBody");
-    $("resetStay").textContent = L("cancel");
-    $("resetGo").textContent = L("resetGo");
-    $("resetAsk").hidden = false;
-    return;
-  }
   if (e.target.closest("#reviewBtn")) return startReview();
   onTestClick(e);
 });
@@ -2643,7 +2671,15 @@ $("quitLesson").addEventListener("click", () => {
 $("quitStay").addEventListener("click", () => { $("quitAsk").hidden = true; });
 $("quitGo").addEventListener("click", quitLesson);
 $("resetStay").addEventListener("click", () => { $("resetAsk").hidden = true; });
-$("resetGo").addEventListener("click", resetCurrentQuiz);
+$("resetGo").addEventListener("click", () => resetQuiz($("resetAsk").dataset.key));
+$("resetAsk").addEventListener("click", e => {
+  const pick = e.target.closest("[data-reset]");
+  if (pick) openResetConfirm(pick.dataset.reset);
+});
+$("resetQuiz").addEventListener("click", () => {
+  if (pathHome || !test) openResetPicker();
+  else openResetConfirm(test.key);
+});
 $("checkBtn").addEventListener("click", checkAnswer);
 $("continueBtn").addEventListener("click", continueQuestion);
 $("summaryContinue").addEventListener("click", () => {
