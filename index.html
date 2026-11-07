@@ -414,22 +414,8 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
 .profile-list span { color: var(--muted); font-weight: 700; white-space: nowrap; }
 .relic-group { margin: 0 0 1.15rem; }
 .relic-group h3 { font-family: var(--font-display); font-size: 1.05rem; color: var(--gold-deep); margin: .15rem 0 .45rem; }
-.subject-list { display: flex; flex-direction: column; gap: .65rem; max-width: 440px; margin: 0 auto; }
-.subject-card {
-  display: flex; align-items: center; gap: .75rem; width: 100%; text-align: left;
-  background: #1c1424ee; color: var(--parchment); border: 2px solid #5c4a32; border-radius: 18px;
-  padding: .7rem .85rem; min-height: 76px;
-}
-.subject-card:hover, .subject-card:focus-visible { border-color: var(--gold); }
-.subject-ico { font-size: 1.7rem; width: 2.4rem; text-align: center; flex: 0 0 auto; }
-.subject-copy { flex: 1; min-width: 0; }
-.subject-copy strong { display: block; font-family: var(--font-display); color: var(--candle); font-size: 1.05rem; }
-.subject-meta { color: #eadcc0; font-size: .92rem; font-weight: 700; }
-.subject-bar { height: 8px; background: #120c18; border-radius: 99px; margin-top: .35rem; overflow: hidden; border: 1px solid #5c4a32; }
-.subject-bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--house), var(--gold)); }
 .quit-actions { display: flex; gap: .6rem; justify-content: center; margin-top: 1rem; }
 .quit-actions .big-btn { min-width: 7.5rem; }
-body.academy-home .quiz-banner { height: 132px; }
 body.lesson-mode .mascot,
 body.lesson-mode .speech-bubble,
 body.lesson-mode .shelf-card,
@@ -466,8 +452,6 @@ body.feedback-open #progress { display: none !important; }
     <div class="pills" aria-label="Streak and points">
       <span class="pill" id="streakPill" title="Days in a row">🔥 0 days</span>
       <span class="pill" id="xpPill" title="Experience">✦ 0</span>
-      <button class="pill" id="soundBtn" type="button" aria-pressed="true">Sound</button>
-      <span class="pill" id="heartsPill" hidden title="Hearts">♥♥♥♥♥</span>
     </div>
     <div class="activity-menu-wrap">
       <button class="activity-trigger" id="menuBtn" type="button" aria-haspopup="menu" aria-expanded="false">Choose a quiz
@@ -631,7 +615,6 @@ function ctx() {
   return audioCtx;
 }
 function tone(freq, delay, dur, type = "sine", vol = .22) {
-  if (!soundOn()) return;
   const c = ctx(); if (!c) return;
   const t = c.currentTime + delay, o = c.createOscillator(), g = c.createGain();
   o.type = type; o.frequency.setValueAtTime(freq, t);
@@ -729,7 +712,6 @@ function uiLang() {
   return test && (test.key === "vocab-fr" || test.key === "conj") ? "fr" : "en";
 }
 function L(key) { return COPY[uiLang()][key]; }
-function soundOn() { return store.get("wqa-sound", "on") !== "off"; }
 function listNames(names) {
   if (names.length <= 1) return names.join("");
   return names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
@@ -1328,7 +1310,7 @@ function showAcademy() {
   document.title = "Wizard's Quiz Academy";
   setBrand("");
   $("title").textContent = "Wizard's Quiz Academy";
-  setSubtitle(L("homeSub"));
+  setSubtitle("");
   showBanner("home");
   $("play").hidden = true;
   $("summary").hidden = true;
@@ -1557,7 +1539,6 @@ function onPlaceClick(id) {
   } else {
     S.misses++; S.streak = 0;
     if (!S.lesson || !S.lesson.replay) { S.missed.add(target.id); saveMissed(); }
-    if (S.lesson) S.lesson.hearts = Math.max(0, S.lesson.hearts - 1);
     sfx.wrong();
     S.message = `That's ${place.name}. The place was ${target.name}.`;
     if (S.lesson) { S.locked = true; S.picked = place.name; S.wrongId = id; return render(); }
@@ -1715,7 +1696,6 @@ function onChoice(choice) {
   } else {
     S.streak = 0;
     if (!S.lesson || !S.lesson.replay) { S.missed.add(q.id); saveMissed(); }
-    if (S.lesson) S.lesson.hearts = Math.max(0, S.lesson.hearts - 1);
     sfx.wrong();
     S.message = `The spell fizzles. ${q.answer} was the true match.` + (exampleSentence(q) ? " " + exampleSentence(q) : "");
   }
@@ -1730,13 +1710,9 @@ function advanceAfterLock() {
   S.hintHide = null;
   S.pendingReward = null;
   if (S.lesson) {
-    const qNow = current();
-    const ok = qNow && (qNow.kind === "map" ? S.picked === qNow.name : S.picked === qNow.answer);
-    const qid = S.lesson.queue[0];
     S.lesson.answered++;
     S.lesson.queue.shift();
-    if (!ok && S.lesson.hearts > 0 && qid) S.lesson.queue.push(qid);
-    if (!S.lesson.queue.length || S.lesson.hearts <= 0) return finishLesson();
+    if (!S.lesson.queue.length) return finishLesson();
     S.message = "Onward, apprentice.";
     return render();
   }
@@ -2117,22 +2093,9 @@ function slotDone(type, lessonNumber, ids, foundSet) {
 }
 function updatePills() {
   const day = store.get("wqa-day-streak", { n: 0 });
-  const streak = $("streakPill"), xp = $("xpPill"), hearts = $("heartsPill");
+  const streak = $("streakPill"), xp = $("xpPill");
   if (streak) streak.textContent = "🔥 " + (day.n || 0) + " " + (test && uiLang() === "fr" ? COPY.fr.days : COPY.en.days);
   if (xp) xp.textContent = "✦ " + totalXp();
-  const sound = $("soundBtn");
-  if (sound) {
-    const on = soundOn();
-    sound.textContent = on ? L("soundOn") : L("soundOff");
-    sound.setAttribute("aria-pressed", String(on));
-    sound.title = on ? "Sound on" : "Sound off";
-  }
-  if (!hearts) return;
-  if (view === "lesson" && S.lesson) {
-    hearts.hidden = false;
-    const h = S.lesson.hearts;
-    hearts.textContent = "♥".repeat(h) + "♡".repeat(Math.max(0, 5 - h));
-  } else hearts.hidden = true;
 }
 function chunkIds(ids, n) {
   const out = [];
@@ -2267,28 +2230,28 @@ function renderPath() {
   }
   updatePills();
 }
-function subjectProgress(type) {
-  const session = typeSession(type);
-  let done = 0;
-  for (let n = 1; n <= 20; n++) {
-    const ids = typeLessonIds(type, n);
-    if (slotDone(type, n, ids, session.found)) done++;
-    else break;
-  }
-  return { done, next: done >= 20 ? 20 : done + 1, total: 20, score: session.score || 0 };
-}
 function renderHomePath() {
   document.body.classList.add("academy-home");
   migrateMixed();
-  const html = `<div class="subject-list">` + MIX_SOURCES.map(type => {
-    const spec = TESTS[type];
-    const prog = subjectProgress(type);
-    const width = Math.round(prog.done / prog.total * 100);
-    const meta = prog.done >= 20
-      ? "Finished · " + prog.score + " XP"
-      : "Lesson " + prog.next + " of " + prog.total + " · " + prog.score + " XP";
-    return `<button class="subject-card" type="button" data-course="${type}"><span class="subject-ico" aria-hidden="true">${TYPE_ICON[type]}</span><span class="subject-copy"><strong>${esc(spec.title)}</strong><span class="subject-meta">${esc(meta)}</span><span class="subject-bar" aria-hidden="true"><span style="width:${width}%"></span></span></span></button>`;
-  }).join("") + `</div>`;
+  const nodes = homeNodes();
+  let html = "";
+  let lesson = 0;
+  nodes.forEach((nd, i) => {
+    if (nd.lesson !== lesson) {
+      if (lesson) html += `</div></section>`;
+      lesson = nd.lesson;
+      html += `<section class="unit"><h2 class="unit-title">Leçon ${lesson}</h2><div class="path">`;
+    }
+    const stars = store.get(`wqa-${nd.type}-lesson-stars`, {});
+    const st = stars[nd.lesson] || 0;
+    const side = i % 3 === 0 ? "node-left" : i % 3 === 1 ? "node-mid" : "node-right";
+    const cls = ["node", nd.done ? "node-done" : "", nd.current ? "node-current" : "", nd.locked ? "node-locked" : ""].filter(Boolean).join(" ");
+    const badge = nd.done ? (st >= 3 ? "♛" : "★".repeat(Math.max(st, 1))) : "";
+    const owl = nd.showOwl ? `<span class="node-owl">${owlSVG({ scarf: HOUSES[currentHouse].scarf })}</span>` : "";
+    const label = `Leçon ${nd.lesson} · Niveau ${nd.niveau} · ${TYPE_SHORT[nd.type]}`;
+    html += `<div class="node-slot ${side}"><button class="${cls}" type="button" data-type="${nd.type}" data-lecon="${nd.lesson}" data-replay="${nd.done ? "1" : "0"}"${nd.locked ? " disabled" : ""} aria-label="${esc(label)}">${owl}<span class="node-mark node-icon" aria-hidden="true">${TYPE_ICON[nd.type]}</span>${badge ? `<span class="node-badge">${badge}</span>` : ""}</button><span class="node-caption">Niveau ${nd.niveau}</span><span class="node-caption">${esc(TYPE_SHORT[nd.type])}</span></div>`;
+  });
+  if (lesson) html += `</div></section>`;
   $("path").innerHTML = html;
   paintMascots();
   settleHomeScroll();
@@ -2368,7 +2331,7 @@ function startLesson(index, ids, replay) {
   const queue = sittingIds(ids, replay);
   if (!queue.length) return;
   sfx.click();
-  S.lesson = { index, ids: ids.slice(), queue, replay: !!replay, review: false, correct: 0, answered: 0, xp: 0, hearts: 5, relics: [] };
+  S.lesson = { index, ids: ids.slice(), queue, replay: !!replay, review: false, correct: 0, answered: 0, xp: 0, relics: [] };
   S.locked = false; S.picked = null; S.selected = null; S.selectedGeo = null;
   S.choiceFor = null; S.hintHide = null; S.explore = false; S.practice = false;
   S.reward = null; S.party = false; S.pendingReward = null; S.askOpen = false;
@@ -2424,7 +2387,6 @@ function finishLesson() {
   if (complete) bumpDayStreak();
   const xp = lesson.xp || 0;
   const relics = lesson.relics || [];
-  const heartsOut = lesson.hearts <= 0 && lesson.queue.length > 0;
   S.lesson = null;
   S.locked = false; S.selected = null; S.selectedGeo = null;
   view = "summary";
@@ -2442,7 +2404,7 @@ function finishLesson() {
   if ($("questionCount")) $("questionCount").hidden = true;
   $("bottomNav").hidden = false;
   $("summaryOwl").innerHTML = owlSVG({ scarf: HOUSES[currentHouse].scarf });
-  $("summaryTitle").textContent = heartsOut ? L("heartsOut") : (complete ? L("lessonDone") : L("keep"));
+  $("summaryTitle").textContent = complete ? L("lessonDone") : L("keep");
   $("summaryXp").textContent = "+" + xp + " XP";
   $("summaryAcc").textContent = Math.round(acc * 100) + "% " + L("accurate") + (stars ? " · " + "★".repeat(stars) : "");
   const relicNote = relicSummaryNote(test, S.found.size, relics.length > 0);
@@ -2605,12 +2567,6 @@ function onTestClick(e) {
   if (b) switchTo(b.dataset.test);
 }
 $("learnPane").addEventListener("click", e => {
-  const courseBtn = e.target.closest("[data-course]");
-  if (courseBtn) {
-    sfx.click();
-    selectTest(courseBtn.dataset.course);
-    return;
-  }
   const levelBtn = e.target.closest("[data-type]");
   if (levelBtn && !levelBtn.disabled) {
     openHomeLevel(levelBtn.dataset.type, +levelBtn.dataset.lecon, levelBtn.dataset.replay === "1");
@@ -2646,11 +2602,6 @@ $("quitLesson").addEventListener("click", () => {
 });
 $("quitStay").addEventListener("click", () => { $("quitAsk").hidden = true; });
 $("quitGo").addEventListener("click", quitLesson);
-$("soundBtn").addEventListener("click", () => {
-  store.set("wqa-sound", soundOn() ? "off" : "on");
-  updatePills();
-  if (soundOn()) sfx.click();
-});
 $("checkBtn").addEventListener("click", checkAnswer);
 $("continueBtn").addEventListener("click", continueQuestion);
 $("summaryContinue").addEventListener("click", () => {
