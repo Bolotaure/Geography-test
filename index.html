@@ -43,7 +43,7 @@
 :root[data-academy="azurequill"] { --house: #1e4d8c; --house-ink: #f3f7ff; }
 :root[data-academy="amberkeep"] { --house: #8a5a08; --house-ink: #fff8e8; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { min-height: 100%; background: var(--night); color: var(--parchment); font-family: var(--font-body); overflow-x: hidden; overflow-anchor: none; }
+html, body { min-height: 100%; background: var(--night); color: var(--parchment); font-family: var(--font-body); overflow-x: hidden; overflow-x: clip; overflow-anchor: none; }
 body {
   background:
     radial-gradient(circle at 50% 0%, #3a2458 0, transparent 42%),
@@ -59,21 +59,33 @@ button:disabled:not(.choice-right):not(.choice-wrong) { opacity: .45; }
   padding: 0 var(--pad) 2.2rem;
   display: flex; flex-direction: column; gap: 1rem;
 }
-.quiz-banner {
-  display: block; width: calc(100% + 2 * var(--pad)); max-width: none; height: clamp(150px, 32vw, 280px);
-  margin-left: calc(-1 * var(--pad)); object-fit: cover; object-position: center 42%;
-  border-bottom: 3px solid var(--gold-deep);
+.page-top {
+  order: -1; position: sticky; top: 0; z-index: 20; background: #140e1c;
+  width: calc(100% + 2 * var(--pad)); margin-left: calc(-1 * var(--pad));
 }
+body.academy-home .page-top, body.lesson-mode .page-top { display: contents; }
+.banner-wrap { position: relative; }
+body.academy-home .banner-wrap, body.lesson-mode .banner-wrap { order: -1; margin-top: -1rem; width: calc(100% + 2 * var(--pad)); margin-left: calc(-1 * var(--pad)); }
+body.lesson-mode .banner-wrap { position: sticky; top: 0; z-index: 8; }
+.quiz-banner {
+  display: block; width: 100%; max-width: none; height: clamp(150px, 32vw, 280px);
+  object-fit: cover; object-position: center 42%;
+  border-top: 3px solid var(--gold-deep); border-bottom: 3px solid var(--gold-deep);
+}
+.banner-wrap .back-btn { position: absolute; top: .6rem; right: var(--pad); margin: 0; background: #241828e6; }
+.relic-board { position: relative; }
+.relic-home { position: absolute; top: .8rem; left: .8rem; }
 .course-head {
-  display: flex; align-items: flex-start; justify-content: space-between; gap: .6rem; order: -1;
-  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between; gap: .6rem;
   background: #140e1c;
-  width: calc(100% + 2 * var(--pad));
-  margin-left: calc(-1 * var(--pad)); margin-right: calc(-1 * var(--pad));
-  padding: .85rem var(--pad) .45rem;
+  padding: .85rem var(--pad) .7rem;
 }
 .course-head .title-copy { min-width: 0; flex: 1; }
-body.lesson-mode .course-head { position: static; }
+body.academy-home .course-head {
+  order: -1; position: sticky; top: 0; z-index: 20;
+  width: calc(100% + 2 * var(--pad)); margin-left: calc(-1 * var(--pad));
+}
+body.lesson-mode .course-head { order: -1; width: calc(100% + 2 * var(--pad)); margin-left: calc(-1 * var(--pad)); }
 .brand-kicker { letter-spacing: .16em; text-transform: uppercase; font-size: .72rem; color: var(--gold); font-weight: 700; }
 .game-title { font-family: var(--font-display); color: var(--candle); font-size: clamp(1.7rem, 4vw, 2.6rem); font-weight: 800; line-height: 1.15; text-shadow: 0 2px 0 #0006; }
 .game-subtitle { color: #eadcc0; font-size: clamp(.95rem, 2.4vw, 1.12rem); margin-top: .2rem; }
@@ -473,7 +485,6 @@ body.lesson-mode .game-subtitle,
 body.lesson-mode #practiceBtn { display: none !important; }
 body.lesson-mode .game-root { padding-bottom: calc(8rem + env(safe-area-inset-bottom, 0px)); max-width: 760px; }
 body.lesson-mode .prompt-row { margin-bottom: 0; }
-body.lesson-mode .quiz-banner { position: sticky; top: 0; z-index: 8; }
 body.lesson-mode #progress { padding: .35rem .65rem; }
 body.lesson-mode .progress-relic,
 body.lesson-mode .progress-relic svg { width: 36px; height: 36px; flex-basis: 36px; }
@@ -520,7 +531,6 @@ body.feedback-open #progress { display: none !important; }
 </div>
 <div id="fadeVeil" aria-hidden="true"></div>
 <div class="game-root">
-  <img class="quiz-banner" id="quizBanner" alt="" hidden>
   <header class="topbar">
     <div class="pills" aria-label="Streak and points">
       <span class="pill" id="streakPill" title="Days in a row">🔥 0 days</span>
@@ -528,11 +538,9 @@ body.feedback-open #progress { display: none !important; }
     </div>
   </header>
   <button class="path-reset" id="resetQuiz" type="button" hidden>Reset a quiz</button>
+  <div class="page-top">
   <div class="course-head">
     <div class="title-copy">
-      <button class="back-btn" id="backBtn" type="button" hidden aria-label="Home">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg>
-      </button>
       <p class="brand-kicker" id="brand">Candlelight &amp; questions</p>
       <h1 class="game-title" id="title">Wizard's Quiz Academy</h1>
       <p class="game-subtitle" id="subtitle">A castle of maps, words, and number&nbsp;charms.</p>
@@ -548,7 +556,14 @@ body.feedback-open #progress { display: none !important; }
       </div>
     </div>
   </div>
-  <div class="lesson-head" id="lessonHead" hidden>
+    <div class="banner-wrap">
+    <img class="quiz-banner" id="quizBanner" alt="" hidden>
+    <button class="back-btn" id="backBtn" type="button" hidden aria-label="Home">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg>
+    </button>
+  </div>
+  </div>
+<div class="lesson-head" id="lessonHead" hidden>
     <button class="quit-btn" id="quitLesson" type="button" aria-label="Leave lesson">✕</button>
     <div class="lesson-track" aria-hidden="true"><div class="lesson-fill" id="lessonFill"></div></div>
   </div>
@@ -609,6 +624,9 @@ body.feedback-open #progress { display: none !important; }
 
   <section id="relicsPane" hidden aria-label="Relics">
     <div class="relic-board">
+      <button class="back-btn relic-home" id="relicsHome" type="button" aria-label="Home">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg>
+      </button>
       <button class="pane-back" id="relicsBack" type="button">← Back</button>
       <h2 class="summary-title">Relic shelf</h2>
       <p class="relic-rule" id="relicRule"></p>
@@ -1110,7 +1128,7 @@ const TESTS = {
   },
   mixed: {
     key: "mixed", kind: "mixed", tab: "✨ Grand", menu: "✨ Grand quest",
-    title: "Grand Quest", subtitle: "Seven subjects in turn, one per lesson.",
+    title: "Grand Quest", subtitle: "",
     noun: "question", nounPl: "questions", perLevel: 40, whole: "the realm",
     ask: "Your move.",
     welcome: "Rowan shuffles every subject together.",
@@ -2479,7 +2497,8 @@ function syncMenuLabels() {
   if ($("menuRelics")) $("menuRelics").textContent = fr ? "Reliques" : "Relics";
   if ($("menuProfile")) $("menuProfile").textContent = fr ? "Profil" : "Profile";
   const back = !test || pathHome ? (fr ? "← Accueil" : "← Home") : (fr ? "← Retour" : "← Back");
-  if ($("relicsBack")) $("relicsBack").textContent = back;
+  if ($("relicsBack")) { $("relicsBack").textContent = back; $("relicsBack").hidden = !test || pathHome; }
+  if ($("relicsHome")) $("relicsHome").setAttribute("aria-label", fr ? "Accueil" : "Home");
   if ($("profileBack")) $("profileBack").textContent = back;
 }
 function closeAppMenu() {
@@ -2825,6 +2844,7 @@ $("menuReset").addEventListener("click", () => {
 $("menuRelics").addEventListener("click", () => { closeAppMenu(); showTab("relics"); });
 $("menuProfile").addEventListener("click", () => { closeAppMenu(); showTab("profile"); });
 $("relicsBack").addEventListener("click", () => showTab("learn"));
+$("relicsHome").addEventListener("click", () => switchTo("home"));
 $("profileBack").addEventListener("click", () => showTab("learn"));
 document.addEventListener("click", e => { if (!e.target.closest(".menu-wrap")) closeAppMenu(); });
 $("checkBtn").addEventListener("click", checkAnswer);
