@@ -460,7 +460,7 @@ body.lesson-mode #resetQuiz { display: none !important; }
 .subject-copy { flex: 1; min-width: 0; }
 .subject-copy strong { display: block; font-family: var(--font-display); color: var(--candle); font-size: 1.05rem; }
 .subject-meta { color: #eadcc0; font-size: .92rem; font-weight: 700; }
-.subject-bar { height: 8px; background: #120c18; border-radius: 99px; margin-top: .35rem; overflow: hidden; border: 1px solid #5c4a32; }
+.subject-bar { display: block; height: 8px; background: #120c18; border-radius: 99px; margin-top: .35rem; overflow: hidden; border: 1px solid #5c4a32; }
 .subject-bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--house), var(--gold)); }
 .quit-actions { display: flex; gap: .6rem; justify-content: center; margin-top: 1rem; }
 .quit-actions .big-btn { min-width: 7.5rem; }
@@ -611,7 +611,7 @@ body.feedback-open #progress { display: none !important; }
       <button class="pane-back" id="relicsBack" type="button">← Learn</button>
       <h2 class="summary-title">Relic shelf</h2>
       <p class="relic-rule" id="relicRule"></p>
-      <div class="relic-grid" id="relicGrid"></div>
+      <div id="relicGrid"></div>
     </div>
   </section>
 
