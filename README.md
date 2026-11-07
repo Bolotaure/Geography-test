@@ -2,22 +2,68 @@
 
 A quiz castle for curious minds. Geography is still here — the 50 US states, the 18 regions of France, and the 47 prefectures of Japan — beside advanced vocabulary, number-pattern logic, and French conjugation.
 
-Open `index.html`. The home path is twenty lessons. Each lesson is a unit of seven levels, and the type changes at every node: États, Régions, Préfectures, Anglais, Français, Nombres, then Conjugaison. A node is the five questions of that type's Leçon N. Each subject unlocks on its own: every subject's first node is open, and that subject's next lesson opens only when its own previous lesson is finished. Finishing one subject never locks or unlocks another. **Choose a quiz** still opens a single subject. Hashes: `#home` or `#mixed` for the main path, or `#us`, `#fr`, `#jp`, `#vocab-en`, `#vocab-fr`, `#logic`, `#conj`.
+The live page is [bolotaure.github.io/Geography-test](https://bolotaure.github.io/Geography-test/). Open `index.html` locally for the same app. Everything the player sees is in that one file. Question banks are separate scripts.
 
-Each course keeps its own score, streak, found questions, and relics in the browser. A day streak counts each local day you finish a lesson. The bottom bar opens Learn, Relics, and Profile. An older save keeps its score and any question it already knew; new questions are added to the path.
+On a phone or tablet the app works only upright. Turn it sideways and a portrait screen covers the quiz until you rotate it back.
 
-## Subjects
+## Home
 
-- **Lessons.** Every subject has 100 questions in 20 lessons of five. The node shows the lesson number. Tap it, pick an answer, then **Check**. A green or red banner shows the result and **Continue**. The summary shows XP, accuracy, and any new relic. Hearts run out after five misses.
-- **Geography.** The lesson names a place. Tap it, then Check. **Explore** names whatever you tap. **Name tags** shows short labels. **Ask Rowan for a hint** gives direction, neighbours, water, and spelling. Zoom with **+ / −**, a two-finger pinch, or ctrl + mouse wheel.
-- **Vocabulary.** A hard word, four choices, one real synonym. English and French each have 100 words. The two lists do not share a prompt, an answer, or an obvious cognate of the same word (éphémère does not sit beside ephemeral). After Check, the banner includes an example sentence that uses the prompt word, right or wrong. A wrong choice also keeps its info mark, with a definition and an example.
-- **Relics.** The reward counts are unchanged. One relic every 8 new correct answers for US states and Japanese prefectures (8, 16, 24, 32, 40, 48), every 3 for French regions (3, 6, 9, 12, 15, 18), every 15 for English, French, numbers, and verbs (15, 30, 45, 60, 75, 90), and every 40 on the mixed course. A question you already got right does not count again, and finishing a lesson does not give a relic by itself. On a map, finding the last place also unlocks any relic still locked.
-- **Logic.** 100 number sequences, grouped as Apprentice, Scholar, and Archmage. The rule appears in the banner after Check.
-- **French conjugation.** 100 checked forms: présent, futur, imparfait, passé composé, infinitif, and participe passé. Consecutive questions change verb and cycle 1er groupe, 2e groupe, 3e groupe, including across lessons. Ending in -ir is not the 2e groupe: partir and aller are 3e groupe. An older save keeps its score, best, and relics. Each removed question that was already credited is exchanged for one new question, and a lesson that was fully finished stays closed. Passé composé with être agrees in the masculine, and vous is treated as masculine singular.
-- **Home path.** Leçon N holds seven nodes, one per subject, in that order. Two nodes in a row are never the same type. The questions are the same five as that subject's own Leçon N, so finishing a node fills the same progress as playing it inside the subject, and the other way around. A finished lesson of one subject opens only the next lesson of that same subject.
-- **Synonym notes.** After an English or French answer, each choice has an info mark with a definition and an example sentence.
+The home screen is a list of eight quizzes. **Grand Quest** is first. Each card shows the next lesson, from 1 to 20. Tap a card and the screen fades through black into that quiz. The home icon fades back through black.
 
-The four houses — Emberwyck, Verdant Hollow, Azure Quill, and Amberkeep — only change the accent colour.
+The title stays pinned above the banner. The menu button sits to the right of the title. It opens three items:
+
+- **Reset a quiz.** From home, pick which quiz to clear. Inside a quiz, it resets that quiz. Either way it asks first. Score, progress, and relics for that quiz go back to the start. Other quizzes are left alone.
+- **Relics.**
+- **Profile.** Choose a house. The house only changes the accent colour: Emberwyck, Verdant Hollow, Azure Quill, or Amberkeep.
+
+There is no bottom tab bar.
+
+Hashes: `#home`, `#mixed` (Grand Quest), `#us`, `#fr`, `#jp`, `#vocab-en`, `#vocab-fr`, `#logic`, `#conj`.
+
+## A quiz
+
+Every quiz has 20 lessons of 5 questions, in three sections:
+
+| Section | Lessons |
+|---|---|
+| Apprentice | 1–7 |
+| Scholar | 8–14 |
+| Archmage | 15–20 |
+
+The next lesson of a quiz opens only when the previous one is finished. Finishing a lesson in one quiz does not unlock or lock another. The owl sits on the current lesson, not above the path.
+
+Tap a lesson, pick an answer, then **Check**. A banner shows the result and **Continue**. Leaving a lesson asks first. Correct answers stay saved. A day streak counts each local day you finish a lesson. Points and the day streak show under the banner.
+
+Each quiz keeps its own score, found questions, and relics in the browser (`wqa-<quiz>-session` and the matching best, missed, and lesson-star keys). An older save keeps its score and any question it already knew.
+
+### Grand Quest
+
+Five questions, each from a different subject, rotating through the seven banks. Lesson N draws from that subject's own lesson N, so the two paths share questions but not relics or unlocks.
+
+### Geography
+
+State Atlas, Regions of France, and Prefectures of Japan. The lesson names a place. Tap it, then Check. **Explore** names whatever you tap. **Name tags** shows short labels. **Ask Rowan for a hint** gives direction, neighbours, water, and spelling. A wrong tap says which region the answer is in and one place it touches. Zoom with **+ / −**, a two-finger pinch, or ctrl + mouse wheel.
+
+### Vocabulary
+
+A hard word, four choices, one real synonym. English and French each have 100 words. The two lists do not share a prompt, an answer, or an obvious cognate of the same word (éphémère does not sit beside ephemeral). After Check, the banner includes an example sentence that uses the prompt word, right or wrong. A wrong choice also keeps its info mark, with a definition and an example. The French quiz is in French.
+
+### Number Charms
+
+100 number sequences. The rule appears in the banner after Check.
+
+### French conjugation
+
+100 checked forms: présent, futur, imparfait, passé composé, infinitif, and participe passé. Consecutive questions change verb and do not repeat the same tense. A lesson uses at least three tenses. Ending in -ir is not the 2e groupe: partir and aller are 3e groupe. Passé composé with être agrees in the masculine, and vous is treated as masculine singular. The quiz chrome is in French.
+
+## Relics
+
+Relics are not shared between quizzes.
+
+- **Grand Quest** has twenty relics, one when you finish each of its lessons.
+- **Every other quiz** has three relics, one when you finish a whole section: Apprentice, Scholar, or Archmage.
+
+A question you already got right does not count again. The relic shelf in the menu shows only the relics for the quiz you are in, or every quiz when you open it from home.
 
 ## Question files
 
@@ -49,4 +95,4 @@ Libraries in `lib/` (d3, topojson-client, canvas-confetti, all ISC licence) are 
 
 US map: `us-states.js`, from `us-atlas`. France map: `fr-regions.js`, simplified from [gregoiredavid/france-geojson](https://github.com/gregoiredavid/france-geojson) (Licence Ouverte / Etalab). Japan map: `jp-prefectures.js`, simplified from [dataofjapan/land](https://github.com/dataofjapan/land).
 
-The owl, the relics in `relics.js`, and the castle are original drawings. No studio logos, film stills, or proprietary fonts.
+The owl, the relics in `relics.js`, and the castle are original drawings. No studio logos, film stills, or proprietary fonts. The interface uses [Nunito](https://fonts.google.com/specimen/Nunito).
