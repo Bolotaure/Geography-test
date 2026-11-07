@@ -95,4 +95,4 @@ Libraries in `lib/` (d3, topojson-client, canvas-confetti, all ISC licence) are 
 
 US map: `us-states.js`, from `us-atlas`. France map: `fr-regions.js`, simplified from [gregoiredavid/france-geojson](https://github.com/gregoiredavid/france-geojson) (Licence Ouverte / Etalab). Japan map: `jp-prefectures.js`, simplified from [dataofjapan/land](https://github.com/dataofjapan/land).
 
-The owl, the relics in `relics.js`, and the castle are original drawings. No studio logos, film stills, or proprietary fonts. The interface uses [Nunito](https://fonts.google.com/specimen/Nunito).
+The owl, the relics in `relics.js`, and the castle are original drawings. Each quiz's lesson path sits on its own background picture, `img/bg-<quiz>.webp`, generated for this project. It shows behind the path and the Relics and Profile screens of that quiz, not on home or during a lesson. No studio logos, film stills, or proprietary fonts. The interface uses [Nunito](https://fonts.google.com/specimen/Nunito).

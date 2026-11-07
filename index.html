@@ -329,7 +329,7 @@ body.lesson-mode .menu-wrap { display: none !important; }
 .path-hero { text-align: center; margin-bottom: .8rem; }
 .path-hero p { color: #eadcc0; }
 .unit {
-  background: #1c1424ee; border: 2px solid #5c4a32; border-radius: 28px;
+  background: #1c142473; border: 2px solid #5c4a32; border-radius: 28px;
   padding: 1rem .6rem .4rem; margin-bottom: 1rem;
 }
 .unit-title { font-family: var(--font-display); color: var(--candle); text-align: center; font-size: 1.25rem; }
@@ -517,6 +517,12 @@ body.feedback-open #progress { display: none !important; }
   flex-direction: column; align-items: center; justify-content: center;
   gap: .8rem; text-align: center; padding: 2rem;
 }
+#pathBg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-color: var(--night); background-position: center; background-size: cover;
+}
+body.academy-home #pathBg, body.lesson-mode #pathBg { display: none; }
+.game-root { position: relative; z-index: 1; }
 #fadeVeil {
   position: fixed; inset: 0; z-index: 70; background: #000;
   opacity: 0; pointer-events: none; transition: opacity .4s linear;
@@ -532,6 +538,7 @@ body.feedback-open #progress { display: none !important; }
   <p class="portrait-title">Portrait only</p>
   <p class="portrait-note">Turn your device upright to keep playing.</p>
 </div>
+<div id="pathBg" aria-hidden="true"></div>
 <div id="fadeVeil" aria-hidden="true"></div>
 <div class="game-root">
   <header class="topbar">
@@ -2432,6 +2439,8 @@ function showTab(name) {
 function renderPath() {
   document.body.classList.remove("academy-home");
   if (!test) return;
+  const bg = $("pathBg");
+  if (bg) bg.style.backgroundImage = `linear-gradient(#0d081466, #0d081466), url("img/bg-${test.key}.webp")`;
   document.title = test.title + " · Wizard's Quiz Academy";
   setBrand("");
   $("title").textContent = test.title;
