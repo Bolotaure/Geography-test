@@ -1039,8 +1039,8 @@ const TESTS = {
     ],
   },
   mixed: {
-    key: "mixed", kind: "mixed", tab: "✨ Mixed", menu: "✨ Mixed quest",
-    title: "Mixed Quest", subtitle: "Five questions from different subjects.",
+    key: "mixed", kind: "mixed", tab: "✨ Grand", menu: "✨ Grand quest",
+    title: "Grand Quest", subtitle: "Five questions from different subjects.",
     noun: "question", nounPl: "questions", perLevel: 40, whole: "the realm",
     ask: "Your move.",
     welcome: "Rowan shuffles every subject together.",
@@ -1624,7 +1624,7 @@ function relicRemaining(spec, foundCount) {
   return into === 0 ? every : every - into;
 }
 function relicHomeIntro() {
-  return "Each quiz keeps its own relics. Mixed Quest has one relic for each of its twenty lessons. Every other quiz has one relic for each section: Apprentice, Scholar, and Archmage.";
+  return "Each quiz keeps its own relics. Grand Quest has one relic for each of its twenty lessons. Every other quiz has one relic for each section: Apprentice, Scholar, and Archmage.";
 }
 function relicRuleSentence() {
   const fr = test && (test.key === "vocab-fr" || test.key === "conj");
