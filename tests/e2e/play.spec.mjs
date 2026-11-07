@@ -267,11 +267,71 @@ test("synonym feedback shows an example sentence", async ({ page }) => {
     const wrong = hash === "#vocab-fr";
     await answerCurrent(page, { wrong });
     await page.waitForSelector("#feedbackExample:not([hidden])");
+    await page.waitForFunction(() => {
+      const btn = document.querySelector("#continueBtn").getBoundingClientRect();
+      return btn.height >= 44 && btn.top >= 0 && btn.bottom <= window.innerHeight + 1;
+    });
     const line = await page.locator("#feedbackExample").innerText();
     expect(line.startsWith(label)).toBe(true);
     expect(line.toLocaleLowerCase("fr")).toContain(word.toLocaleLowerCase("fr"));
     if (wrong) await expect(page.locator("#feedback")).toHaveClass(/feedback-no/);
     else await expect(page.locator("#feedback")).toHaveClass(/feedback-ok/);
+    const layout = await page.evaluate(() => {
+      const fb = document.querySelector("#feedback");
+      const cs = getComputedStyle(fb);
+      const btn = document.querySelector("#continueBtn").getBoundingClientRect();
+      const banner = document.querySelector("#quizBanner").getBoundingClientRect();
+      const box = fb.getBoundingClientRect();
+      let choiceThrough = false;
+      document.querySelectorAll("#quizCard .choice").forEach(choice => {
+        const r = choice.getBoundingClientRect();
+        const y = (Math.max(r.top, box.top) + Math.min(r.bottom, box.bottom)) / 2;
+        const x = Math.min(r.right - 6, box.right - 12);
+        if (y < box.top + 2 || y > box.bottom - 2 || x < box.left) return;
+        const top = document.elementFromPoint(x, y);
+        if (top && top.closest(".choice")) choiceThrough = true;
+      });
+      const scroll = fb.querySelector(".feedback-scroll");
+      return {
+        opacity: cs.opacity,
+        bg: cs.backgroundColor,
+        btn: { t: btn.top, b: btn.bottom, h: btn.height },
+        innerH: window.innerHeight,
+        btnInView: btn.top >= 0 && btn.bottom <= window.innerHeight + 1 && btn.height >= 44,
+        bannerTop: banner.top,
+        bannerSeen: banner.bottom > 24 && banner.width >= window.innerWidth - 2,
+        choiceThrough,
+        canScroll: !!scroll,
+      };
+    });
+    expect(layout.opacity, JSON.stringify(layout)).toBe("1");
+    expect(layout.bg, JSON.stringify(layout)).not.toBe("rgba(0, 0, 0, 0)");
+    expect(layout.choiceThrough, JSON.stringify(layout)).toBe(false);
+    expect(layout.btnInView, JSON.stringify(layout)).toBe(true);
+    expect(layout.bannerSeen).toBe(true);
+    expect(layout.bannerTop).toBeLessThan(8);
+    expect(layout.canScroll).toBe(true);
+    if (wrong) {
+      const scrolled = await page.evaluate(() => {
+        const body = document.querySelector("#feedbackBody");
+        const ex = document.querySelector("#feedbackExample");
+        body.textContent += " " + "Cette explication reste lisible quand elle est longue. ".repeat(14);
+        ex.textContent += " " + "Une phrase d'exemple plus longue pour remplir le panneau. ".repeat(8);
+        const scroll = document.querySelector(".feedback-scroll");
+        const before = document.querySelector("#continueBtn").getBoundingClientRect();
+        const overflow = scroll.scrollHeight > scroll.clientHeight + 8;
+        scroll.scrollTop = scroll.scrollHeight;
+        const after = document.querySelector("#continueBtn").getBoundingClientRect();
+        return {
+          overflow,
+          btnStable: Math.abs(before.top - after.top) < 1,
+          btnInView: after.top >= 0 && after.bottom <= window.innerHeight + 1,
+        };
+      });
+      expect(scrolled.overflow).toBe(true);
+      expect(scrolled.btnStable).toBe(true);
+      expect(scrolled.btnInView).toBe(true);
+    }
   }
   assertQuiet(errors);
 });

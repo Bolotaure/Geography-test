@@ -340,24 +340,44 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
 .choice-selected { border-color: var(--gold-deep); box-shadow: 0 0 0 3px var(--gold); background: #fff4d2; }
 .state-selected { stroke: #a67c2d !important; stroke-width: 3.5px; fill: var(--state-hover) !important; }
 .check-bar, .feedback {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 36;
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+}
+.check-bar {
+  background: #140e1c; display: flex; justify-content: center;
   padding: .9rem 1rem calc(.9rem + env(safe-area-inset-bottom));
 }
-.check-bar { background: #140e1cf0; display: flex; justify-content: center; }
-.feedback { border-top: 4px solid transparent; animation: sheet .28s ease; }
-.feedback-ok { background: #d9f5e4; color: #145c38; border-top-color: #1f8a4d; }
-.feedback-no { background: #ffd9d4; color: #8c1c2c; border-top-color: #c43838; }
-.feedback-row { display: flex; gap: .8rem; align-items: flex-start; max-width: 640px; margin: 0 auto .7rem; }
+.feedback {
+  display: flex; flex-direction: column;
+  max-height: min(56vh, calc(100dvh - 150px));
+  padding: 0; opacity: 1;
+  background: #fff6ee; color: #2c2118;
+  border-top: 4px solid transparent;
+  box-shadow: 0 -12px 28px #140e1ce8;
+  animation: sheet .22s ease;
+}
+.feedback-ok { background: #d9f5e4; color: #0e3d24; border-top-color: #1f8a4d; }
+.feedback-no { background: #ffd9d4; color: #5c1020; border-top-color: #c43838; }
+.feedback-scroll {
+  overflow-y: auto; overscroll-behavior: contain; min-height: 0;
+  padding: .9rem 1rem 1rem;
+}
+.feedback-row { display: flex; gap: .8rem; align-items: flex-start; max-width: 640px; margin: 0 auto; }
 .feedback-owl { width: 64px; flex: none; }
 .feedback-owl svg { width: 64px; height: auto; }
-.feedback { max-height: 70vh; overflow: auto; }
-.feedback-title { font-family: var(--font-display); font-size: 1.25rem; }
-.feedback-body { font-weight: 700; }
-.feedback-example { margin: .45rem 0 0; font-style: italic; font-weight: 650; line-height: 1.35; font-size: .98rem; }
+.feedback-copy { min-width: 0; }
+.feedback-title { font-family: var(--font-display); font-size: 1.25rem; line-height: 1.2; }
+.feedback-body { font-weight: 700; line-height: 1.35; margin-top: .25rem; }
+.feedback-example { margin: .5rem 0 0; font-style: italic; font-weight: 700; line-height: 1.4; font-size: 1rem; }
 .check-bar .big-btn, .feedback .big-btn { width: min(520px, 100%); margin: 0 auto; display: block; }
-.feedback-ok .big-btn { background: #1f8a4d; }
-.feedback-no .big-btn { background: #c43838; }
-@keyframes sheet { from { transform: translateY(18px); opacity: .5; } }
+.feedback-actions {
+  flex: 0 0 auto; background: inherit;
+  border-top: 1px solid #2c211814;
+  padding: .55rem 1rem calc(.75rem + env(safe-area-inset-bottom));
+}
+.feedback .big-btn { flex: 0 0 auto; color: #fff8ea; margin: 0 auto; }
+.feedback-ok .big-btn { background: #146c43; }
+.feedback-no .big-btn { background: #9d2432; }
+@keyframes sheet { from { transform: translateY(100%); } }
 .bottom-nav {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
   display: flex; justify-content: space-around; gap: .3rem;
@@ -395,9 +415,17 @@ body.lesson-mode .brand-kicker,
 body.lesson-mode .game-subtitle,
 body.lesson-mode #ask,
 body.lesson-mode #practiceBtn { display: none !important; }
-body.lesson-mode .game-root { padding-bottom: 18rem; max-width: 760px; }
+body.lesson-mode .game-root { padding-bottom: 7rem; max-width: 760px; }
 body.lesson-mode .prompt-row { margin-bottom: 0; }
+body.lesson-mode .quiz-banner { position: sticky; top: 0; z-index: 8; }
+body.lesson-mode #progress { padding: .35rem .65rem; }
+body.lesson-mode .progress-relic,
+body.lesson-mode .progress-relic svg { width: 36px; height: 36px; flex-basis: 36px; }
+body.lesson-mode .progress-rule { display: none; }
+body.feedback-open #progress { display: none !important; }
 @media (max-width: 640px) {
+  body.lesson-mode .quiz-banner { height: 112px; }
+  .feedback { max-height: min(50vh, calc(100dvh - 180px)); }
   .game-title { font-size: 1.55rem; }
   .activity-stats { gap: .35rem .8rem; }
   .home-owl { width: 96px; }
@@ -523,15 +551,19 @@ body.lesson-mode .prompt-row { margin-bottom: 0; }
   <button class="big-btn" id="checkBtn" type="button">Check</button>
 </div>
 <div class="feedback" id="feedback" hidden role="status">
-  <div class="feedback-row">
-    <div class="feedback-owl" id="feedbackOwl"></div>
-    <div>
-      <p class="feedback-title" id="feedbackTitle"></p>
-      <p class="feedback-body" id="feedbackBody"></p>
-      <p class="feedback-example" id="feedbackExample" hidden></p>
+  <div class="feedback-scroll">
+    <div class="feedback-row">
+      <div class="feedback-owl" id="feedbackOwl"></div>
+      <div class="feedback-copy">
+        <p class="feedback-title" id="feedbackTitle"></p>
+        <p class="feedback-body" id="feedbackBody"></p>
+        <p class="feedback-example" id="feedbackExample" hidden></p>
+      </div>
     </div>
   </div>
-  <button class="big-btn" id="continueBtn" type="button">Continue</button>
+  <div class="feedback-actions">
+    <button class="big-btn" id="continueBtn" type="button">Continue</button>
+  </div>
 </div>
 <div id="modal"></div>
 
@@ -1208,7 +1240,7 @@ function showAcademy() {
   if (location.hash !== "#home") {
     try { history.replaceState(null, "", location.href.split("#")[0] + "#home"); } catch {}
   }
-  document.body.classList.remove("lesson-mode");
+  document.body.classList.remove("lesson-mode", "feedback-open");
   document.title = "Wizard's Quiz Academy";
   $("brand").textContent = "Wizard's Quiz Academy";
   $("title").textContent = "Wizard's Quiz Academy";
@@ -1354,7 +1386,7 @@ function selectTest(key) {
   if (location.hash !== "#" + key) {
     try { history.replaceState(null, "", location.href.split("#")[0] + "#" + key); } catch {}
   }
-  document.body.classList.remove("lesson-mode");
+  document.body.classList.remove("lesson-mode", "feedback-open");
   $("play").hidden = true;
   $("summary").hidden = true;
   $("backBtn").hidden = true;
@@ -1472,8 +1504,7 @@ function relicRuleSentence(spec) {
   return "In " + spec.title + ", a new relic appears at " + relicMarks(spec) + " new correct answers. That is one relic every " + spec.perLevel + ". A question you already got right does not count again, and finishing a lesson does not give one by itself." + mapExtra;
 }
 function relicProgressRule(spec) {
-  const mapExtra = spec.kind === "map" ? " Finding the last place also unlocks any relic still locked." : "";
-  return "One relic every " + spec.perLevel + " new correct answers. A question you already got right does not count again." + mapExtra;
+  return "One relic every " + spec.perLevel + " new correct answers.";
 }
 function relicSummaryNote(spec, foundCount, earnedNow) {
   const left = relicRemaining(spec, foundCount);
@@ -1774,8 +1805,7 @@ function render() {
     prog.innerHTML = `<div class="progress-relic">${relicSVG(nextReward.kind, nextReward.accent)}</div>
       <div class="progress-info"><span class="progress-label">Next relic: ${esc(nextReward.name)}</span>
       <div class="progress-track"><div class="progress-fill" style="width:${inLevel / test.perLevel * 100}%"></div></div>
-      <span class="progress-count">${inLevel}/${test.perLevel} new correct answers</span>
-      <span class="progress-rule">${esc(relicProgressRule(test))}</span></div>`;
+      <span class="progress-count">${inLevel}/${test.perLevel} · ${esc(relicProgressRule(test))}</span></div>`;
   } else prog.hidden = true;
 
   $("shelf").innerHTML = test.rewards.map(r => {
@@ -2209,7 +2239,7 @@ function quitLesson() {
   S.lesson = null;
   S.locked = false; S.selected = null; S.selectedGeo = null; S.picked = null;
   view = "learn";
-  document.body.classList.remove("lesson-mode");
+  document.body.classList.remove("lesson-mode", "feedback-open");
   $("play").hidden = true;
   $("checkBar").hidden = true;
   $("feedback").hidden = true;
@@ -2240,7 +2270,7 @@ function finishLesson() {
   S.locked = false; S.selected = null; S.selectedGeo = null;
   view = "summary";
   tab = "learn";
-  document.body.classList.remove("lesson-mode");
+  document.body.classList.remove("lesson-mode", "feedback-open");
   $("play").hidden = true;
   $("home").hidden = true;
   $("relicsPane").hidden = true;
@@ -2266,6 +2296,7 @@ function finishLesson() {
 function syncLessonChrome() {
   const lesson = view === "lesson" && S.lesson;
   document.body.classList.toggle("lesson-mode", !!lesson);
+  document.body.classList.toggle("feedback-open", !!(lesson && S.locked && !S.practice));
   const head = $("lessonHead"), bar = $("checkBar"), fb = $("feedback"), prompt = $("lessonPrompt");
   if (head) head.hidden = !lesson;
   if ($("bottomNav")) $("bottomNav").hidden = !!lesson;
@@ -2308,6 +2339,9 @@ function syncLessonChrome() {
       const line = exampleSentence(t);
       if (ex) { ex.hidden = !line; ex.textContent = line; }
       $("feedbackOwl").innerHTML = owlSVG({ scarf: HOUSES[currentHouse].scarf });
+      const scroller = fb.querySelector(".feedback-scroll");
+      if (scroller) scroller.scrollTop = 0;
+      window.scrollTo(0, 0);
     }
   } else if (fb && bar) {
     fb.hidden = true;
