@@ -479,16 +479,6 @@ body.feedback-open #progress { display: none !important; }
       <span class="pill" id="streakPill" title="Days in a row">🔥 0 days</span>
       <span class="pill" id="xpPill" title="Experience">✦ 0</span>
     </div>
-    <div class="activity-menu-wrap">
-      <button class="activity-trigger" id="menuBtn" type="button" aria-haspopup="menu" aria-expanded="false">Choose a quiz
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-      </button>
-      <div class="activity-menu" id="menu" role="menu" hidden>
-        <div class="activity-menu-label">Choose a quiz</div>
-        <hr>
-        <div id="menuItems"></div>
-      </div>
-    </div>
   </header>
   <button class="path-reset" id="resetQuiz" type="button">Reset a quiz</button>
   <div class="course-head">
@@ -1381,7 +1371,7 @@ function showAcademy() {
   document.title = "Wizard's Quiz Academy";
   setBrand("");
   $("title").textContent = "Wizard's Quiz Academy";
-  setSubtitle("Choose a quiz.");
+  setSubtitle("A castle of maps, words, and number-charms.");
   showBanner("home");
   $("play").hidden = true;
   $("summary").hidden = true;
@@ -1986,7 +1976,6 @@ function render() {
   $("title").textContent = test.title;
   setSubtitle(test.subtitle);
   showBanner(test.key);
-  $("menuItems").innerHTML = quizMenu(test.key);
   const foundLabel = test.kind === "map" ? "Found" : "Correct";
   $("stats").innerHTML = [["Points", S.score], ["Streak", S.streak > 1 ? "✦ " + S.streak : "—"], ["Relics", relicCount], ["Best", S.best], [foundLabel, `${S.found.size}/${places.length}`]]
     .map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("") + `<div><dt>House</dt><dd>${esc(house)}</dd></div>`;
@@ -2622,18 +2611,6 @@ function syncLessonChrome() {
   updatePills();
 }
 
-function quizMenu(playingKey) {
-  const here = pathHome && view === "learn" ? `<span class="activity-current">Here</span>` : "";
-  const home = `<button class="activity-item" type="button" role="menuitem" data-test="home">🏰 Academy ${here}</button>`;
-  const items = Object.values(TESTS).map(x => {
-    const session = store.get(`wqa-${x.key}-session`, null);
-    const done = session && Array.isArray(session.found) ? session.found.length : 0;
-    const mark = x.key === playingKey ? `<span class="activity-current">Playing</span>` : (done ? `<span class="activity-current">${session.won ? "Done" : done}</span>` : "");
-    return `<button class="activity-item" type="button" role="menuitem" data-test="${x.key}">${x.menu}${mark}</button>`;
-  }).join("");
-  return home + items;
-}
-
 $("map").addEventListener("click", e => {
   const el = e.target.closest("[data-id]"); if (!el) return;
   if (S.lesson && !S.explore && !S.practice && !S.locked) {
@@ -2681,7 +2658,6 @@ $("modal").addEventListener("click", e => {
   if (e.target.dataset.close && S.reward) closeReward();
 });
 function switchTo(key) {
-  closeMenu();
   if (key === "home") {
     sfx.click();
     if (view === "lesson" && S) S.lesson = null;
@@ -2762,22 +2738,12 @@ $("summaryContinue").addEventListener("click", () => {
   if (pathHome) showAcademy();
   else showTab("learn");
 });
-$("menuItems").addEventListener("click", onTestClick);
 $("backBtn").addEventListener("click", () => switchTo("home"));
 $("zoomIn").addEventListener("click", () => zoomBy(1.6));
 $("zoomOut").addEventListener("click", () => zoomBy(1 / 1.6));
 $("zoomReset").addEventListener("click", () => { if (zoomBehaviour) d3.select("#map svg").transition().duration(250).call(zoomBehaviour.transform, d3.zoomIdentity); });
-function closeMenu() { $("menu").hidden = true; $("menuBtn").setAttribute("aria-expanded", "false"); }
-$("menuBtn").addEventListener("click", e => {
-  e.stopPropagation();
-  $("menuItems").innerHTML = quizMenu(test && test.key);
-  const open = $("menu").hidden;
-  $("menu").hidden = !open;
-  $("menuBtn").setAttribute("aria-expanded", String(open));
-});
-document.addEventListener("click", e => { if (!e.target.closest(".activity-menu-wrap")) closeMenu(); });
 document.addEventListener("keydown", e => {
-  if (e.key === "Escape") { closeMenu(); if (S.reward) closeReward(); return; }
+  if (e.key === "Escape") { if (S.reward) closeReward(); return; }
   if (S.reward) return;
   if (questionKind() === "mcq" && !S.locked && /^[1-4]$/.test(e.key)) {
     const choice = S.choiceOrder && S.choiceOrder[Number(e.key) - 1];
