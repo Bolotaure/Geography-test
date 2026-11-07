@@ -2190,7 +2190,7 @@ function renderPath() {
   plan.forEach(u => u.lessons.forEach(ls => flat.push(ls)));
   let currentIndex = flat.findIndex(ls => !slotDone(test.key, ls.number || ls.index, ls.ids, S.found));
   if (currentIndex < 0) currentIndex = flat.length;
-  let html = `<div class="path-hero"><div class="home-owl" id="homeOwl" role="img" aria-label="Rowan the academy owl"></div></div>`;
+  let html = ``;
   let i = 0;
   plan.forEach(unit => {
     html += `<section class="unit"><h2 class="unit-title">${esc(unit.title)}</h2>${unit.sub ? `<p class="unit-sub">${esc(unit.sub)}</p>` : ""}<div class="path">`;
