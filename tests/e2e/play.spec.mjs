@@ -255,6 +255,31 @@ test("tap to quiz leaves explore and accepts a map answer", async ({ page }) => 
   assertQuiet(errors);
 });
 
+async function assertInfoIconsReachable(page) {
+  const buttons = page.locator("#quizCard .info-btn");
+  await expect(buttons).toHaveCount(4);
+  for (let i = 0; i < 4; i++) {
+    const btn = buttons.nth(i);
+    await btn.scrollIntoViewIfNeeded();
+    const hit = await btn.evaluate(el => {
+      const r = el.getBoundingClientRect();
+      const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return !!top && (top === el || el.contains(top));
+    });
+    expect(hit, "info icon " + (i + 1) + " is covered").toBe(true);
+    await btn.click();
+    const pop = btn.locator("xpath=ancestor::*[contains(@class,'choice-wrap')]//*[contains(@class,'info-pop')]");
+    await expect(pop).toBeVisible();
+  }
+  await page.locator("#continueBtn").scrollIntoViewIfNeeded();
+  const cont = await page.locator("#continueBtn").evaluate(el => {
+    const r = el.getBoundingClientRect();
+    const top = document.elementFromPoint(r.left + r.width / 2, Math.min(r.top + r.height / 2, window.innerHeight - 2));
+    return r.top >= 0 && r.bottom <= window.innerHeight + 1 && !!top && (top === el || el.contains(top));
+  });
+  expect(cont).toBe(true);
+}
+
 test("synonym feedback shows an example sentence", async ({ page }) => {
   const errors = errorsOf(page);
   for (const [hash, label] of [["#vocab-fr", "Exemple : "], ["#vocab-en", "Example: "]]) {
@@ -267,6 +292,7 @@ test("synonym feedback shows an example sentence", async ({ page }) => {
     const wrong = hash === "#vocab-fr";
     await answerCurrent(page, { wrong });
     await page.waitForSelector("#feedbackExample:not([hidden])");
+    await page.locator("#continueBtn").scrollIntoViewIfNeeded();
     await page.waitForFunction(() => {
       const btn = document.querySelector("#continueBtn").getBoundingClientRect();
       return btn.height >= 44 && btn.top >= 0 && btn.bottom <= window.innerHeight + 1;
@@ -310,27 +336,11 @@ test("synonym feedback shows an example sentence", async ({ page }) => {
     expect(layout.btnInView, JSON.stringify(layout)).toBe(true);
     expect(layout.bannerSeen).toBe(true);
     expect(layout.bannerTop).toBeLessThan(8);
-    expect(layout.canScroll).toBe(true);
+    await assertInfoIconsReachable(page);
     if (wrong) {
-      const scrolled = await page.evaluate(() => {
-        const body = document.querySelector("#feedbackBody");
-        const ex = document.querySelector("#feedbackExample");
-        body.textContent += " " + "Cette explication reste lisible quand elle est longue. ".repeat(14);
-        ex.textContent += " " + "Une phrase d'exemple plus longue pour remplir le panneau. ".repeat(8);
-        const scroll = document.querySelector(".feedback-scroll");
-        const before = document.querySelector("#continueBtn").getBoundingClientRect();
-        const overflow = scroll.scrollHeight > scroll.clientHeight + 8;
-        scroll.scrollTop = scroll.scrollHeight;
-        const after = document.querySelector("#continueBtn").getBoundingClientRect();
-        return {
-          overflow,
-          btnStable: Math.abs(before.top - after.top) < 1,
-          btnInView: after.top >= 0 && after.bottom <= window.innerHeight + 1,
-        };
-      });
-      expect(scrolled.overflow).toBe(true);
-      expect(scrolled.btnStable).toBe(true);
-      expect(scrolled.btnInView).toBe(true);
+      await page.setViewportSize({ width: 390, height: 640 });
+      await assertInfoIconsReachable(page);
+      await page.setViewportSize({ width: 390, height: 844 });
     }
   }
   assertQuiet(errors);

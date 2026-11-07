@@ -413,20 +413,39 @@ logic.forEach(q => {
   if (rank < logicPrev) fail(q.id + " is easier than the question before it");
   logicPrev = rank;
 });
-const conjRankOf = q => {
-  const t = String(q.prompt || "");
-  const named = t.match(/Verbe ([^,]+),/) || t.match(/du verbe ([^.]+)/);
-  const verb = (named ? named[1] : (/infinitif/i.test(t) ? q.answer : "")).trim().toLowerCase();
-  if (["parler", "aimer", "jouer"].includes(verb)) return 1;
-  if (["finir", "choisir", "réussir"].includes(verb)) return 2;
-  return 3;
-};
-let conjPrev = 0;
-conj.forEach(q => {
-  const rank = conjRankOf(q);
-  if (rank < conjPrev) fail(q.id + " is an easier verb than the question before it");
-  conjPrev = rank;
+const { groupOf, verbFromQuestion } = require("./conjugation-rules");
+if (groupOf("partir") !== 3 || groupOf("aller") !== 3) fail("partir and aller are 3rd group");
+if (groupOf("finir") !== 2 || groupOf("parler") !== 1) fail("finir is 2nd group and parler is 1st");
+let expectGroup = 1;
+let prevVerb = "";
+const tenseKinds = new Set();
+conj.forEach((q, i) => {
+  const verb = verbFromQuestion(q);
+  if (!verb) fail(q.id + " has no verb");
+  const g = groupOf(verb);
+  const lesson = Math.floor(i / 5) + 1;
+  if (g !== expectGroup) fail(q.id + " lesson " + lesson + " group " + g + " but the cycle expects " + expectGroup);
+  if (verb === prevVerb) fail(q.id + " repeats the verb " + verb);
+  prevVerb = verb;
+  expectGroup = expectGroup === 3 ? 1 : expectGroup + 1;
+  const p = q.prompt;
+  if (/passé composé/.test(p)) tenseKinds.add("pc");
+  else if (/imparfait/.test(p)) tenseKinds.add("imparfait");
+  else if (/futur/.test(p)) tenseKinds.add("futur");
+  else if (/présent/.test(p)) tenseKinds.add("present");
+  else if (/infinitif/i.test(p)) tenseKinds.add("infinitif");
+  else if (/[Pp]articipe/.test(p)) tenseKinds.add("pp");
 });
+["pc", "imparfait", "futur", "present", "infinitif", "pp"].forEach(k => {
+  if (!tenseKinds.has(k)) fail("conjugation is missing tense " + k);
+});
+for (let n = 1; n < 20; n++) {
+  const left = verbFromQuestion(conj[n * 5 - 1]);
+  const right = verbFromQuestion(conj[n * 5]);
+  const lg = groupOf(left);
+  const rg = groupOf(right);
+  if (rg !== (lg === 3 ? 1 : lg + 1)) fail("lesson " + n + " / " + (n + 1) + " boundary breaks the group cycle");
+}
 
 let geo;
 try { geo = buildAll(); }
