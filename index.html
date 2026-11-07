@@ -305,7 +305,6 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
 }
 .app-menu button:hover, .app-menu button:focus-visible { background: #efe4cc; }
 body.lesson-mode .menu-wrap { display: none !important; }
-#bottomNav { display: none !important; }
 .pane-back { color: var(--gold-deep); font-weight: 800; min-height: 44px; margin-bottom: .4rem; }
 .pills { display: flex; flex-wrap: wrap; gap: .4rem; }
 .pill {
@@ -323,10 +322,8 @@ body.lesson-mode .menu-wrap { display: none !important; }
 .unit-title { font-family: var(--font-display); color: var(--candle); text-align: center; font-size: 1.25rem; }
 .unit-sub { text-align: center; color: #cbbda6; font-size: .9rem; margin: .15rem 0 .4rem; }
 .path { display: flex; flex-direction: column; align-items: center; gap: 26px; padding: 62px 0 26px; position: relative; }
-.path::before {
-  content: ""; position: absolute; top: 8px; bottom: 8px; left: 50%; width: 10px;
-  background: #3a2c22; border-radius: 999px; transform: translateX(-50%);
-}
+.path-rail { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.path-rail path { fill: none; stroke: #3a2c22; stroke-width: 10; stroke-linecap: round; }
 .node {
   position: relative; z-index: 1; width: 72px; height: 72px; border-radius: 50%;
   border: 4px solid #6b5438; background: #2a2033; color: var(--gold);
@@ -417,14 +414,6 @@ body.lesson-mode #resetQuiz { display: none !important; }
   scroll-margin-top: 7.5rem;
   scroll-margin-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
 }
-.bottom-nav {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
-  display: flex; justify-content: space-around; gap: .3rem;
-  background: #1a1024f5; border-top: 2px solid #5c4a32;
-  padding: .35rem .5rem calc(.4rem + env(safe-area-inset-bottom));
-}
-.nav-btn { min-height: 52px; min-width: 84px; border-radius: 16px; font-weight: 800; color: #eadcc0; }
-.nav-on { background: var(--house); color: var(--house-ink); }
 .summary-card, .relic-board, .profile-card {
   max-width: 480px; margin: 0 auto; background: var(--parchment); color: var(--ink);
   border-radius: 28px; padding: 1.3rem 1.1rem 1.5rem; text-align: center; border: 3px solid var(--gold);
@@ -448,6 +437,17 @@ body.lesson-mode #resetQuiz { display: none !important; }
 .profile-list li { display: flex; justify-content: space-between; gap: .6rem; background: #efe4cc; border-radius: 12px; padding: .55rem .7rem; }
 .profile-list span { color: var(--muted); font-weight: 700; white-space: nowrap; }
 .relic-group { margin: 0 0 1.15rem; }
+details.relic-group { margin-bottom: .6rem; }
+.relic-group summary {
+  display: flex; align-items: center; gap: .5rem; min-height: 48px; padding: .3rem .8rem;
+  background: #efe4cc; border-radius: 16px; cursor: pointer; list-style: none;
+}
+.relic-group summary::-webkit-details-marker { display: none; }
+.relic-group summary::after { content: "▾"; color: var(--gold-deep); font-weight: 800; transition: transform .2s; }
+.relic-group[open] summary { margin-bottom: .6rem; }
+.relic-group[open] summary::after { transform: rotate(180deg); }
+.relic-group summary h3 { flex: 1; text-align: left; margin: 0; }
+.relic-count { color: var(--muted); font-weight: 800; font-size: .9rem; }
 .relic-group h3 { font-family: var(--font-display); font-size: 1.05rem; color: var(--gold-deep); margin: .15rem 0 .45rem; }
 .subject-list { display: flex; flex-direction: column; gap: .65rem; max-width: 440px; margin: 0 auto; }
 .subject-card {
@@ -534,7 +534,7 @@ body.feedback-open #progress { display: none !important; }
       </button>
       <p class="brand-kicker" id="brand">Candlelight &amp; questions</p>
       <h1 class="game-title" id="title">Wizard's Quiz Academy</h1>
-      <p class="game-subtitle" id="subtitle">A castle of maps, words, and number-charms.</p>
+      <p class="game-subtitle" id="subtitle">A castle of maps, words, and number&nbsp;charms.</p>
     </div>
     <div class="menu-wrap">
       <button class="menu-btn" id="menuBtn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="appMenu">
@@ -608,7 +608,7 @@ body.feedback-open #progress { display: none !important; }
 
   <section id="relicsPane" hidden aria-label="Relics">
     <div class="relic-board">
-      <button class="pane-back" id="relicsBack" type="button">← Learn</button>
+      <button class="pane-back" id="relicsBack" type="button">← Back</button>
       <h2 class="summary-title">Relic shelf</h2>
       <p class="relic-rule" id="relicRule"></p>
       <div id="relicGrid"></div>
@@ -617,7 +617,7 @@ body.feedback-open #progress { display: none !important; }
 
   <section id="profilePane" hidden aria-label="Profile">
     <div class="profile-card">
-      <button class="pane-back" id="profileBack" type="button">← Learn</button>
+      <button class="pane-back" id="profileBack" type="button">← Back</button>
       <h2 class="summary-title">Your house</h2>
       <div class="house-picker" role="radiogroup" aria-label="Choose a house">
         <button class="house-btn" type="button" role="radio" data-house="emberwyck" aria-checked="false"><span class="swatch" style="background:#8c1c2c"></span>Emberwyck</button>
@@ -640,11 +640,6 @@ body.feedback-open #progress { display: none !important; }
     </div>
   </section>
 </div>
-<nav class="bottom-nav" id="bottomNav" aria-label="Main">
-  <button class="nav-btn nav-on" type="button" data-tab="learn" aria-current="page">Learn</button>
-  <button class="nav-btn" type="button" data-tab="relics">Relics</button>
-  <button class="nav-btn" type="button" data-tab="profile">Profile</button>
-</nav>
 <div class="check-bar" id="checkBar" hidden>
   <button class="big-btn" id="checkBtn" type="button">Check</button>
 </div>
@@ -771,11 +766,10 @@ const COPY = {
     check: "Check", continue: "Continue", leaveTitle: "Leave this lesson?",
     leaveBody: "Correct answers stay saved.", stay: "Stay", leave: "Leave",
     correct: "Correct!", wrong: "Not quite!", lessonDone: "Lesson complete",
-    heartsOut: "Out of hearts", keep: "Keep practicing", days: "days",
+    keep: "Keep practicing", days: "days",
     lesson: "Lesson", ask: "Ask Rowan for a hint",
     exploreOn: "Exploring… tap to quiz", exploreOff: "Explore",
     tagsOn: "Hide name tags", tagsOff: "Name tags",
-    soundOn: "Sound", soundOff: "Muted",
     missedNote: "Missed questions stay on this lesson until you land them.",
     accurate: "accurate", back: "← Academy",
     reset: "Reset this quiz", resetHome: "Reset a quiz", resetTitle: "Reset this quiz?",
@@ -789,11 +783,10 @@ const COPY = {
     check: "Vérifier", continue: "Continuer", leaveTitle: "Quitter la leçon ?",
     leaveBody: "Les bonnes réponses restent enregistrées.", stay: "Rester", leave: "Quitter",
     correct: "Juste !", wrong: "Pas tout à fait.", lessonDone: "Leçon terminée",
-    heartsOut: "Plus de vies", keep: "À retravailler", days: "jours",
+    keep: "À retravailler", days: "jours",
     lesson: "Leçon", ask: "Demander un indice à Rowan",
     exploreOn: "Exploration… toucher pour le quiz", exploreOff: "Explorer",
     tagsOn: "Masquer les noms", tagsOff: "Noms",
-    soundOn: "Son", soundOff: "Muet",
     missedNote: "Les questions manquées restent dans cette leçon.",
     accurate: "de justes", back: "← Académie",
     reset: "Réinitialiser ce quiz", resetHome: "Réinitialiser un quiz", resetTitle: "Réinitialiser ce quiz ?",
@@ -830,6 +823,27 @@ function paintMascots() {
   const home = $("homeOwl"); if (home) home.innerHTML = svg;
   const mascot = $("mascot"); if (mascot) mascot.innerHTML = svg;
 }
+function drawPathRails() {
+  document.querySelectorAll(".path").forEach(path => {
+    const old = path.querySelector(".path-rail");
+    if (old) old.remove();
+    const box = path.getBoundingClientRect();
+    if (!box.height) return;
+    const pts = [...path.querySelectorAll(".node")].map(n => {
+      const r = n.getBoundingClientRect();
+      return [r.left + r.width / 2 - box.left, r.top + r.height / 2 - box.top];
+    });
+    if (pts.length < 2) return;
+    let d = `M${pts[0][0]} ${pts[0][1]}`;
+    for (let i = 1; i < pts.length; i++) {
+      const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], my = (y0 + y1) / 2;
+      d += ` C${x0} ${my} ${x1} ${my} ${x1} ${y1}`;
+    }
+    path.insertAdjacentHTML("afterbegin", `<svg class="path-rail" aria-hidden="true"><path d="${d}"/></svg>`);
+  });
+}
+window.addEventListener("resize", () => { if (document.querySelector(".path .node")) drawPathRails(); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (document.querySelector(".path .node")) drawPathRails(); });
 function applyHouse(id) {
   if (!HOUSES[id]) id = "emberwyck";
   currentHouse = id;
@@ -1430,7 +1444,7 @@ function showAcademy() {
   document.title = "Wizard's Quiz Academy";
   setBrand("");
   $("title").textContent = "Wizard's Quiz Academy";
-  setSubtitle("A castle of maps, words, and number-charms.");
+  setSubtitle("A castle of maps, words, and number\u00a0charms.");
   showBanner("home");
   $("play").hidden = true;
   $("summary").hidden = true;
@@ -1441,15 +1455,9 @@ function showAcademy() {
   if ($("questionCount")) $("questionCount").hidden = true;
   $("checkBar").hidden = true;
   $("feedback").hidden = true;
-  $("bottomNav").hidden = false;
   $("learnPane").hidden = false;
   $("relicsPane").hidden = true;
   $("profilePane").hidden = true;
-  document.querySelectorAll("[data-tab]").forEach(b => {
-    const on = b.dataset.tab === "learn";
-    b.classList.toggle("nav-on", on);
-    b.setAttribute("aria-current", on ? "page" : "false");
-  });
   renderHomePath();
   const reset = $("resetQuiz");
   if (reset) reset.textContent = "Reset a quiz";
@@ -1603,7 +1611,6 @@ function selectTest(key) {
   if ($("questionCount")) $("questionCount").hidden = true;
   $("checkBar").hidden = true;
   $("feedback").hidden = true;
-  $("bottomNav").hidden = false;
   showTab("learn");
 }
 
@@ -2049,7 +2056,7 @@ function render() {
   const house = HOUSES[currentHouse].name;
 
   document.title = test.title + " · Wizard's Quiz Academy";
-  setBrand("Wizard's Quiz Academy");
+  setBrand("");
   $("title").textContent = test.title;
   setSubtitle(test.subtitle);
   showBanner(test.key);
@@ -2385,11 +2392,6 @@ function showTab(name) {
   $("profilePane").hidden = inLesson || name !== "profile";
   $("play").hidden = view !== "lesson";
   $("summary").hidden = view !== "summary";
-  document.querySelectorAll("[data-tab]").forEach(b => {
-    const on = b.dataset.tab === name;
-    b.classList.toggle("nav-on", on);
-    b.setAttribute("aria-current", on ? "page" : "false");
-  });
   if (!inLesson && name === "learn" && view !== "summary") {
     if (pathHome) renderHomePath();
     else renderPath();
@@ -2402,7 +2404,7 @@ function renderPath() {
   document.body.classList.remove("academy-home");
   if (!test) return;
   document.title = test.title + " · Wizard's Quiz Academy";
-  setBrand("Wizard's Quiz Academy");
+  setBrand("");
   $("title").textContent = test.title;
   setSubtitle(test.subtitle);
   showBanner(test.key);
@@ -2438,6 +2440,7 @@ function renderPath() {
   if (S.missed && S.missed.size) html += `<button class="path-review" id="reviewBtn" type="button">Practice missed (${S.missed.size})</button>`;
   $("path").innerHTML = html;
   paintMascots();
+  drawPathRails();
   const node = document.querySelector(".node-current");
   if (node) {
     const top = node.getBoundingClientRect().top;
@@ -2467,7 +2470,7 @@ function syncMenuLabels() {
   if (reset) reset.textContent = !test || pathHome ? (fr ? "Réinitialiser un quiz" : "Reset a quiz") : L("reset");
   if ($("menuRelics")) $("menuRelics").textContent = fr ? "Reliques" : "Relics";
   if ($("menuProfile")) $("menuProfile").textContent = fr ? "Profil" : "Profile";
-  const back = fr ? "← Apprendre" : "← Learn";
+  const back = !test || pathHome ? (fr ? "← Accueil" : "← Home") : (fr ? "← Retour" : "← Back");
   if ($("relicsBack")) $("relicsBack").textContent = back;
   if ($("profileBack")) $("profileBack").textContent = back;
 }
@@ -2502,8 +2505,9 @@ function renderRelics() {
       const locked = spec.key === "mixed" ? "Lesson " + r.level : r.tagline;
       return `<article class="relic-card ${has ? "relic-owned" : "relic-locked"}">${relicSVG(r.kind, r.accent)}<h3>${esc(r.name)}</h3><p>${has ? esc(r.tagline) : esc(locked)}</p></article>`;
     }).join("");
-    const heading = keys.length > 1 ? `<h3>${esc(spec.title)}</h3>` : "";
-    return `<section class="relic-group">${heading}<div class="relic-grid">${cards}</div></section>`;
+    if (keys.length === 1) return `<section class="relic-group"><div class="relic-grid">${cards}</div></section>`;
+    const count = `${owned.size} ${uiLang() === "fr" ? "sur" : "of"} ${quizRelics(spec).length}`;
+    return `<details class="relic-group"><summary><h3>${esc(spec.title)}</h3><span class="relic-count">${count}</span></summary><div class="relic-grid">${cards}</div></details>`;
   }).join("");
 }
 function renderProfile() {
@@ -2541,7 +2545,6 @@ function startLesson(index, ids, replay) {
   $("relicsPane").hidden = true;
   $("profilePane").hidden = true;
   $("play").hidden = false;
-  $("bottomNav").hidden = true;
   $("lessonHead").hidden = false;
   document.body.classList.add("lesson-mode");
   S.message = replay ? "A familiar lesson. The relics stay yours." : test.welcome;
@@ -2566,7 +2569,6 @@ function quitLesson() {
   $("lessonHead").hidden = true;
   $("lessonPrompt").hidden = true;
   if ($("questionCount")) $("questionCount").hidden = true;
-  $("bottomNav").hidden = false;
   persist();
   if (pathHome) return showAcademy();
   showTab("learn");
@@ -2608,7 +2610,6 @@ function finishLesson() {
   $("lessonHead").hidden = true;
   $("lessonPrompt").hidden = true;
   if ($("questionCount")) $("questionCount").hidden = true;
-  $("bottomNav").hidden = false;
   $("summaryOwl").innerHTML = owlSVG({ scarf: HOUSES[currentHouse].scarf });
   $("summaryTitle").textContent = complete ? L("lessonDone") : L("keep");
   $("summaryXp").textContent = "+" + xp + " XP";
@@ -2628,7 +2629,6 @@ function syncLessonChrome() {
   const head = $("lessonHead"), bar = $("checkBar"), fb = $("feedback"), prompt = $("lessonPrompt");
   const countEl = $("questionCount");
   if (head) head.hidden = !lesson;
-  if ($("bottomNav")) $("bottomNav").hidden = !!lesson;
   if (!lesson) {
     if (bar) bar.hidden = true;
     if (fb) fb.hidden = true;
@@ -2784,13 +2784,6 @@ $("learnPane").addEventListener("click", e => {
 $("profilePane").addEventListener("click", e => {
   const h = e.target.closest("button[data-house]");
   if (h) { sfx.click(); applyHouse(h.dataset.house); }
-});
-$("bottomNav").addEventListener("click", e => {
-  const b = e.target.closest("[data-tab]");
-  if (!b || view === "lesson") return;
-  sfx.click();
-  if (view === "summary") { view = "learn"; $("summary").hidden = true; }
-  showTab(b.dataset.tab);
 });
 $("quitLesson").addEventListener("click", () => {
   if (view !== "lesson" || !S.lesson) return;
