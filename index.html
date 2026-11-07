@@ -2089,7 +2089,7 @@ function render() {
   document.title = test.title + " · Wizard's Quiz Academy";
   setBrand("");
   $("title").textContent = test.title;
-  setSubtitle(test.subtitle);
+  setSubtitle("");
   showBanner(test.key);
   const foundLabel = test.kind === "map" ? "Found" : "Correct";
   $("stats").innerHTML = [["Points", S.score], ["Streak", S.streak > 1 ? "✦ " + S.streak : "—"], ["Relics", relicCount], ["Best", S.best], [foundLabel, `${S.found.size}/${places.length}`]]
@@ -2435,7 +2435,7 @@ function renderPath() {
   document.title = test.title + " · Wizard's Quiz Academy";
   setBrand("");
   $("title").textContent = test.title;
-  setSubtitle(test.subtitle);
+  setSubtitle("");
   showBanner(test.key);
   if ($("backBtn")) { $("backBtn").hidden = false; $("backBtn").setAttribute("aria-label", uiLang() === "fr" ? "Académie" : "Home"); }
   if ($("resetQuiz")) $("resetQuiz").textContent = L("reset");
