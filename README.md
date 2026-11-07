@@ -8,7 +8,7 @@ On a phone or tablet the app works only upright. Turn it sideways and a portrait
 
 ## Home
 
-The home screen is a list of eight quizzes. **Grand Quest** is first. Each card shows the next lesson, from 1 to 20. Tap a card and the screen fades through black into that quiz. The home icon fades back through black.
+The home screen is a list of eight quizzes. **Grand Quest** is first. Each card shows the next lesson: 1 to 21 for Grand Quest, 1 to 20 for the others. Tap a card and the screen fades through black into that quiz. The home icon fades back through black.
 
 The title stays pinned above the banner. The menu button sits to the right of the title. It opens three items:
 
@@ -22,13 +22,13 @@ Hashes: `#home`, `#mixed` (Grand Quest), `#us`, `#fr`, `#jp`, `#vocab-en`, `#voc
 
 ## A quiz
 
-Every quiz has 20 lessons of 5 questions, in three sections:
+Every quiz has lessons of 5 questions in three sections. Grand Quest has 21 lessons; every other quiz has 20.
 
 | Section | Lessons |
 |---|---|
 | Apprentice | 1–7 |
 | Scholar | 8–14 |
-| Archmage | 15–20 |
+| Archmage | 15–20 (Grand Quest: 15–21) |
 
 The next lesson of a quiz opens only when the previous one is finished. Finishing a lesson in one quiz does not unlock or lock another. The owl sits on the current lesson, not above the path.
 
@@ -38,7 +38,7 @@ Each quiz keeps its own score, found questions, and relics in the browser (`wqa-
 
 ### Grand Quest
 
-Five questions, each from a different subject, rotating through the seven banks. Lesson N draws from that subject's own lesson N, so the two paths share questions but not relics or unlocks.
+Three series of seven lessons, one per section. Each lesson is a single subject, always in this order: French synonyms, English synonyms, Number Charms, State Atlas, Regions of France, Prefectures of Japan, French conjugation. Lesson N uses the five questions of that subject's own lesson N (lesson 21 uses conjugation lesson 20), so the two quizzes share questions but not progress, relics, or unlocks.
 
 ### Geography
 
@@ -60,7 +60,7 @@ A hard word, four choices, one real synonym. English and French each have 100 wo
 
 Relics are not shared between quizzes.
 
-- **Grand Quest** has twenty relics, one when you finish each of its lessons.
+- **Grand Quest** has twenty-one relics, one when you finish each of its lessons.
 - **Every other quiz** has three relics, one when you finish a whole section: Apprentice, Scholar, or Archmage.
 
 A question you already got right does not count again. The relic shelf in the menu shows only the relics for the quiz you are in, or every quiz when you open it from home.

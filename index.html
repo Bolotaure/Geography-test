@@ -1110,7 +1110,7 @@ const TESTS = {
   },
   mixed: {
     key: "mixed", kind: "mixed", tab: "✨ Grand", menu: "✨ Grand quest",
-    title: "Grand Quest", subtitle: "Five questions from different subjects.",
+    title: "Grand Quest", subtitle: "Seven subjects in turn, one per lesson.",
     noun: "question", nounPl: "questions", perLevel: 40, whole: "the realm",
     ask: "Your move.",
     welcome: "Rowan shuffles every subject together.",
@@ -1146,7 +1146,8 @@ const ACADEMY_RELICS = [
   R(17, "Tense Bell", "bell", "It rings when the ending is true.", "#a67c2d"),
   R(18, "Wax Seal", "seal", "Stamps the infinitive in red.", "#1f6b4a"),
   R(19, "Quest Cauldron", "cauldron", "Words and maps simmer together.", "#1f6b4a"),
-  R(20, "Crown of Quests", "circlet", "One crown for the twentieth lesson.", "#c47b17"),
+  R(20, "Skeleton Key", "key", "Opens the last door of the castle.", "#5c3d8a"),
+  R(21, "Crown of Quests", "circlet", "One crown for the final lesson.", "#c47b17"),
 ];
 
 function colourise(ids, neighbours) {
@@ -1283,6 +1284,11 @@ function isTargetGeo(geoId) {
 
 const MIX_SOURCES = ["us", "fr", "jp", "vocab-en", "vocab-fr", "logic", "conj"];
 const QUIZ_ORDER = ["mixed"].concat(MIX_SOURCES);
+// Grand Quest runs in series of seven lessons, one subject per lesson, in this order.
+const GRAND_ORDER = ["vocab-fr", "vocab-en", "logic", "us", "fr", "jp", "conj"];
+const LESSONS = 20;
+const GRAND_LESSONS = 21;
+function lessonCount(key) { return key === "mixed" ? GRAND_LESSONS : LESSONS; }
 function freshQueue() {
   if (test.kind !== "mixed") return shuffle(places.map(p => p.id));
   const groups = MIX_SOURCES.map(src => shuffle(places.filter(p => p.source === src).map(p => p.id)));
@@ -1706,14 +1712,14 @@ function relicRemaining(spec, foundCount) {
   return into === 0 ? every : every - into;
 }
 function relicHomeIntro() {
-  return "Each quiz keeps its own relics. Grand Quest has one relic for each of its twenty lessons. Every other quiz has one relic for each section: Apprentice, Scholar, and Archmage.";
+  return "Each quiz keeps its own relics. Grand Quest has one relic for each of its twenty-one lessons. Every other quiz has one relic for each section: Apprentice, Scholar, and Archmage.";
 }
 function relicRuleSentence() {
   const fr = test && (test.key === "vocab-fr" || test.key === "conj");
   if (test && test.key === "mixed") {
     return fr
-      ? "Une relique à la fin de chaque leçon. Il y en a vingt, seulement pour ce quiz."
-      : "One relic at the end of each lesson. Twenty relics, only for this quiz.";
+      ? "Une relique à la fin de chaque leçon. Il y en a vingt et une, seulement pour ce quiz."
+      : "One relic at the end of each lesson. Twenty-one relics, only for this quiz.";
   }
   if (test) {
     return fr
@@ -1732,6 +1738,9 @@ const SECTIONS = [
   { title: "Scholar", from: 8, to: 14 },
   { title: "Archmage", from: 15, to: 20 },
 ];
+function sectionsFor(key) {
+  return SECTIONS.map(b => b.to === LESSONS ? { ...b, to: lessonCount(key) } : b);
+}
 function sectionRelics(spec) {
   return SECTIONS.map((band, i) => {
     const src = (spec.rewards || [])[i] || ACADEMY_RELICS[i];
@@ -1763,7 +1772,7 @@ function relicOwnedLessons(key) {
   const live = test && test.key === key && S && S.found;
   const found = live ? S.found : new Set(((store.get(`wqa-${key}-session`, null) || {}).found) || []);
   const owned = new Set();
-  for (let n = 1; n <= 20; n++) {
+  for (let n = 1; n <= GRAND_LESSONS; n++) {
     const ids = typeLessonIds(key, n);
     if (slotDone(key, n, ids, found)) owned.add(n);
   }
@@ -2295,24 +2304,21 @@ function typeLessonIds(key, lesson) {
   return list.filter(p => p.lesson === lesson).map(p => p.id);
 }
 function mixedLessonIds(list, n) {
-  const ids = [];
-  const start = (n - 1) % MIX_SOURCES.length;
-  for (let i = 0; i < 5; i++) {
-    const src = MIX_SOURCES[(start + i) % MIX_SOURCES.length];
-    const group = list.filter(p => p.source === src && p.lesson === n);
-    if (group.length) ids.push(group[(n - 1) % group.length].id);
-  }
-  return ids;
+  if (n < 1 || n > GRAND_LESSONS) return [];
+  const src = GRAND_ORDER[(n - 1) % GRAND_ORDER.length];
+  const from = Math.min(n, LESSONS);
+  return list.filter(p => p.source === src && p.lesson === from).map(p => p.id);
 }
 function subjectProgress(type) {
   const session = typeSession(type);
   let done = 0;
-  for (let n = 1; n <= 20; n++) {
+  const total = lessonCount(type);
+  for (let n = 1; n <= total; n++) {
     const ids = typeLessonIds(type, n);
     if (ids.length && slotDone(type, n, ids, session.found)) done++;
     else break;
   }
-  return { done, next: done >= 20 ? 20 : done + 1, total: 20 };
+  return { done, next: done >= total ? total : done + 1, total };
 }
 function conjKeptLessons() {
   const rec = store.get("wqa-conj-lesson-kept", null);
@@ -2346,7 +2352,7 @@ function idsForLesson(n) {
 }
 function buildPlan() {
   if (!test || !places) return [];
-  const bands = SECTIONS;
+  const bands = sectionsFor(test.key);
   return bands.map(b => ({
     title: b.title,
     sub: b.sub,
@@ -2457,7 +2463,7 @@ function renderHomePath() {
     const spec = TESTS[type];
     const prog = subjectProgress(type);
     const width = Math.round(prog.done / prog.total * 100);
-    const meta = prog.done >= 20 ? "Finished" : "Lesson " + prog.next + " of " + prog.total;
+    const meta = prog.done >= prog.total ? "Finished" : "Lesson " + prog.next + " of " + prog.total;
     return `<button class="subject-card" type="button" data-course="${type}"><span class="subject-ico" aria-hidden="true">${TYPE_ICON[type] || "✨"}</span><span class="subject-copy"><strong>${esc(spec.title)}</strong><span class="subject-meta">${esc(meta)}</span><span class="subject-bar" aria-hidden="true"><span style="width:${width}%"></span></span></span></button>`;
   }).join("") + `</div>`;
   $("path").innerHTML = html;
