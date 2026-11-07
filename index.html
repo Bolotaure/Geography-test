@@ -329,6 +329,11 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
   display: block; margin: .4rem auto 1rem; min-height: 48px; padding: .6rem 1rem;
   border-radius: 999px; background: var(--parchment); color: var(--ink); font-weight: 800;
 }
+.path-reset {
+  display: block; margin: 0 auto 1.2rem; min-height: 44px; padding: .4rem 1rem;
+  border-radius: 999px; background: transparent; color: #eadcc0; font-weight: 700;
+  border: 2px solid #5c4a32;
+}
 .lesson-head { display: flex; align-items: center; gap: .7rem; }
 .quit-btn {
   width: 44px; height: 44px; border-radius: 14px; background: #241828; border: 2px solid #5c4a32;
@@ -581,6 +586,16 @@ body.feedback-open #progress { display: none !important; }
     </div>
   </div></div>
 </div>
+<div id="resetAsk" hidden>
+  <div class="modal-backdrop"><div class="reward-modal" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
+    <h3 class="reward-name" id="resetTitle">Reset this quiz?</h3>
+    <p class="reward-tagline" id="resetBody">Lessons, badges, and points for this quiz go back to the start.</p>
+    <div class="quit-actions">
+      <button class="big-btn" id="resetStay" type="button">Cancel</button>
+      <button class="mode-btn" id="resetGo" type="button">Reset</button>
+    </div>
+  </div></div>
+</div>
 <div id="modal"></div>
 
 <script src="lib/d3.min.js"></script>
@@ -690,6 +705,9 @@ const COPY = {
     soundOn: "Sound", soundOff: "Muted",
     missedNote: "Missed questions stay on this lesson until you land them.",
     accurate: "accurate", back: "← Academy",
+    reset: "Reset this quiz", resetTitle: "Reset this quiz?",
+    resetBody: "Lessons, badges, and points for this quiz go back to the start. The other quizzes stay.",
+    resetGo: "Reset", cancel: "Cancel",
     homeSub: "Pick a subject. Each one unlocks on its own.",
     youTapped: "You tapped ", answerIs: ". The answer is ", thats: "That's ",
   },
@@ -704,6 +722,9 @@ const COPY = {
     soundOn: "Son", soundOff: "Muet",
     missedNote: "Les questions manquées restent dans cette leçon.",
     accurate: "de justes", back: "← Académie",
+    reset: "Réinitialiser ce quiz", resetTitle: "Réinitialiser ce quiz ?",
+    resetBody: "Les leçons, les badges et les points de ce quiz repartent de zéro. Les autres quiz restent.",
+    resetGo: "Réinitialiser", cancel: "Annuler",
     homeSub: "Choisis une matière. Chacune avance toute seule.",
     youTapped: "Tu as choisi ", answerIs: ". La réponse est ", thats: "C'est ",
   },
@@ -1797,6 +1818,23 @@ function closeReward() {
   if (t && test && test.kind === "map") S.message = `Where is ${t.name}?`;
   render();
 }
+function resetCurrentQuiz() {
+  if (!test || pathHome || test.key === "mixed") return;
+  const key = test.key;
+  ["session", "best", "unlocked", "missed", "lesson-stars"].forEach(part => {
+    try { localStorage.removeItem("wqa-" + key + "-" + part); } catch {}
+  });
+  if (key === "conj") {
+    try { localStorage.removeItem("wqa-conj-lesson-kept"); } catch {}
+  }
+  sessionToState(blankSession(), test.welcome);
+  persist();
+  view = "learn";
+  $("summary").hidden = true;
+  $("resetAsk").hidden = true;
+  showTab("learn");
+  updatePills();
+}
 function playAgain() {
   sfx.click();
   const unlocked = (S.unlocked || []).slice();
@@ -2190,7 +2228,7 @@ function renderPath() {
   plan.forEach(u => u.lessons.forEach(ls => flat.push(ls)));
   let currentIndex = flat.findIndex(ls => !slotDone(test.key, ls.number || ls.index, ls.ids, S.found));
   if (currentIndex < 0) currentIndex = flat.length;
-  let html = ``;
+  let html = `<button class="path-reset" id="resetQuiz" type="button">${esc(L("reset"))}</button>`;
   let i = 0;
   plan.forEach(unit => {
     html += `<section class="unit"><h2 class="unit-title">${esc(unit.title)}</h2>${unit.sub ? `<p class="unit-sub">${esc(unit.sub)}</p>` : ""}<div class="path">`;
@@ -2572,6 +2610,14 @@ $("learnPane").addEventListener("click", e => {
     if (ls) startLesson(ls.index, ls.ids, lessonBtn.dataset.replay === "1");
     return;
   }
+  if (e.target.closest("#resetQuiz")) {
+    $("resetTitle").textContent = L("resetTitle");
+    $("resetBody").textContent = L("resetBody");
+    $("resetStay").textContent = L("cancel");
+    $("resetGo").textContent = L("resetGo");
+    $("resetAsk").hidden = false;
+    return;
+  }
   if (e.target.closest("#reviewBtn")) return startReview();
   onTestClick(e);
 });
@@ -2596,6 +2642,8 @@ $("quitLesson").addEventListener("click", () => {
 });
 $("quitStay").addEventListener("click", () => { $("quitAsk").hidden = true; });
 $("quitGo").addEventListener("click", quitLesson);
+$("resetStay").addEventListener("click", () => { $("resetAsk").hidden = true; });
+$("resetGo").addEventListener("click", resetCurrentQuiz);
 $("checkBtn").addEventListener("click", checkAnswer);
 $("continueBtn").addEventListener("click", continueQuestion);
 $("summaryContinue").addEventListener("click", () => {
