@@ -1209,6 +1209,7 @@ function isTargetGeo(geoId) {
 }
 
 const MIX_SOURCES = ["us", "fr", "jp", "vocab-en", "vocab-fr", "logic", "conj"];
+const QUIZ_ORDER = ["mixed"].concat(MIX_SOURCES);
 function freshQueue() {
   if (test.kind !== "mixed") return shuffle(places.map(p => p.id));
   const groups = MIX_SOURCES.map(src => shuffle(places.filter(p => p.source === src).map(p => p.id)));
@@ -1908,7 +1909,7 @@ function openResetConfirm(key) {
 function openResetPicker() {
   $("resetTitle").textContent = "Reset a quiz";
   $("resetBody").textContent = "Choose which quiz to start over. The others stay.";
-  $("resetPick").innerHTML = MIX_SOURCES.concat("mixed").map(key => `<button class="path-reset" type="button" data-reset="${key}">${esc(TESTS[key].title)}</button>`).join("");
+  $("resetPick").innerHTML = QUIZ_ORDER.map(key => `<button class="path-reset" type="button" data-reset="${key}">${esc(TESTS[key].title)}</button>`).join("");
   $("resetPick").hidden = false;
   $("resetGo").hidden = true;
   $("resetStay").textContent = "Cancel";
@@ -2370,7 +2371,7 @@ function renderPath() {
 function renderHomePath() {
   document.body.classList.add("academy-home");
   migrateMixed();
-  const html = `<div class="subject-list">` + MIX_SOURCES.concat("mixed").map(type => {
+  const html = `<div class="subject-list">` + QUIZ_ORDER.map(type => {
     const spec = TESTS[type];
     const prog = subjectProgress(type);
     const width = Math.round(prog.done / prog.total * 100);
@@ -2411,7 +2412,7 @@ function renderRelics() {
   const rule = $("relicRule");
   if (!grid) return;
   if (rule) rule.textContent = pathHome || !test ? relicHomeIntro() : relicRuleSentence();
-  const keys = pathHome || !test ? MIX_SOURCES.concat("mixed") : [test.key];
+  const keys = pathHome || !test ? QUIZ_ORDER : [test.key];
   grid.innerHTML = keys.map(key => {
     const spec = TESTS[key];
     const owned = ownedQuizRelics(key);
@@ -2426,7 +2427,7 @@ function renderRelics() {
 }
 function renderProfile() {
   const day = store.get("wqa-day-streak", { n: 0 });
-  const rows = Object.values(TESTS).map(x => {
+  const rows = QUIZ_ORDER.map(key => TESTS[key]).map(x => {
     const live = test && x.key === test.key;
     const session = store.get(`wqa-${x.key}-session`, null);
     const found = live ? S.found.size : (session && session.found ? session.found.length : 0);
