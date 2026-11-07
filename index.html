@@ -1519,11 +1519,7 @@ function onPlaceClick(id) {
       if (S.score > S.best) { S.best = S.score; store.set(`wqa-${test.key}-best`, S.best); }
       S.missed.delete(target.id);
       S.queue = S.queue.filter(x => x !== target.id);
-      if (!S.queue.length) {
-        if (test.kind === "map") test.rewards.forEach(r => { if (!S.unlocked.includes(r.level)) S.unlocked.push(r.level); });
-        S.won = true;
-      }
-      noteRelic();
+      if (!S.queue.length) S.won = true;
     } else if (S.lesson && S.lesson.replay) {
       S.score += 20;
       S.lesson.xp += 20;
@@ -1562,27 +1558,38 @@ function relicRemaining(spec, foundCount) {
   return into === 0 ? every : every - into;
 }
 function relicHomeIntro() {
-  return "You earn a relic by getting new questions right. A question you already knew does not count again, and finishing a lesson does not hand you one by itself.\n\nUS states and Japanese prefectures: one relic every 8 new correct answers (8, 16, 24, 32, 40, 48).\nFrench regions: one relic every 3 (3, 6, 9, 12, 15, 18).\nEnglish, French, numbers, and verbs: one relic every 15 (15, 30, 45, 60, 75, 90).\n\nOn a map, finding the last place also unlocks any relic still locked.";
+  return "Each finished lesson adds one badge. A lesson you already finished does not give another.";
 }
 function relicRuleSentence(spec) {
-  const mapExtra = spec.kind === "map"
-    ? " Finding the last place on this map also unlocks any relic still locked."
-    : "";
-  return "In " + spec.title + ", a new relic appears at " + relicMarks(spec) + " new correct answers. That is one relic every " + spec.perLevel + ". A question you already got right does not count again, and finishing a lesson does not give one by itself." + mapExtra;
-}
-function relicProgressRule(spec) {
-  return "One relic every " + spec.perLevel + " new correct answers.";
-}
-function relicSummaryNote(spec, foundCount, earnedNow) {
-  const left = relicRemaining(spec, foundCount);
-  const fr = uiLang() === "fr";
-  if (left === 0) return fr ? "Toutes les reliques de " + spec.title + " sont débloquées." : "Every relic in " + spec.title + " is unlocked.";
-  if (earnedNow) return fr
-    ? "Nouvelle relique. Encore " + left + " bonnes réponses nouvelles pour la suivante."
-    : "New relic. " + left + " more new correct answers for the next.";
+  const fr = spec.key === "vocab-fr" || spec.key === "conj";
   return fr
-    ? "Encore " + left + " bonnes réponses nouvelles avant la prochaine relique."
-    : left + " more new correct answers until the next relic.";
+    ? "Dans " + spec.title + ", chaque leçon terminée donne un badge. Une leçon déjà finie n'en donne pas un deuxième."
+    : "In " + spec.title + ", each finished lesson adds one badge. A lesson you already finished does not give another.";
+}
+function relicSummaryNote(earned) {
+  if (!earned) return "";
+  return uiLang() === "fr" ? "Badge de cette leçon." : "Badge for this lesson.";
+}
+function lessonRelics(spec) {
+  if (spec._lessonRelics) return spec._lessonRelics;
+  const base = spec.rewards || [];
+  const fr = spec.key === "vocab-fr" || spec.key === "conj";
+  spec._lessonRelics = Array.from({ length: 20 }, (_, i) => {
+    const src = base[i % Math.max(base.length, 1)] || { kind: "gem", accent: "#a67c2d", name: "Badge" };
+    const n = i + 1;
+    return { level: n, kind: src.kind, accent: src.accent, name: (fr ? "Leçon " : "Lesson ") + n, tagline: src.name };
+  });
+  return spec._lessonRelics;
+}
+function relicOwnedLessons(key) {
+  const live = test && test.key === key && S && S.found;
+  const found = live ? S.found : new Set(((store.get(`wqa-${key}-session`, null) || {}).found) || []);
+  const owned = new Set();
+  for (let n = 1; n <= 20; n++) {
+    const ids = typeLessonIds(key, n);
+    if (slotDone(key, n, ids, found)) owned.add(n);
+  }
+  return owned;
 }
 function mapCoach(t) {
   if (!t || t.kind !== "map") return "";
@@ -1599,17 +1606,7 @@ function mapCoach(t) {
   } catch (e) {}
   return bits.join(" ");
 }
-function noteRelic() {
-  if (S.found.size % test.perLevel !== 0) return;
-  const reward = test.rewards.find(r => r.level === S.found.size / test.perLevel);
-  if (!reward || S.unlocked.includes(reward.level)) return;
-  S.unlocked.push(reward.level);
-  saveUnlocked();
-  if (S.lesson) {
-    S.lesson.relics = S.lesson.relics || [];
-    S.lesson.relics.push(reward);
-  } else S.pendingReward = reward;
-}
+function noteRelic() {}
 function showRelicModal() {
   if (!S.pendingReward || S.lesson) return;
   const reward = S.pendingReward;
@@ -1684,7 +1681,6 @@ function onChoice(choice) {
       S.missed.delete(q.id);
       S.queue = S.queue.filter(x => x !== q.id);
       if (!S.queue.length) S.won = true;
-      noteRelic();
     } else if (S.lesson && S.lesson.replay) {
       S.score += 20;
       S.lesson.xp += 20;
@@ -1836,8 +1832,7 @@ function render() {
   const t = current();
   if ((t?.id ?? null) !== lastTarget) { S.askAnswer = null; lastTarget = t?.id ?? null; }
   if (questionKind() === "mcq") ensureChoices();
-  const nextReward = test.rewards.find(r => !S.unlocked.includes(r.level));
-  const inLevel = S.found.size % test.perLevel;
+  const relicCount = test.key === "mixed" ? S.unlocked.length : relicOwnedLessons(test.key).size;
   const house = HOUSES[currentHouse].name;
 
   document.title = test.title + " · Wizard's Quiz Academy";
@@ -1847,7 +1842,7 @@ function render() {
   showBanner(test.key);
   $("menuItems").innerHTML = quizMenu(test.key);
   const foundLabel = test.kind === "map" ? "Found" : "Correct";
-  $("stats").innerHTML = [["Points", S.score], ["Streak", S.streak > 1 ? "✦ " + S.streak : "—"], ["Relics", S.unlocked.length], ["Best", S.best], [foundLabel, `${S.found.size}/${places.length}`]]
+  $("stats").innerHTML = [["Points", S.score], ["Streak", S.streak > 1 ? "✦ " + S.streak : "—"], ["Relics", relicCount], ["Best", S.best], [foundLabel, `${S.found.size}/${places.length}`]]
     .map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("") + `<div><dt>House</dt><dd>${esc(house)}</dd></div>`;
 
   $("mascot").className = `mascot ${S.party ? "mascot-party" : "mascot-bob"}`;
@@ -1885,17 +1880,12 @@ function render() {
   pb.textContent = S.practice ? "Stop practice" : `Practice missed (${S.missed.size})`;
 
   const prog = $("progress");
-  if (nextReward && !S.won) {
-    prog.hidden = false;
-    prog.innerHTML = `<div class="progress-relic">${relicSVG(nextReward.kind, nextReward.accent)}</div>
-      <div class="progress-info"><span class="progress-label">Next relic: ${esc(nextReward.name)}</span>
-      <div class="progress-track"><div class="progress-fill" style="width:${inLevel / test.perLevel * 100}%"></div></div>
-      <span class="progress-count">${inLevel}/${test.perLevel} · ${esc(relicProgressRule(test))}</span></div>`;
-  } else prog.hidden = true;
-
-  $("shelf").innerHTML = test.rewards.map(r => {
-    const owned = S.unlocked.includes(r.level);
-    return `<div class="shelf-item ${owned ? "shelf-owned" : "shelf-locked"}">${relicSVG(r.kind, r.accent)}<span class="shelf-name">${owned ? esc(r.name) : (r.level * test.perLevel) + " correct"}</span></div>`;
+  if (prog) prog.hidden = true;
+  const badges = test.key === "mixed" ? test.rewards : lessonRelics(test);
+  const ownedRelics = test.key === "mixed" ? new Set(S.unlocked) : relicOwnedLessons(test.key);
+  $("shelf").innerHTML = badges.map(r => {
+    const owned = ownedRelics.has(r.level);
+    return `<div class="shelf-item ${owned ? "shelf-owned" : "shelf-locked"}">${relicSVG(r.kind, r.accent)}<span class="shelf-name">${esc(r.name)}</span></div>`;
   }).join("");
 
   renderModal();
@@ -2038,7 +2028,7 @@ function renderModal() {
       <div class="reward-banner">Relic earned</div>
       <div class="reward-img">${relicSVG(r.kind, r.accent)}</div>
       <h3 class="reward-name" id="rewardName">${esc(r.name)}</h3><p class="reward-tagline">${esc(r.tagline)}</p>
-      <p class="reward-tagline">Earned at ${r.level * test.perLevel} new correct answers in ${esc(test.title)}.</p>
+      <p class="reward-tagline">Earned by finishing a lesson in ${esc(test.title)}.</p>
       <button class="big-btn" type="button" data-action="close-reward">Onward</button></div></div>`;
   } else if (S.won) {
     const scoreLine = test.kind === "map"
@@ -2290,21 +2280,20 @@ function renderRelics() {
     if (rule) rule.textContent = relicHomeIntro();
     grid.innerHTML = MIX_SOURCES.map(key => {
       const spec = TESTS[key];
-      const saved = store.get(`wqa-${key}-session`, null);
-      const unlocked = new Set((saved && saved.unlocked) || []);
-      const cards = spec.rewards.map(r => {
-        const owned = unlocked.has(r.level);
-        return `<article class="relic-card ${owned ? "relic-owned" : "relic-locked"}">${relicSVG(r.kind, r.accent)}<h3>${owned ? esc(r.name) : "Locked"}</h3><p>${esc(spec.title)}</p></article>`;
+      const owned = relicOwnedLessons(key);
+      const cards = lessonRelics(spec).map(r => {
+        const has = owned.has(r.level);
+        return `<article class="relic-card ${has ? "relic-owned" : "relic-locked"}">${relicSVG(r.kind, r.accent)}<h3>${esc(r.name)}</h3><p>${has ? esc(r.tagline) : esc(spec.title)}</p></article>`;
       }).join("");
       return `<section class="relic-group"><h3>${esc(spec.title)}</h3><div class="relic-grid">${cards}</div></section>`;
     }).join("");
     return;
   }
   if (rule) rule.textContent = relicRuleSentence(test);
-  grid.innerHTML = test.rewards.map(r => {
-    const owned = S.unlocked.includes(r.level);
-    const need = r.level * test.perLevel;
-    return `<article class="relic-card ${owned ? "relic-owned" : "relic-locked"}">${relicSVG(r.kind, r.accent)}<h3>${owned ? esc(r.name) : "Locked"}</h3><p>${owned ? esc(r.tagline) : "After " + need + " new correct answers"}</p></article>`;
+  const owned = relicOwnedLessons(test.key);
+  grid.innerHTML = lessonRelics(test).map(r => {
+    const has = owned.has(r.level);
+    return `<article class="relic-card ${has ? "relic-owned" : "relic-locked"}">${relicSVG(r.kind, r.accent)}<h3>${esc(r.name)}</h3><p>${has ? esc(r.tagline) : (uiLang() === "fr" ? "Termine la leçon" : "Finish the lesson")}</p></article>`;
   }).join("");
 }
 function renderProfile() {
@@ -2331,7 +2320,8 @@ function startLesson(index, ids, replay) {
   const queue = sittingIds(ids, replay);
   if (!queue.length) return;
   sfx.click();
-  S.lesson = { index, ids: ids.slice(), queue, replay: !!replay, review: false, correct: 0, answered: 0, xp: 0, relics: [] };
+  const alreadyDone = index >= 0 && slotDone(test.key, index, ids.slice(), S.found);
+  S.lesson = { index, ids: ids.slice(), queue, replay: !!replay, review: false, correct: 0, answered: 0, xp: 0, relics: [], alreadyDone };
   S.locked = false; S.picked = null; S.selected = null; S.selectedGeo = null;
   S.choiceFor = null; S.hintHide = null; S.explore = false; S.practice = false;
   S.reward = null; S.party = false; S.pendingReward = null; S.askOpen = false;
@@ -2385,8 +2375,12 @@ function finishLesson() {
     if (stars > (all[lesson.index] || 0)) { all[lesson.index] = stars; store.set(`wqa-${test.key}-lesson-stars`, all); }
   }
   if (complete) bumpDayStreak();
+  let earned = null;
+  if (complete && lesson.index >= 0 && !lesson.alreadyDone && !lesson.review) {
+    earned = lessonRelics(test).find(r => r.level === lesson.index) || null;
+    if (earned && !S.unlocked.includes(earned.level)) S.unlocked.push(earned.level);
+  }
   const xp = lesson.xp || 0;
-  const relics = lesson.relics || [];
   S.lesson = null;
   S.locked = false; S.selected = null; S.selectedGeo = null;
   view = "summary";
@@ -2407,11 +2401,11 @@ function finishLesson() {
   $("summaryTitle").textContent = complete ? L("lessonDone") : L("keep");
   $("summaryXp").textContent = "+" + xp + " XP";
   $("summaryAcc").textContent = Math.round(acc * 100) + "% " + L("accurate") + (stars ? " · " + "★".repeat(stars) : "");
-  const relicNote = relicSummaryNote(test, S.found.size, relics.length > 0);
-  const missedNote = !relics.length && !complete ? `<p class="summary-note">${esc(L("missedNote"))}</p>` : "";
-  $("summaryRelics").innerHTML = (relics.length
-    ? relics.map(r => `<div class="summary-relic">${relicSVG(r.kind, r.accent)}<p>${esc(r.name)}</p><p>${esc(r.tagline)}</p></div>`).join("")
-    : "") + missedNote + `<p class="summary-note">${esc(relicNote)}</p>`;
+  const relicNote = relicSummaryNote(earned);
+  const missedNote = !complete ? `<p class="summary-note">${esc(L("missedNote"))}</p>` : "";
+  $("summaryRelics").innerHTML = (earned
+    ? `<div class="summary-relic">${relicSVG(earned.kind, earned.accent)}<p>${esc(earned.name)}</p><p>${esc(earned.tagline)}</p></div>`
+    : "") + missedNote + (relicNote ? `<p class="summary-note">${esc(relicNote)}</p>` : "");
   persist();
   updatePills();
 }
