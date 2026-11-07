@@ -1056,6 +1056,29 @@ const TESTS = {
   },
 };
 
+const ACADEMY_RELICS = [
+  R(1, "Brass Compass", "compass", "Points true on every border.", "#a67c2d"),
+  R(2, "Ranger's Lantern", "lantern", "Lights the coast you just learned.", "#c47b17"),
+  R(3, "Cartographer's Quill", "quill", "Draws rivers in gold ink.", "#5c3d8a"),
+  R(4, "Star Atlas", "atlas", "The pages turn themselves at dusk.", "#1e4d8c"),
+  R(5, "Border Stone", "gem", "Warm from the places you have found.", "#8c1c2c"),
+  R(6, "Globe of the Realm", "globe", "The whole country, spinning in your palm.", "#1f6b4a"),
+  R(7, "Oak Wand", "wand", "A steady wand for a steady definition.", "#5c3d8a"),
+  R(8, "Scholar's Lexicon", "book", "The margins are full of synonyms.", "#8c1c2c"),
+  R(9, "Gold Inkpot", "ink", "Never runs dry on a hard word.", "#a67c2d"),
+  R(10, "Speaking Stone", "rune", "Whispers the meaning if you listen.", "#1e4d8c"),
+  R(11, "Willow Wand", "wand", "Bends, then points at the right word.", "#1f6b4a"),
+  R(12, "Blue Grimoire", "book", "French in the margins, gold on the spine.", "#1e4d8c"),
+  R(13, "Crystal Abacus", "abacus", "Beads that click in the right order.", "#1e4d8c"),
+  R(14, "Gear of Reason", "gear", "Turns once for every true pattern.", "#a67c2d"),
+  R(15, "Puzzle Hourglass", "hourglass", "Sand enough for a hard sequence.", "#c47b17"),
+  R(16, "Grammar Quill", "quill", "The nib knows every ending.", "#5c3d8a"),
+  R(17, "Tense Bell", "bell", "It rings when the ending is true.", "#a67c2d"),
+  R(18, "Wax Seal", "seal", "Stamps the infinitive in red.", "#1f6b4a"),
+  R(19, "Quest Cauldron", "cauldron", "Words and maps simmer together.", "#1f6b4a"),
+  R(20, "Crown of Quests", "circlet", "One crown for the twentieth lesson.", "#c47b17"),
+];
+
 function colourise(ids, neighbours) {
   const classes = ["state-a","state-b","state-c","state-d"], out = new Map();
   ids.forEach(id => {
@@ -1601,28 +1624,25 @@ function relicRemaining(spec, foundCount) {
   return into === 0 ? every : every - into;
 }
 function relicHomeIntro() {
-  return "Each finished lesson adds one badge. A lesson you already finished does not give another.";
+  return "Twenty relics, one for each lesson number. Finish lesson 4 in any quiz and relic 4 is yours. The same lesson in another quiz does not give a second relic.";
 }
-function relicRuleSentence(spec) {
-  const fr = spec.key === "vocab-fr" || spec.key === "conj";
+function relicRuleSentence() {
+  const fr = test && (test.key === "vocab-fr" || test.key === "conj");
   return fr
-    ? "Dans " + spec.title + ", chaque leçon terminée donne un badge. Une leçon déjà finie n'en donne pas un deuxième."
-    : "In " + spec.title + ", each finished lesson adds one badge. A lesson you already finished does not give another.";
+    ? "Vingt reliques, une par numéro de leçon. Terminer la leçon 4 dans un quiz donne la relique 4. La même leçon dans un autre quiz n'en donne pas une deuxième."
+    : relicHomeIntro();
 }
 function relicSummaryNote(earned) {
   if (!earned) return "";
-  return uiLang() === "fr" ? "Badge de cette leçon." : "Badge for this lesson.";
+  return uiLang() === "fr" ? "Relique de cette leçon." : "Relic for this lesson.";
 }
-function lessonRelics(spec) {
-  if (spec._lessonRelics) return spec._lessonRelics;
-  const base = spec.rewards || [];
-  const fr = spec.key === "vocab-fr" || spec.key === "conj";
-  spec._lessonRelics = Array.from({ length: 20 }, (_, i) => {
-    const src = base[i % Math.max(base.length, 1)] || { kind: "gem", accent: "#a67c2d", name: "Badge" };
-    const n = i + 1;
-    return { level: n, kind: src.kind, accent: src.accent, name: (fr ? "Leçon " : "Lesson ") + n, tagline: src.name };
+function academyRelics() { return ACADEMY_RELICS; }
+function ownedRelicLevels() {
+  const owned = new Set();
+  MIX_SOURCES.concat("mixed").forEach(key => {
+    relicOwnedLessons(key).forEach(n => owned.add(n));
   });
-  return spec._lessonRelics;
+  return owned;
 }
 function relicOwnedLessons(key) {
   const live = test && test.key === key && S && S.found;
@@ -1918,7 +1938,7 @@ function render() {
   const t = current();
   if ((t?.id ?? null) !== lastTarget) { S.askAnswer = null; lastTarget = t?.id ?? null; }
   if (questionKind() === "mcq") ensureChoices();
-  const relicCount = relicOwnedLessons(test.key).size;
+  const relicCount = ownedRelicLevels().size;
   const house = HOUSES[currentHouse].name;
 
   document.title = test.title + " · Wizard's Quiz Academy";
@@ -1967,8 +1987,8 @@ function render() {
 
   const prog = $("progress");
   if (prog) prog.hidden = true;
-  const badges = lessonRelics(test);
-  const ownedRelics = relicOwnedLessons(test.key);
+  const badges = academyRelics();
+  const ownedRelics = ownedRelicLevels();
   $("shelf").innerHTML = badges.map(r => {
     const owned = ownedRelics.has(r.level);
     return `<div class="shelf-item ${owned ? "shelf-owned" : "shelf-locked"}">${relicSVG(r.kind, r.accent)}<span class="shelf-name">${esc(r.name)}</span></div>`;
@@ -2365,24 +2385,12 @@ function renderRelics() {
   const grid = $("relicGrid");
   const rule = $("relicRule");
   if (!grid) return;
-  if (pathHome || !test) {
-    if (rule) rule.textContent = relicHomeIntro();
-    grid.innerHTML = MIX_SOURCES.concat("mixed").map(key => {
-      const spec = TESTS[key];
-      const owned = relicOwnedLessons(key);
-      const cards = lessonRelics(spec).map(r => {
-        const has = owned.has(r.level);
-        return `<article class="relic-card ${has ? "relic-owned" : "relic-locked"}">${relicSVG(r.kind, r.accent)}<h3>${esc(r.name)}</h3><p>${has ? esc(r.tagline) : esc(spec.title)}</p></article>`;
-      }).join("");
-      return `<section class="relic-group"><h3>${esc(spec.title)}</h3><div class="relic-grid">${cards}</div></section>`;
-    }).join("");
-    return;
-  }
-  if (rule) rule.textContent = relicRuleSentence(test);
-  const owned = relicOwnedLessons(test.key);
-  grid.innerHTML = lessonRelics(test).map(r => {
+  if (rule) rule.textContent = relicRuleSentence();
+  const owned = ownedRelicLevels();
+  grid.innerHTML = academyRelics().map(r => {
     const has = owned.has(r.level);
-    return `<article class="relic-card ${has ? "relic-owned" : "relic-locked"}">${relicSVG(r.kind, r.accent)}<h3>${esc(r.name)}</h3><p>${has ? esc(r.tagline) : (uiLang() === "fr" ? "Termine la leçon" : "Finish the lesson")}</p></article>`;
+    const locked = uiLang() === "fr" ? "Leçon " + r.level : "Lesson " + r.level;
+    return `<article class="relic-card ${has ? "relic-owned" : "relic-locked"}">${relicSVG(r.kind, r.accent)}<h3>${esc(r.name)}</h3><p>${has ? esc(r.tagline) : esc(locked)}</p></article>`;
   }).join("");
 }
 function renderProfile() {
@@ -2465,8 +2473,8 @@ function finishLesson() {
   if (complete) bumpDayStreak();
   let earned = null;
   if (complete && lesson.index >= 0 && !lesson.alreadyDone && !lesson.review) {
-    earned = lessonRelics(test).find(r => r.level === lesson.index) || null;
-    if (earned && !S.unlocked.includes(earned.level)) S.unlocked.push(earned.level);
+    const elsewhere = MIX_SOURCES.concat("mixed").some(key => key !== test.key && relicOwnedLessons(key).has(lesson.index));
+    if (!elsewhere) earned = academyRelics().find(r => r.level === lesson.index) || null;
   }
   const xp = lesson.xp || 0;
   S.lesson = null;
