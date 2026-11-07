@@ -72,7 +72,8 @@ body.lesson-mode .banner-wrap { position: sticky; top: 0; z-index: 8; }
   object-fit: cover; object-position: center 42%;
   border-top: 3px solid var(--gold-deep); border-bottom: 3px solid var(--gold-deep);
 }
-.banner-wrap .back-btn { position: absolute; top: .6rem; right: var(--pad); margin: 0; background: #241828e6; }
+.course-head .back-btn { flex: 0 0 auto; margin: 0; }
+body:not(.academy-home) .course-head .title-copy { text-align: center; }
 .relic-board { position: relative; }
 .relic-home { position: absolute; top: .8rem; left: .8rem; }
 .course-head {
@@ -542,6 +543,9 @@ body.feedback-open #progress { display: none !important; }
   <button class="path-reset" id="resetQuiz" type="button" hidden>Reset a quiz</button>
   <div class="page-top">
   <div class="course-head">
+    <button class="back-btn" id="backBtn" type="button" hidden aria-label="Home">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg>
+    </button>
     <div class="title-copy">
       <p class="brand-kicker" id="brand">Candlelight &amp; questions</p>
       <h1 class="game-title" id="title">Wizard's Quiz Academy</h1>
@@ -560,9 +564,6 @@ body.feedback-open #progress { display: none !important; }
   </div>
     <div class="banner-wrap">
     <img class="quiz-banner" id="quizBanner" alt="" hidden>
-    <button class="back-btn" id="backBtn" type="button" hidden aria-label="Home">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg>
-    </button>
   </div>
   </div>
 <div class="lesson-head" id="lessonHead" hidden>

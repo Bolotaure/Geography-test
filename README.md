@@ -10,7 +10,7 @@ On a phone or tablet the app works only upright. Turn it sideways and a portrait
 
 The home screen is a list of eight quizzes. **Grand Quest** is first. Each card is split in two: on the left the title, the next lesson (1 to 21 for Grand Quest, 1 to 20 for the others) and a progress bar; on the right the same image as that quiz's banner. Tap a card and the screen fades through black into that quiz. The home icon fades back through black.
 
-The title stays pinned above the banner. Inside a quiz, the title and the banner both stay fixed and only the lesson path scrolls. The home icon sits on the banner, top right. The menu button sits to the right of the title, centred on its line. It opens three items:
+The title stays pinned above the banner. Inside a quiz, the title and the banner both stay fixed and only the lesson path scrolls. Inside a quiz the title is centred, with the home icon to its left and the menu button to its right. On home the title sits on the left and the menu button to its right. It opens three items:
 
 - **Reset a quiz.** From home, pick which quiz to clear. Inside a quiz, it resets that quiz. Either way it asks first. Score, progress, and relics for that quiz go back to the start. Other quizzes are left alone.
 - **Relics.** The relic card has its own home icon.
