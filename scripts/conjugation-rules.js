@@ -503,15 +503,83 @@ function buildConjugationQuestions() {
     2: legacyFirst(buckets[2], 33),
     3: roundRobin(partir.concat(legacyFirst(other3, 33 - partir.length)), 33),
   };
+  const pools = { 1: picked[1].slice(), 2: picked[2].slice(), 3: picked[3].slice() };
+  const TENSE_CYCLE = ["fut", "pre", "imp", "pc", "inf", "pp"];
+  function tenseOf(q) {
+    const p = q.prompt;
+    if (/passé composé/.test(p)) return "pc";
+    if (/imparfait/.test(p)) return "imp";
+    if (/futur/.test(p)) return "fut";
+    if (/présent/.test(p)) return "pre";
+    if (/infinitif/i.test(p)) return "inf";
+    if (/[Pp]articipe/.test(p)) return "pp";
+    return "other";
+  }
+  function personOf(q) {
+    if (/1re personne du singulier/.test(q.prompt)) return "1s";
+    if (/2e personne du singulier/.test(q.prompt)) return "2s";
+    if (/3e personne du singulier/.test(q.prompt)) return "3s";
+    if (/1re personne du pluriel/.test(q.prompt)) return "1p";
+    if (/2e personne du pluriel/.test(q.prompt)) return "2p";
+    if (/3e personne du pluriel/.test(q.prompt)) return "3p";
+    if (/infinitif/i.test(q.prompt)) return "inf";
+    if (/[Pp]articipe/.test(q.prompt)) return "pp";
+    return "x";
+  }
   const ordered = [];
-  const cursor = { 1: 0, 2: 0, 3: 0 };
+  const taken = { 1: 0, 2: 0, 3: 0 };
   let g = 1;
+  let prevPerson = "";
   while (ordered.length < 100) {
-    const list = picked[g];
-    if (cursor[g] >= list.length) throw new Error("group " + g + " ran out at " + ordered.length);
-    ordered.push(list[cursor[g]]);
-    cursor[g] += 1;
+    const pool = pools[g];
+    if (!pool.length) throw new Error("group " + g + " ran out at " + ordered.length);
+    const prev = ordered.length ? tenseOf(ordered[ordered.length - 1]) : "";
+    const want = TENSE_CYCLE[(taken[g] + (g - 1) * 2) % TENSE_CYCLE.length];
+    const tagged = pool.map((q, i) => ({ q, i, tense: tenseOf(q), person: personOf(q) }));
+    let choices = tagged.filter(x => x.tense === want && x.tense !== prev);
+    if (!choices.length) choices = tagged.filter(x => x.tense !== prev);
+    if (!choices.length) choices = tagged.filter(x => x.tense === want);
+    if (!choices.length) choices = tagged;
+    const choice = choices.find(x => x.person !== prevPerson) || choices[0];
+    pool.splice(choice.i, 1);
+    ordered.push(choice.q);
+    prevPerson = choice.person;
+    taken[g] += 1;
     g = g === 3 ? 1 : g + 1;
+  }
+  function tenseAt(i) { return i >= 0 && i < ordered.length ? tenseOf(ordered[i]) : ""; }
+  for (let pass = 0; pass < 12; pass++) {
+    for (let i = 1; i < ordered.length; i++) {
+      if (tenseAt(i) !== tenseAt(i - 1)) continue;
+      for (let j = 0; j < ordered.length; j++) {
+        if (j % 3 !== i % 3 || j === i) continue;
+        const tj = tenseAt(j);
+        if (tj === tenseAt(i - 1)) continue;
+        if (i + 1 < ordered.length && tj === tenseAt(i + 1)) continue;
+        if (j > 0 && tenseAt(i) === tenseAt(j - 1)) continue;
+        if (j + 1 < ordered.length && tenseAt(i) === tenseAt(j + 1)) continue;
+        [ordered[i], ordered[j]] = [ordered[j], ordered[i]];
+        break;
+      }
+    }
+  }
+  for (let n = 0; n < 20; n++) {
+    const slice = [0, 1, 2, 3, 4].map(k => n * 5 + k);
+    const kinds = new Set(slice.map(i => tenseAt(i)));
+    if (kinds.size >= 3) continue;
+    const slot = slice.find(i => {
+      const others = slice.filter(x => x !== i).map(tenseAt);
+      return others.filter(t => t === tenseAt(i)).length >= 1 || kinds.size < 3;
+    }) || slice[0];
+    for (let j = slot % 3; j < ordered.length; j += 3) {
+      if (slice.includes(j)) continue;
+      const nextKinds = new Set(slice.map(i => i === slot ? tenseAt(j) : tenseAt(i)));
+      if (nextKinds.size < 3) continue;
+      const neighborsOk = (idx, tense) => (idx === 0 || tense !== tenseAt(idx - 1)) && (idx === ordered.length - 1 || tense !== tenseAt(idx + 1) || slice.includes(idx + 1));
+      if (!neighborsOk(slot, tenseAt(j)) || !neighborsOk(j, tenseAt(slot))) continue;
+      [ordered[slot], ordered[j]] = [ordered[j], ordered[slot]];
+      break;
+    }
   }
   return ordered.map(q => ({
     id: q.id,

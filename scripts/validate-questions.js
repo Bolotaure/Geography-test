@@ -446,6 +446,25 @@ for (let n = 1; n < 20; n++) {
   const rg = groupOf(right);
   if (rg !== (lg === 3 ? 1 : lg + 1)) fail("lesson " + n + " / " + (n + 1) + " boundary breaks the group cycle");
 }
+function tenseOfPrompt(p) {
+  if (/passé composé/.test(p)) return "pc";
+  if (/imparfait/.test(p)) return "imp";
+  if (/futur/.test(p)) return "fut";
+  if (/présent/.test(p)) return "pre";
+  if (/infinitif/i.test(p)) return "inf";
+  if (/[Pp]articipe/.test(p)) return "pp";
+  return "other";
+}
+let prevConjTense = "";
+conj.forEach((q, i) => {
+  const tense = tenseOfPrompt(q.prompt);
+  if (i > 0 && tense === prevConjTense) fail(q.id + " repeats tense " + tense);
+  prevConjTense = tense;
+});
+for (let n = 1; n <= 20; n++) {
+  const kinds = new Set(conj.slice((n - 1) * 5, n * 5).map(q => tenseOfPrompt(q.prompt)));
+  if (kinds.size < 3) fail("conjugation lesson " + n + " uses only " + [...kinds].join(", "));
+}
 
 let geo;
 try { geo = buildAll(); }

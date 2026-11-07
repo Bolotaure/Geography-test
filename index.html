@@ -412,12 +412,29 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
 .profile-list { list-style: none; text-align: left; margin-top: .8rem; display: flex; flex-direction: column; gap: .45rem; }
 .profile-list li { display: flex; justify-content: space-between; gap: .6rem; background: #efe4cc; border-radius: 12px; padding: .55rem .7rem; }
 .profile-list span { color: var(--muted); font-weight: 700; white-space: nowrap; }
+.relic-group { margin: 0 0 1.15rem; }
+.relic-group h3 { font-family: var(--font-display); font-size: 1.05rem; color: var(--gold-deep); margin: .15rem 0 .45rem; }
+.subject-list { display: flex; flex-direction: column; gap: .65rem; max-width: 440px; margin: 0 auto; }
+.subject-card {
+  display: flex; align-items: center; gap: .75rem; width: 100%; text-align: left;
+  background: #1c1424ee; color: var(--parchment); border: 2px solid #5c4a32; border-radius: 18px;
+  padding: .7rem .85rem; min-height: 76px;
+}
+.subject-card:hover, .subject-card:focus-visible { border-color: var(--gold); }
+.subject-ico { font-size: 1.7rem; width: 2.4rem; text-align: center; flex: 0 0 auto; }
+.subject-copy { flex: 1; min-width: 0; }
+.subject-copy strong { display: block; font-family: var(--font-display); color: var(--candle); font-size: 1.05rem; }
+.subject-meta { color: #eadcc0; font-size: .92rem; font-weight: 700; }
+.subject-bar { height: 8px; background: #120c18; border-radius: 99px; margin-top: .35rem; overflow: hidden; border: 1px solid #5c4a32; }
+.subject-bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--house), var(--gold)); }
+.quit-actions { display: flex; gap: .6rem; justify-content: center; margin-top: 1rem; }
+.quit-actions .big-btn { min-width: 7.5rem; }
+body.academy-home .quiz-banner { height: 132px; }
 body.lesson-mode .mascot,
 body.lesson-mode .speech-bubble,
 body.lesson-mode .shelf-card,
 body.lesson-mode .brand-kicker,
 body.lesson-mode .game-subtitle,
-body.lesson-mode #ask,
 body.lesson-mode #practiceBtn { display: none !important; }
 body.lesson-mode .game-root { padding-bottom: calc(8rem + env(safe-area-inset-bottom, 0px)); max-width: 760px; }
 body.lesson-mode .prompt-row { margin-bottom: 0; }
@@ -447,8 +464,9 @@ body.feedback-open #progress { display: none !important; }
   <img class="quiz-banner" id="quizBanner" alt="" hidden>
   <header class="topbar">
     <div class="pills" aria-label="Streak and points">
-      <span class="pill" id="streakPill" title="Days in a row">🔥 0</span>
+      <span class="pill" id="streakPill" title="Days in a row">🔥 0 days</span>
       <span class="pill" id="xpPill" title="Experience">✦ 0</span>
+      <button class="pill" id="soundBtn" type="button" aria-pressed="true">Sound</button>
       <span class="pill" id="heartsPill" hidden title="Hearts">♥♥♥♥♥</span>
     </div>
     <div class="activity-menu-wrap">
@@ -569,6 +587,16 @@ body.feedback-open #progress { display: none !important; }
 <div class="check-bar" id="checkBar" hidden>
   <button class="big-btn" id="checkBtn" type="button">Check</button>
 </div>
+<div id="quitAsk" hidden>
+  <div class="modal-backdrop"><div class="reward-modal" role="dialog" aria-modal="true" aria-labelledby="quitTitle">
+    <h3 class="reward-name" id="quitTitle">Leave this lesson?</h3>
+    <p class="reward-tagline" id="quitBody">Correct answers stay saved.</p>
+    <div class="quit-actions">
+      <button class="big-btn" id="quitStay" type="button">Stay</button>
+      <button class="mode-btn" id="quitGo" type="button">Leave</button>
+    </div>
+  </div></div>
+</div>
 <div id="modal"></div>
 
 <script src="lib/d3.min.js"></script>
@@ -603,6 +631,7 @@ function ctx() {
   return audioCtx;
 }
 function tone(freq, delay, dur, type = "sine", vol = .22) {
+  if (!soundOn()) return;
   const c = ctx(); if (!c) return;
   const t = c.currentTime + delay, o = c.createOscillator(), g = c.createGain();
   o.type = type; o.frequency.setValueAtTime(freq, t);
@@ -666,12 +695,48 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
 };
+const COPY = {
+  en: {
+    check: "Check", continue: "Continue", leaveTitle: "Leave this lesson?",
+    leaveBody: "Correct answers stay saved.", stay: "Stay", leave: "Leave",
+    correct: "Correct!", wrong: "Not quite!", lessonDone: "Lesson complete",
+    heartsOut: "Out of hearts", keep: "Keep practicing", days: "days",
+    lesson: "Lesson", ask: "Ask Rowan for a hint",
+    exploreOn: "Exploring… tap to quiz", exploreOff: "Explore",
+    tagsOn: "Hide name tags", tagsOff: "Name tags",
+    soundOn: "Sound", soundOff: "Muted",
+    missedNote: "Missed questions stay on this lesson until you land them.",
+    accurate: "accurate", back: "← Academy",
+    homeSub: "Pick a subject. Each one unlocks on its own.",
+    youTapped: "You tapped ", answerIs: ". The answer is ", thats: "That's ",
+  },
+  fr: {
+    check: "Vérifier", continue: "Continuer", leaveTitle: "Quitter la leçon ?",
+    leaveBody: "Les bonnes réponses restent enregistrées.", stay: "Rester", leave: "Quitter",
+    correct: "Juste !", wrong: "Pas tout à fait.", lessonDone: "Leçon terminée",
+    heartsOut: "Plus de vies", keep: "À retravailler", days: "jours",
+    lesson: "Leçon", ask: "Demander un indice à Rowan",
+    exploreOn: "Exploration… toucher pour le quiz", exploreOff: "Explorer",
+    tagsOn: "Masquer les noms", tagsOff: "Noms",
+    soundOn: "Son", soundOff: "Muet",
+    missedNote: "Les questions manquées restent dans cette leçon.",
+    accurate: "de justes", back: "← Académie",
+    homeSub: "Choisis une matière. Chacune avance toute seule.",
+    youTapped: "Tu as choisi ", answerIs: ". La réponse est ", thats: "C'est ",
+  },
+};
+function uiLang() {
+  return test && (test.key === "vocab-fr" || test.key === "conj") ? "fr" : "en";
+}
+function L(key) { return COPY[uiLang()][key]; }
+function soundOn() { return store.get("wqa-sound", "on") !== "off"; }
 function listNames(names) {
   if (names.length <= 1) return names.join("");
   return names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
 }
 function fireConfetti(big) {
   if (typeof confetti !== "function") return;
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const colors = ["#e2b657", "#8c1c2c", "#1f6b4a", "#1e4d8c", "#ffd78a"];
   confetti({ particleCount: big ? 180 : 60, spread: big ? 110 : 70, origin: { y: .6 }, colors });
   if (big) {
@@ -1232,10 +1297,11 @@ function setBrand(text) {
   el.hidden = !text;
 }
 function questionPosition() {
-  if (!S.lesson || !S.lesson.ids || !S.lesson.ids.length) return null;
-  const total = S.lesson.ids.length;
-  const left = (S.lesson.queue && S.lesson.queue.length) || 0;
-  const pos = left ? Math.min(total, total - left + 1) : total;
+  if (!S.lesson || !S.lesson.queue) return null;
+  const left = S.lesson.queue.length || 0;
+  const answered = S.lesson.answered || 0;
+  const total = Math.max(1, answered + left);
+  const pos = left ? answered + 1 : total;
   return { pos, total, text: "Question " + pos + "/" + total };
 }
 function showBanner(key) {
@@ -1262,7 +1328,7 @@ function showAcademy() {
   document.title = "Wizard's Quiz Academy";
   setBrand("");
   $("title").textContent = "Wizard's Quiz Academy";
-  setSubtitle("");
+  setSubtitle(L("homeSub"));
   showBanner("home");
   $("play").hidden = true;
   $("summary").hidden = true;
@@ -1515,7 +1581,7 @@ function relicRemaining(spec, foundCount) {
   return into === 0 ? every : every - into;
 }
 function relicHomeIntro() {
-  return "You earn a relic by getting new questions right. A question you already knew does not count again, and finishing a lesson does not hand you one by itself.\n\nUS states and Japanese prefectures: one relic every 8 new correct answers (8, 16, 24, 32, 40, 48).\nFrench regions: one relic every 3 (3, 6, 9, 12, 15, 18).\nEnglish, French, numbers, and verbs: one relic every 15 (15, 30, 45, 60, 75, 90).\nThe mixed course, on its own: one relic every 40.\n\nOn a map, finding the last place also unlocks any relic still locked.";
+  return "You earn a relic by getting new questions right. A question you already knew does not count again, and finishing a lesson does not hand you one by itself.\n\nUS states and Japanese prefectures: one relic every 8 new correct answers (8, 16, 24, 32, 40, 48).\nFrench regions: one relic every 3 (3, 6, 9, 12, 15, 18).\nEnglish, French, numbers, and verbs: one relic every 15 (15, 30, 45, 60, 75, 90).\n\nOn a map, finding the last place also unlocks any relic still locked.";
 }
 function relicRuleSentence(spec) {
   const mapExtra = spec.kind === "map"
@@ -1528,11 +1594,29 @@ function relicProgressRule(spec) {
 }
 function relicSummaryNote(spec, foundCount, earnedNow) {
   const left = relicRemaining(spec, foundCount);
-  if (left === 0) return "Every relic in " + spec.title + " is unlocked. Each one came from " + spec.perLevel + " new correct answers.";
-  const head = earnedNow
-    ? "You earned this relic by reaching " + spec.perLevel + " new correct answers, not just by finishing the lesson."
-    : "No new relic this time.";
-  return head + " One relic every " + spec.perLevel + " new correct answers in " + spec.title + ". " + left + " more new correct answers until the next.";
+  const fr = uiLang() === "fr";
+  if (left === 0) return fr ? "Toutes les reliques de " + spec.title + " sont débloquées." : "Every relic in " + spec.title + " is unlocked.";
+  if (earnedNow) return fr
+    ? "Nouvelle relique. Encore " + left + " bonnes réponses nouvelles pour la suivante."
+    : "New relic. " + left + " more new correct answers for the next.";
+  return fr
+    ? "Encore " + left + " bonnes réponses nouvelles avant la prochaine relique."
+    : left + " more new correct answers until the next relic.";
+}
+function mapCoach(t) {
+  if (!t || t.kind !== "map") return "";
+  const bits = [];
+  if (t.region) bits.push(t.name + " is in " + t.region + ".");
+  try {
+    const pack = ensureMap(t.map);
+    const geo = t.geoId || t.id;
+    const names = (pack.neighbours.get(geo) || []).map(id => {
+      const row = basePlace(t.map, id);
+      return row && row.name;
+    }).filter(Boolean);
+    if (names.length) bits.push("It touches " + names[0] + ".");
+  } catch (e) {}
+  return bits.join(" ");
 }
 function noteRelic() {
   if (S.found.size % test.perLevel !== 0) return;
@@ -1646,8 +1730,12 @@ function advanceAfterLock() {
   S.hintHide = null;
   S.pendingReward = null;
   if (S.lesson) {
+    const qNow = current();
+    const ok = qNow && (qNow.kind === "map" ? S.picked === qNow.name : S.picked === qNow.answer);
+    const qid = S.lesson.queue[0];
     S.lesson.answered++;
     S.lesson.queue.shift();
+    if (!ok && S.lesson.hearts > 0 && qid) S.lesson.queue.push(qid);
     if (!S.lesson.queue.length || S.lesson.hearts <= 0) return finishLesson();
     S.message = "Onward, apprentice.";
     return render();
@@ -1793,12 +1881,12 @@ function render() {
   $("target").innerHTML = showTarget ? `${S.practice ? `Practice (${S.practiceQueue.length} left): ` : findPrefix}<strong>${esc(t.name)}</strong>` : "";
   $("target").hidden = !showTarget;
 
-  if (questionKind() === "map" && showTarget) {
+  if (questionKind() === "map" && t && !S.won && !S.explore && !S.locked) {
     $("ask").innerHTML = S.askOpen
       ? `<div class="ask-panel"><div class="ask-quick">${HINTS.map((h, i) => `<button class="ask-chip" type="button" data-hint="${i}">${h.label}</button>`).join("")}</div>
          ${S.askAnswer ? `<p class="ask-answer" aria-live="polite">${esc(S.askAnswer)}</p>` : ""}
          <button class="ask-close" type="button" data-ask="close">Close</button></div>`
-      : `<button class="mode-btn ask-row" type="button" data-ask="open">Ask Rowan for a hint</button>`;
+      : `<button class="mode-btn ask-row" type="button" data-ask="open">${esc(L("ask"))}</button>`;
   } else if (questionKind() === "mcq" && t && !S.won && !S.locked) {
     $("ask").innerHTML = S.hintHide
       ? ""
@@ -1811,10 +1899,10 @@ function render() {
   tb.hidden = !mapNow;
   eb.className = `mode-btn ${S.explore ? "mode-btn-active" : ""}`;
   eb.setAttribute("aria-pressed", String(S.explore));
-  eb.textContent = S.explore ? "Exploring… tap to quiz" : "Explore";
+  eb.textContent = S.explore ? L("exploreOn") : L("exploreOff");
   tb.className = `mode-btn ${S.tags ? "mode-btn-active" : ""}`;
   tb.setAttribute("aria-pressed", String(S.tags));
-  tb.textContent = S.tags ? "Hide name tags" : "Name tags";
+  tb.textContent = S.tags ? L("tagsOn") : L("tagsOff");
   pb.className = `mode-btn ${S.practice ? "mode-btn-active" : ""}`;
   pb.setAttribute("aria-pressed", String(S.practice));
   pb.disabled = !S.practice && S.missed.size === 0;
@@ -2030,8 +2118,15 @@ function slotDone(type, lessonNumber, ids, foundSet) {
 function updatePills() {
   const day = store.get("wqa-day-streak", { n: 0 });
   const streak = $("streakPill"), xp = $("xpPill"), hearts = $("heartsPill");
-  if (streak) streak.textContent = "🔥 " + (day.n || 0);
+  if (streak) streak.textContent = "🔥 " + (day.n || 0) + " " + (test && uiLang() === "fr" ? COPY.fr.days : COPY.en.days);
   if (xp) xp.textContent = "✦ " + totalXp();
+  const sound = $("soundBtn");
+  if (sound) {
+    const on = soundOn();
+    sound.textContent = on ? L("soundOn") : L("soundOff");
+    sound.setAttribute("aria-pressed", String(on));
+    sound.title = on ? "Sound on" : "Sound off";
+  }
   if (!hearts) return;
   if (view === "lesson" && S.lesson) {
     hearts.hidden = false;
@@ -2135,6 +2230,7 @@ function renderPath() {
   $("title").textContent = test.title;
   setSubtitle(test.subtitle);
   showBanner(test.key);
+  if ($("backBtn")) { $("backBtn").hidden = false; $("backBtn").textContent = L("back"); }
   const plan = buildPlan();
   const stars = store.get(`wqa-${test.key}-lesson-stars`, {});
   const flat = [];
@@ -2155,7 +2251,8 @@ function renderPath() {
       const num = ls.number || (i + 1);
       const badge = done ? (st >= 3 ? "♛" : "★".repeat(Math.max(st, 1))) : "";
       const owl = isCurrent ? `<span class="node-owl">${owlSVG({ scarf: HOUSES[currentHouse].scarf })}</span>` : "";
-      html += `<div class="node-slot ${side}"><button class="${cls}" type="button" data-lesson="${ls.index}" data-replay="${done ? "1" : "0"}"${locked ? " disabled" : ""} aria-label="Leçon ${num}${done ? ", complete" : isCurrent ? ", current" : ", locked"}">${owl}<span class="node-mark">${num}</span>${badge ? `<span class="node-badge">${badge}</span>` : ""}</button><span class="node-caption">Leçon ${num}</span></div>`;
+      const lessonLabel = L("lesson") + " " + num;
+      html += `<div class="node-slot ${side}"><button class="${cls}" type="button" data-lesson="${ls.index}" data-replay="${done ? "1" : "0"}"${locked ? " disabled" : ""} aria-label="${esc(lessonLabel)}${done ? ", complete" : isCurrent ? ", current" : ", locked"}">${owl}<span class="node-mark">${num}</span>${badge ? `<span class="node-badge">${badge}</span>` : ""}</button><span class="node-caption">${esc(lessonLabel)}</span></div>`;
       i++;
     });
     html += `</div></section>`;
@@ -2170,28 +2267,28 @@ function renderPath() {
   }
   updatePills();
 }
+function subjectProgress(type) {
+  const session = typeSession(type);
+  let done = 0;
+  for (let n = 1; n <= 20; n++) {
+    const ids = typeLessonIds(type, n);
+    if (slotDone(type, n, ids, session.found)) done++;
+    else break;
+  }
+  return { done, next: done >= 20 ? 20 : done + 1, total: 20, score: session.score || 0 };
+}
 function renderHomePath() {
   document.body.classList.add("academy-home");
   migrateMixed();
-  const nodes = homeNodes();
-  let html = "";
-  let lesson = 0;
-  nodes.forEach((nd, i) => {
-    if (nd.lesson !== lesson) {
-      if (lesson) html += `</div></section>`;
-      lesson = nd.lesson;
-      html += `<section class="unit"><h2 class="unit-title">Leçon ${lesson}</h2><div class="path">`;
-    }
-    const stars = store.get(`wqa-${nd.type}-lesson-stars`, {});
-    const st = stars[nd.lesson] || 0;
-    const side = i % 3 === 0 ? "node-left" : i % 3 === 1 ? "node-mid" : "node-right";
-    const cls = ["node", nd.done ? "node-done" : "", nd.current ? "node-current" : "", nd.locked ? "node-locked" : ""].filter(Boolean).join(" ");
-    const badge = nd.done ? (st >= 3 ? "♛" : "★".repeat(Math.max(st, 1))) : "";
-    const owl = nd.showOwl ? `<span class="node-owl">${owlSVG({ scarf: HOUSES[currentHouse].scarf })}</span>` : "";
-    const label = `Leçon ${nd.lesson} · Niveau ${nd.niveau} · ${TYPE_SHORT[nd.type]}`;
-    html += `<div class="node-slot ${side}"><button class="${cls}" type="button" data-type="${nd.type}" data-lecon="${nd.lesson}" data-replay="${nd.done ? "1" : "0"}"${nd.locked ? " disabled" : ""} aria-label="${esc(label)}">${owl}<span class="node-mark node-icon" aria-hidden="true">${TYPE_ICON[nd.type]}</span>${badge ? `<span class="node-badge">${badge}</span>` : ""}</button><span class="node-caption">Niveau ${nd.niveau}</span><span class="node-caption">${esc(TYPE_SHORT[nd.type])}</span></div>`;
-  });
-  if (lesson) html += `</div></section>`;
+  const html = `<div class="subject-list">` + MIX_SOURCES.map(type => {
+    const spec = TESTS[type];
+    const prog = subjectProgress(type);
+    const width = Math.round(prog.done / prog.total * 100);
+    const meta = prog.done >= 20
+      ? "Finished · " + prog.score + " XP"
+      : "Lesson " + prog.next + " of " + prog.total + " · " + prog.score + " XP";
+    return `<button class="subject-card" type="button" data-course="${type}"><span class="subject-ico" aria-hidden="true">${TYPE_ICON[type]}</span><span class="subject-copy"><strong>${esc(spec.title)}</strong><span class="subject-meta">${esc(meta)}</span><span class="subject-bar" aria-hidden="true"><span style="width:${width}%"></span></span></span></button>`;
+  }).join("") + `</div>`;
   $("path").innerHTML = html;
   paintMascots();
   settleHomeScroll();
@@ -2236,7 +2333,7 @@ function renderRelics() {
         const owned = unlocked.has(r.level);
         return `<article class="relic-card ${owned ? "relic-owned" : "relic-locked"}">${relicSVG(r.kind, r.accent)}<h3>${owned ? esc(r.name) : "Locked"}</h3><p>${esc(spec.title)}</p></article>`;
       }).join("");
-      return cards;
+      return `<section class="relic-group"><h3>${esc(spec.title)}</h3><div class="relic-grid">${cards}</div></section>`;
     }).join("");
     return;
   }
@@ -2260,14 +2357,23 @@ function renderProfile() {
   }).join("");
   $("profileStats").innerHTML = `<p class="profile-line">Day streak <b>${day.n || 0}</b></p><p class="profile-line">Total XP <b>${totalXp()}</b></p><ul class="profile-list">${rows}</ul>`;
 }
+function sittingIds(ids, replay) {
+  const all = ids.slice();
+  if (replay) return shuffle(all);
+  const todo = all.filter(id => !S.found.has(id));
+  return shuffle(todo.length ? todo : all);
+}
 function startLesson(index, ids, replay) {
   if (!ids || !ids.length) return;
+  const queue = sittingIds(ids, replay);
+  if (!queue.length) return;
   sfx.click();
-  S.lesson = { index, ids: ids.slice(), queue: ids.slice(), replay: !!replay, review: false, correct: 0, answered: 0, xp: 0, hearts: 5, relics: [] };
+  S.lesson = { index, ids: ids.slice(), queue, replay: !!replay, review: false, correct: 0, answered: 0, xp: 0, hearts: 5, relics: [] };
   S.locked = false; S.picked = null; S.selected = null; S.selectedGeo = null;
   S.choiceFor = null; S.hintHide = null; S.explore = false; S.practice = false;
   S.reward = null; S.party = false; S.pendingReward = null; S.askOpen = false;
   view = "lesson";
+  if ($("backBtn")) $("backBtn").hidden = true;
   $("learnPane").hidden = true;
   $("summary").hidden = true;
   $("relicsPane").hidden = true;
@@ -2286,6 +2392,8 @@ function startReview() {
   if (S.lesson) S.lesson.review = true;
 }
 function quitLesson() {
+  const ask = $("quitAsk");
+  if (ask) ask.hidden = true;
   S.lesson = null;
   S.locked = false; S.selected = null; S.selectedGeo = null; S.picked = null;
   view = "learn";
@@ -2313,7 +2421,7 @@ function finishLesson() {
     const all = store.get(`wqa-${test.key}-lesson-stars`, {});
     if (stars > (all[lesson.index] || 0)) { all[lesson.index] = stars; store.set(`wqa-${test.key}-lesson-stars`, all); }
   }
-  bumpDayStreak();
+  if (complete) bumpDayStreak();
   const xp = lesson.xp || 0;
   const relics = lesson.relics || [];
   const heartsOut = lesson.hearts <= 0 && lesson.queue.length > 0;
@@ -2334,11 +2442,11 @@ function finishLesson() {
   if ($("questionCount")) $("questionCount").hidden = true;
   $("bottomNav").hidden = false;
   $("summaryOwl").innerHTML = owlSVG({ scarf: HOUSES[currentHouse].scarf });
-  $("summaryTitle").textContent = heartsOut ? "Out of hearts" : (complete ? "Lesson complete" : "Keep practicing");
+  $("summaryTitle").textContent = heartsOut ? L("heartsOut") : (complete ? L("lessonDone") : L("keep"));
   $("summaryXp").textContent = "+" + xp + " XP";
-  $("summaryAcc").textContent = Math.round(acc * 100) + "% accurate" + (stars ? " · " + "★".repeat(stars) : "");
+  $("summaryAcc").textContent = Math.round(acc * 100) + "% " + L("accurate") + (stars ? " · " + "★".repeat(stars) : "");
   const relicNote = relicSummaryNote(test, S.found.size, relics.length > 0);
-  const missedNote = !relics.length && !complete ? `<p class="summary-note">Missed questions stay on this lesson until you land them.</p>` : "";
+  const missedNote = !relics.length && !complete ? `<p class="summary-note">${esc(L("missedNote"))}</p>` : "";
   $("summaryRelics").innerHTML = (relics.length
     ? relics.map(r => `<div class="summary-relic">${relicSVG(r.kind, r.accent)}<p>${esc(r.name)}</p><p>${esc(r.tagline)}</p></div>`).join("")
     : "") + missedNote + `<p class="summary-note">${esc(relicNote)}</p>`;
@@ -2388,12 +2496,13 @@ function syncLessonChrome() {
       fb.className = "feedback " + (ok ? "feedback-ok" : "feedback-no");
       const answer = mapQ ? t.name : t.answer;
       const explain = (t.explain || "").trim();
+      const coach = mapQ ? mapCoach(t) : "";
       const generic = answer + " is the place to tap.";
       const useful = explain && explain !== generic && explain !== answer;
-      $("feedbackTitle").textContent = ok ? "Correct!" : "Not quite!";
+      $("feedbackTitle").textContent = ok ? L("correct") : L("wrong");
       $("feedbackBody").textContent = ok
-        ? (useful ? explain : "That's " + answer + ".")
-        : "You tapped " + S.picked + ". The answer is " + answer + "." + (useful && !mapQ ? " " + explain : "");
+        ? (mapQ && coach ? coach : (useful ? explain : L("thats") + answer + "."))
+        : L("youTapped") + S.picked + L("answerIs") + answer + "." + ((mapQ && coach) || (!mapQ && useful) ? " " + (mapQ ? coach : explain) : "");
       const ex = $("feedbackExample");
       const line = exampleSentence(t);
       if (ex) { ex.hidden = !line; ex.textContent = line; }
@@ -2407,7 +2516,12 @@ function syncLessonChrome() {
     bar.hidden = !!S.explore;
     const ready = mapQ ? S.selectedGeo != null : !!S.selected;
     $("checkBtn").disabled = !ready;
+    $("checkBtn").textContent = L("check");
   }
+  const cont = $("continueBtn");
+  if (cont) cont.textContent = L("continue");
+  const again = $("summaryContinue");
+  if (again) again.textContent = L("continue");
   updatePills();
 }
 
@@ -2491,6 +2605,12 @@ function onTestClick(e) {
   if (b) switchTo(b.dataset.test);
 }
 $("learnPane").addEventListener("click", e => {
+  const courseBtn = e.target.closest("[data-course]");
+  if (courseBtn) {
+    sfx.click();
+    selectTest(courseBtn.dataset.course);
+    return;
+  }
   const levelBtn = e.target.closest("[data-type]");
   if (levelBtn && !levelBtn.disabled) {
     openHomeLevel(levelBtn.dataset.type, +levelBtn.dataset.lecon, levelBtn.dataset.replay === "1");
@@ -2516,7 +2636,21 @@ $("bottomNav").addEventListener("click", e => {
   if (view === "summary") { view = "learn"; $("summary").hidden = true; }
   showTab(b.dataset.tab);
 });
-$("quitLesson").addEventListener("click", quitLesson);
+$("quitLesson").addEventListener("click", () => {
+  if (view !== "lesson" || !S.lesson) return;
+  $("quitTitle").textContent = L("leaveTitle");
+  $("quitBody").textContent = L("leaveBody");
+  $("quitStay").textContent = L("stay");
+  $("quitGo").textContent = L("leave");
+  $("quitAsk").hidden = false;
+});
+$("quitStay").addEventListener("click", () => { $("quitAsk").hidden = true; });
+$("quitGo").addEventListener("click", quitLesson);
+$("soundBtn").addEventListener("click", () => {
+  store.set("wqa-sound", soundOn() ? "off" : "on");
+  updatePills();
+  if (soundOn()) sfx.click();
+});
 $("checkBtn").addEventListener("click", checkAnswer);
 $("continueBtn").addEventListener("click", continueQuestion);
 $("summaryContinue").addEventListener("click", () => {
