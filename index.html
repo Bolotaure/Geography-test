@@ -468,6 +468,7 @@ body.feedback-open #progress { display: none !important; }
 }
 @media (prefers-reduced-motion: reduce) {
   .mascot-bob, .mascot-party, .home-owl, .shelf-owned, .node-current, .feedback { animation: none; }
+  #fadeVeil { transition: none; }
 }
 @media (orientation: landscape) and (pointer: coarse) {
   #portraitGate { display: flex; }
@@ -478,6 +479,10 @@ body.feedback-open #progress { display: none !important; }
   background: var(--night); color: var(--parchment);
   flex-direction: column; align-items: center; justify-content: center;
   gap: .8rem; text-align: center; padding: 2rem;
+}
+#fadeVeil {
+  position: fixed; inset: 0; z-index: 70; background: #000;
+  opacity: 0; pointer-events: none; transition: opacity .4s linear;
 }
 .portrait-icon { color: var(--gold); }
 .portrait-title { font-family: var(--font-display); font-size: 1.6rem; color: var(--candle); }
@@ -490,6 +495,7 @@ body.feedback-open #progress { display: none !important; }
   <p class="portrait-title">Portrait only</p>
   <p class="portrait-note">Turn your device upright to keep playing.</p>
 </div>
+<div id="fadeVeil" aria-hidden="true"></div>
 <div class="game-root">
   <img class="quiz-banner" id="quizBanner" alt="" hidden>
   <header class="topbar">
@@ -1413,6 +1419,23 @@ function showAcademy() {
   renderHomePath();
   const reset = $("resetQuiz");
   if (reset) reset.textContent = "Reset a quiz";
+}
+
+let fading = false;
+function fadeThrough(next) {
+  const veil = $("fadeVeil");
+  const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!veil || fading || reduce) return next();
+  fading = true;
+  veil.style.pointerEvents = "auto";
+  veil.style.opacity = "1";
+  setTimeout(() => {
+    next();
+    setTimeout(() => {
+      veil.style.opacity = "0";
+      setTimeout(() => { veil.style.pointerEvents = "none"; fading = false; }, 420);
+    }, 220);
+  }, 420);
 }
 
 function mcqPlace(q, extra) {
@@ -2700,7 +2723,7 @@ $("learnPane").addEventListener("click", e => {
   const courseBtn = e.target.closest("[data-course]");
   if (courseBtn) {
     sfx.click();
-    selectTest(courseBtn.dataset.course);
+    fadeThrough(() => selectTest(courseBtn.dataset.course));
     return;
   }
   const levelBtn = e.target.closest("[data-type]");
