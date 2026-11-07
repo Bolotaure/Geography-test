@@ -68,6 +68,7 @@ button:disabled:not(.choice-right):not(.choice-wrong) { opacity: .45; }
   margin-left: calc(50% - 50vw); object-fit: cover; object-position: center 42%;
   border-bottom: 3px solid var(--gold-deep);
 }
+body.academy-home .course-head { order: -1; padding-top: .85rem; }
 .brand-kicker { letter-spacing: .16em; text-transform: uppercase; font-size: .72rem; color: var(--gold); font-weight: 700; }
 .game-title { font-family: var(--font-display); color: var(--candle); font-size: clamp(1.7rem, 4vw, 2.6rem); font-weight: 800; line-height: 1.15; text-shadow: 0 2px 0 #0006; }
 .game-subtitle { color: #eadcc0; font-size: clamp(.95rem, 2.4vw, 1.12rem); margin-top: .2rem; }
@@ -477,7 +478,7 @@ body.feedback-open #progress { display: none !important; }
   <p class="lesson-prompt" id="lessonPrompt" hidden></p>
   <dl class="activity-stats" aria-label="Quiz progress" id="stats" hidden></dl>
 
-  <section id="home" aria-label="Learning path">
+  <section id="learnPane" aria-label="Learning path">
     <div class="path-wrap" id="path"></div>
   </section>
 
@@ -1273,7 +1274,7 @@ function showAcademy() {
   $("checkBar").hidden = true;
   $("feedback").hidden = true;
   $("bottomNav").hidden = false;
-  $("home").hidden = false;
+  $("learnPane").hidden = false;
   $("relicsPane").hidden = true;
   $("profilePane").hidden = true;
   document.querySelectorAll("[data-tab]").forEach(b => {
@@ -1390,7 +1391,7 @@ function selectTest(key) {
   places = catalogFor(key);
   if (!places.length) {
     $("play").hidden = false;
-    $("home").hidden = true;
+    $("learnPane").hidden = true;
     $("quizCard").hidden = false;
     $("quizCard").innerHTML = `<p class="map-loading">The question chest did not open. Reload the page.</p>`;
     return;
@@ -1766,6 +1767,7 @@ const HINTS = [
 
 let lastTarget = null;
 function render() {
+  document.body.classList.remove("academy-home");
   if (!test) return;
   const t = current();
   if ((t?.id ?? null) !== lastTarget) { S.askAnswer = null; lastTarget = t?.id ?? null; }
@@ -2085,10 +2087,17 @@ function homeNodes() {
       nodes.push({ lesson, niveau: i + 1, type, ids, done });
     });
   }
-  const current = nodes.findIndex(nd => !nd.done);
-  nodes.forEach((nd, i) => {
-    nd.current = current === i;
-    nd.locked = !nd.done && (current === -1 ? false : i > current);
+  const doneThrough = {};
+  nodes.forEach(nd => {
+    if (nd.done) doneThrough[nd.type] = Math.max(doneThrough[nd.type] || 0, nd.lesson);
+  });
+  let owlPlaced = false;
+  nodes.forEach(nd => {
+    const open = nd.lesson === 1 || (doneThrough[nd.type] || 0) >= nd.lesson - 1;
+    nd.locked = !nd.done && !open;
+    nd.current = !nd.done && !nd.locked;
+    nd.showOwl = nd.current && !owlPlaced;
+    if (nd.showOwl) owlPlaced = true;
   });
   return nodes;
 }
@@ -2100,7 +2109,7 @@ function lessonByIndex(index) {
 function showTab(name) {
   tab = name;
   const inLesson = view === "lesson";
-  $("home").hidden = inLesson || name !== "learn";
+  $("learnPane").hidden = inLesson || name !== "learn";
   $("relicsPane").hidden = inLesson || name !== "relics";
   $("profilePane").hidden = inLesson || name !== "profile";
   $("play").hidden = view !== "lesson";
@@ -2119,6 +2128,7 @@ function showTab(name) {
   updatePills();
 }
 function renderPath() {
+  document.body.classList.remove("academy-home");
   if (!test) return;
   document.title = test.title + " · Wizard's Quiz Academy";
   setBrand("Wizard's Quiz Academy");
@@ -2161,6 +2171,7 @@ function renderPath() {
   updatePills();
 }
 function renderHomePath() {
+  document.body.classList.add("academy-home");
   migrateMixed();
   const nodes = homeNodes();
   let html = "";
@@ -2176,19 +2187,29 @@ function renderHomePath() {
     const side = i % 3 === 0 ? "node-left" : i % 3 === 1 ? "node-mid" : "node-right";
     const cls = ["node", nd.done ? "node-done" : "", nd.current ? "node-current" : "", nd.locked ? "node-locked" : ""].filter(Boolean).join(" ");
     const badge = nd.done ? (st >= 3 ? "♛" : "★".repeat(Math.max(st, 1))) : "";
-    const owl = nd.current ? `<span class="node-owl">${owlSVG({ scarf: HOUSES[currentHouse].scarf })}</span>` : "";
+    const owl = nd.showOwl ? `<span class="node-owl">${owlSVG({ scarf: HOUSES[currentHouse].scarf })}</span>` : "";
     const label = `Leçon ${nd.lesson} · Niveau ${nd.niveau} · ${TYPE_SHORT[nd.type]}`;
     html += `<div class="node-slot ${side}"><button class="${cls}" type="button" data-type="${nd.type}" data-lecon="${nd.lesson}" data-replay="${nd.done ? "1" : "0"}"${nd.locked ? " disabled" : ""} aria-label="${esc(label)}">${owl}<span class="node-mark node-icon" aria-hidden="true">${TYPE_ICON[nd.type]}</span>${badge ? `<span class="node-badge">${badge}</span>` : ""}</button><span class="node-caption">Niveau ${nd.niveau}</span><span class="node-caption">${esc(TYPE_SHORT[nd.type])}</span></div>`;
   });
   if (lesson) html += `</div></section>`;
   $("path").innerHTML = html;
   paintMascots();
-  const node = document.querySelector(".node-current");
-  if (node) {
-    const top = node.getBoundingClientRect().top;
-    if (top < 70 || top > window.innerHeight - 140) node.scrollIntoView({ block: "center", behavior: "auto" });
-  }
+  settleHomeScroll();
   updatePills();
+}
+function settleHomeScroll() {
+  const apply = () => {
+    if (!document.body.classList.contains("academy-home")) return;
+    const node = document.querySelector("#learnPane .node-current");
+    if (node && node.dataset.lecon && node.dataset.lecon !== "1") {
+      const top = node.getBoundingClientRect().top;
+      if (top < 70 || top > window.innerHeight - 140) node.scrollIntoView({ block: "center", behavior: "auto" });
+      return;
+    }
+    window.scrollTo(0, 0);
+  };
+  apply();
+  if (document.readyState !== "complete") window.addEventListener("load", apply, { once: true });
 }
 function openHomeLevel(type, lesson, replay) {
   if (!TESTS[type]) return;
@@ -2247,7 +2268,7 @@ function startLesson(index, ids, replay) {
   S.choiceFor = null; S.hintHide = null; S.explore = false; S.practice = false;
   S.reward = null; S.party = false; S.pendingReward = null; S.askOpen = false;
   view = "lesson";
-  $("home").hidden = true;
+  $("learnPane").hidden = true;
   $("summary").hidden = true;
   $("relicsPane").hidden = true;
   $("profilePane").hidden = true;
@@ -2302,7 +2323,7 @@ function finishLesson() {
   tab = "learn";
   document.body.classList.remove("lesson-mode", "feedback-open");
   $("play").hidden = true;
-  $("home").hidden = true;
+  $("learnPane").hidden = true;
   $("relicsPane").hidden = true;
   $("profilePane").hidden = true;
   $("summary").hidden = false;
@@ -2469,7 +2490,7 @@ function onTestClick(e) {
   const b = e.target.closest("[data-test]");
   if (b) switchTo(b.dataset.test);
 }
-$("home").addEventListener("click", e => {
+$("learnPane").addEventListener("click", e => {
   const levelBtn = e.target.closest("[data-type]");
   if (levelBtn && !levelBtn.disabled) {
     openHomeLevel(levelBtn.dataset.type, +levelBtn.dataset.lecon, levelBtn.dataset.replay === "1");

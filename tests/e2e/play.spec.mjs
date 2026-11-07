@@ -129,14 +129,15 @@ async function expectBanner(page, played) {
   return banner;
 }
 
-async function finishNode(page, { wrongFirst = false, expectInfo = false } = {}) {
+async function finishNode(page, { wrongFirst = false, expectInfo = false, reenter } = {}) {
   if (wrongFirst) {
     const played = await answerCurrent(page, { wrong: true });
     const banner = await expectBanner(page, played);
     if (expectInfo) expect(banner.info).toBeGreaterThan(0);
     await page.click("#quitLesson");
-    await page.waitForSelector(".node-current:not([disabled])");
-    await page.locator(".node-current").click({ force: true });
+    const again = page.locator(reenter || ".node-current:not([disabled])").first();
+    await again.waitFor();
+    await again.click({ force: true });
   }
   for (let i = 0; i < 5; i++) {
     const played = await answerCurrent(page);
@@ -197,14 +198,11 @@ test("home path alternates types and plays every lesson", async ({ page }) => {
       await page.waitForSelector(selector);
       await page.locator(selector).click({ force: true });
       const wrongFirst = lesson === 1 && (type === "fr" || type === "vocab-en");
-      await finishNode(page, { wrongFirst, expectInfo: type === "vocab-en" });
-      if (lesson === 1 && i < 6) {
-        await expect(page.locator('button[data-lecon="2"][data-type="us"]')).toBeDisabled();
-      }
+      await finishNode(page, { wrongFirst, expectInfo: type === "vocab-en", reenter: `button[data-type="${type}"][data-lecon="${lesson}"]` });
+      await expect(page.locator(`button[data-lecon="${Math.min(lesson + 1, 20)}"][data-type="${type}"]`)).toBeEnabled();
     }
-    if (lesson < 20) {
-      await expect(page.locator(`button[data-lecon="${lesson + 1}"][data-type="us"]`)).toBeEnabled();
-      await expect(page.locator(`button[data-lecon="${lesson + 1}"][data-type="fr"]`)).toBeDisabled();
+    if (lesson < 19) {
+      await expect(page.locator(`button[data-lecon="${lesson + 2}"][data-type="us"]`)).toBeDisabled();
     }
   }
 
@@ -353,7 +351,7 @@ test("question count follows the lesson and the home title is single", async ({ 
   await expect(page.locator("#homeOwl")).toHaveCount(0);
   await expect(page.locator(".node-current .node-owl")).toHaveCount(1);
 
-  await page.locator(".node-current").click({ force: true });
+  await page.locator('button[data-type="us"][data-lecon="1"]').click({ force: true });
   await expect(page.locator("#questionCount")).toBeVisible();
   await expect(page.locator("#questionCount")).toHaveText("Question 1/5");
   await answerCurrent(page);
@@ -496,6 +494,103 @@ test("old conjugation progress migrates once and keeps finished lessons", async 
   await page.goto("/index.html?mig=home#home", { waitUntil: "domcontentloaded" });
   await expect(page.locator('button[data-type="conj"][data-lecon="1"]')).toHaveClass(/node-done/);
   await expect(page.locator('button[data-type="conj"][data-lecon="2"]')).toHaveClass(/node-done/);
+  await expect(page.locator('button[data-type="conj"][data-lecon="3"]')).toBeEnabled();
   await expect(page.locator('button[data-type="conj"][data-lecon="3"]')).not.toHaveClass(/node-done/);
+  await expect(page.locator('button[data-type="conj"][data-lecon="4"]')).toBeDisabled();
+  for (const type of TYPE_ORDER) {
+    if (type === "conj") continue;
+    await expect(page.locator(`button[data-type="${type}"][data-lecon="1"]`)).toBeEnabled();
+    await expect(page.locator(`button[data-type="${type}"][data-lecon="2"]`)).toBeDisabled();
+  }
+  const keptScore = await page.evaluate(() => JSON.parse(localStorage.getItem("wqa-conj-session")).score);
+  expect(keptScore).toBe(800);
+  assertQuiet(errors);
+});
+
+test("subjects unlock independently and the home title sits above the banner", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "iphone", "home layout is checked on the phone viewport");
+  const errors = await fresh(page, "#home");
+  await page.waitForSelector('button[data-type="logic"][data-lecon="1"]');
+  for (const type of TYPE_ORDER) {
+    await expect(page.locator(`button[data-type="${type}"][data-lecon="1"]`)).toBeEnabled();
+    await expect(page.locator(`button[data-type="${type}"][data-lecon="1"]`)).not.toHaveClass(/node-locked/);
+    await expect(page.locator(`button[data-type="${type}"][data-lecon="2"]`)).toBeDisabled();
+  }
+  await expect(page.locator(".node-current")).toHaveCount(7);
+  await expect(page.locator(".node-owl")).toHaveCount(1);
+  await expect(page.locator("#homeOwl")).toHaveCount(0);
+  await expect(page.locator("#title")).toHaveText("Wizard's Quiz Academy");
+  await expect(page.locator("#brand")).toBeHidden();
+  const homeStack = await page.evaluate(() => {
+    const title = document.querySelector("#title").getBoundingClientRect();
+    const banner = document.querySelector("#quizBanner").getBoundingClientRect();
+    return { titleBottom: title.bottom, bannerTop: banner.top, titleTop: title.top };
+  });
+  expect(homeStack.titleTop).toBeGreaterThan(0);
+  expect(homeStack.titleBottom).toBeLessThan(homeStack.bannerTop);
+
+  await page.evaluate(() => {
+    const found = window.LOGIC_QUESTIONS.slice(0, 40).map(q => q.id);
+    const session = {
+      queue: [], found, score: 3100, streak: 4, misses: 1, missed: [],
+      unlocked: [1, 2], best: 3100, won: false, tags: false, lock: null,
+    };
+    localStorage.setItem("wqa-logic-session", JSON.stringify(session));
+    localStorage.setItem("wqa-logic-best", JSON.stringify(3100));
+    localStorage.setItem("wqa-logic-unlocked", JSON.stringify([1, 2]));
+    localStorage.setItem("wqa-logic-lesson-stars", JSON.stringify({ 1: 3, 2: 3, 3: 2, 8: 1 }));
+    localStorage.setItem("wqa-us-session", JSON.stringify({
+      queue: [], found: [], score: 640, streak: 0, misses: 0, missed: [],
+      unlocked: [1], best: 640, won: false, tags: false, lock: null,
+    }));
+    localStorage.setItem("wqa-us-best", JSON.stringify(640));
+    localStorage.setItem("wqa-us-unlocked", JSON.stringify([1]));
+    localStorage.setItem("wqa-conj-lesson-kept", JSON.stringify({ version: 1, lessons: [1] }));
+    localStorage.setItem("wqa-conj-cycle-migration", JSON.stringify({ version: 1, at: 1, exchanged: 0 }));
+  });
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.waitForSelector('button[data-type="logic"][data-lecon="9"]');
+  await expect(page.locator('button[data-type="logic"][data-lecon="8"]')).toHaveClass(/node-done/);
+  await expect(page.locator('button[data-type="logic"][data-lecon="9"]')).toBeEnabled();
+  await expect(page.locator('button[data-type="logic"][data-lecon="9"]')).toHaveClass(/node-current/);
+  await expect(page.locator('button[data-type="logic"][data-lecon="10"]')).toBeDisabled();
+  await expect(page.locator('button[data-type="conj"][data-lecon="1"]')).toHaveClass(/node-done/);
+  await expect(page.locator('button[data-type="conj"][data-lecon="2"]')).toBeEnabled();
+  await expect(page.locator('button[data-type="conj"][data-lecon="3"]')).toBeDisabled();
+  for (const type of ["us", "fr", "jp", "vocab-en", "vocab-fr"]) {
+    await expect(page.locator(`button[data-type="${type}"][data-lecon="1"]`)).toBeEnabled();
+    await expect(page.locator(`button[data-type="${type}"][data-lecon="1"]`)).not.toHaveClass(/node-locked/);
+    await expect(page.locator(`button[data-type="${type}"][data-lecon="2"]`)).toBeDisabled();
+  }
+  const saved = await page.evaluate(() => ({
+    logic: JSON.parse(localStorage.getItem("wqa-logic-session")),
+    us: JSON.parse(localStorage.getItem("wqa-us-session")),
+    stars: JSON.parse(localStorage.getItem("wqa-logic-lesson-stars")),
+  }));
+  expect(saved.logic.score).toBe(3100);
+  expect(saved.logic.best).toBe(3100);
+  expect(saved.logic.unlocked).toEqual([1, 2]);
+  expect(saved.logic.found).toHaveLength(40);
+  expect(saved.us.score).toBe(640);
+  expect(saved.us.unlocked).toEqual([1]);
+  expect(saved.stars).toEqual({ 1: 3, 2: 3, 3: 2, 8: 1 });
+  await expect(page.locator("#title")).toHaveText("Wizard's Quiz Academy");
+  const stillAbove = await page.evaluate(() => {
+    const title = document.querySelector("#title").getBoundingClientRect();
+    const banner = document.querySelector("#quizBanner").getBoundingClientRect();
+    return title.bottom < banner.top;
+  });
+  expect(stillAbove).toBe(true);
+  await page.screenshot({ path: "/opt/cursor/artifacts/home-independent.png", fullPage: false });
+
+  await page.goto("/index.html?indep=course#fr", { waitUntil: "domcontentloaded" });
+  await page.waitForSelector("#title");
+  await expect(page.locator("#title")).toHaveText("Regions of France");
+  const courseStack = await page.evaluate(() => {
+    const title = document.querySelector("#title").getBoundingClientRect();
+    const banner = document.querySelector("#quizBanner").getBoundingClientRect();
+    return title.top > banner.bottom;
+  });
+  expect(courseStack).toBe(true);
   assertQuiet(errors);
 });
