@@ -255,6 +255,31 @@ test("tap to quiz leaves explore and accepts a map answer", async ({ page }) => 
   assertQuiet(errors);
 });
 
+async function assertInfoIconsReachable(page) {
+  const buttons = page.locator("#quizCard .info-btn");
+  await expect(buttons).toHaveCount(4);
+  for (let i = 0; i < 4; i++) {
+    const btn = buttons.nth(i);
+    await btn.scrollIntoViewIfNeeded();
+    const hit = await btn.evaluate(el => {
+      const r = el.getBoundingClientRect();
+      const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return !!top && (top === el || el.contains(top));
+    });
+    expect(hit, "info icon " + (i + 1) + " is covered").toBe(true);
+    await btn.click();
+    const pop = btn.locator("xpath=ancestor::*[contains(@class,'choice-wrap')]//*[contains(@class,'info-pop')]");
+    await expect(pop).toBeVisible();
+  }
+  await page.locator("#continueBtn").scrollIntoViewIfNeeded();
+  const cont = await page.locator("#continueBtn").evaluate(el => {
+    const r = el.getBoundingClientRect();
+    const top = document.elementFromPoint(r.left + r.width / 2, Math.min(r.top + r.height / 2, window.innerHeight - 2));
+    return r.top >= 0 && r.bottom <= window.innerHeight + 1 && !!top && (top === el || el.contains(top));
+  });
+  expect(cont).toBe(true);
+}
+
 test("synonym feedback shows an example sentence", async ({ page }) => {
   const errors = errorsOf(page);
   for (const [hash, label] of [["#vocab-fr", "Exemple : "], ["#vocab-en", "Example: "]]) {
@@ -267,6 +292,7 @@ test("synonym feedback shows an example sentence", async ({ page }) => {
     const wrong = hash === "#vocab-fr";
     await answerCurrent(page, { wrong });
     await page.waitForSelector("#feedbackExample:not([hidden])");
+    await page.locator("#continueBtn").scrollIntoViewIfNeeded();
     await page.waitForFunction(() => {
       const btn = document.querySelector("#continueBtn").getBoundingClientRect();
       return btn.height >= 44 && btn.top >= 0 && btn.bottom <= window.innerHeight + 1;
@@ -310,27 +336,11 @@ test("synonym feedback shows an example sentence", async ({ page }) => {
     expect(layout.btnInView, JSON.stringify(layout)).toBe(true);
     expect(layout.bannerSeen).toBe(true);
     expect(layout.bannerTop).toBeLessThan(8);
-    expect(layout.canScroll).toBe(true);
+    await assertInfoIconsReachable(page);
     if (wrong) {
-      const scrolled = await page.evaluate(() => {
-        const body = document.querySelector("#feedbackBody");
-        const ex = document.querySelector("#feedbackExample");
-        body.textContent += " " + "Cette explication reste lisible quand elle est longue. ".repeat(14);
-        ex.textContent += " " + "Une phrase d'exemple plus longue pour remplir le panneau. ".repeat(8);
-        const scroll = document.querySelector(".feedback-scroll");
-        const before = document.querySelector("#continueBtn").getBoundingClientRect();
-        const overflow = scroll.scrollHeight > scroll.clientHeight + 8;
-        scroll.scrollTop = scroll.scrollHeight;
-        const after = document.querySelector("#continueBtn").getBoundingClientRect();
-        return {
-          overflow,
-          btnStable: Math.abs(before.top - after.top) < 1,
-          btnInView: after.top >= 0 && after.bottom <= window.innerHeight + 1,
-        };
-      });
-      expect(scrolled.overflow).toBe(true);
-      expect(scrolled.btnStable).toBe(true);
-      expect(scrolled.btnInView).toBe(true);
+      await page.setViewportSize({ width: 390, height: 640 });
+      await assertInfoIconsReachable(page);
+      await page.setViewportSize({ width: 390, height: 844 });
     }
   }
   assertQuiet(errors);
@@ -351,5 +361,105 @@ test("each single-subject course plays lesson 1", async ({ page }, testInfo) => 
     await expect(page.locator('button[data-lesson="2"]')).toBeEnabled();
     await expect(page.locator('button[data-lesson="3"]')).toBeDisabled();
   }
+  assertQuiet(errors);
+});
+
+function conjId(n) {
+  return "C" + String(n).padStart(3, "0");
+}
+
+test("old conjugation progress migrates once and keeps finished lessons", async ({ page }) => {
+  const errors = errorsOf(page);
+  const all = Array.from({ length: 100 }, (_, i) => conjId(i + 1));
+  const partial = all.slice(0, 10).concat(["C040", "C041", "C096"]);
+  const saves = {
+    full: {
+      "wqa-conj-session": {
+        queue: ["C001"], found: all, score: 4200, streak: 2, misses: 0,
+        missed: ["C040"], unlocked: [1, 2, 3, 4, 5, 6], best: 4200, won: true, tags: false, lock: null,
+      },
+      "wqa-conj-best": 4200,
+      "wqa-conj-unlocked": [1, 2, 3, 4, 5, 6],
+      "wqa-conj-lesson-stars": Object.fromEntries(all.slice(0, 20).map((_, i) => [String(i + 1), 3])),
+    },
+    partial: {
+      "wqa-conj-session": {
+        queue: partial.slice(), found: partial, score: 800, streak: 1, misses: 0,
+        missed: ["C041", "C002"], unlocked: [1], best: 900, won: false, tags: false, lock: null,
+      },
+      "wqa-conj-best": 900,
+      "wqa-conj-unlocked": [1],
+      "wqa-conj-lesson-stars": { 1: 3, 2: 2 },
+    },
+  };
+  async function load(name) {
+    await page.goto("/index.html?mig=a#" + name, { waitUntil: "domcontentloaded" });
+    await page.evaluate(data => {
+      localStorage.clear();
+      Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, JSON.stringify(v)));
+    }, saves[name]);
+    await page.goto("/index.html?mig=b#conj", { waitUntil: "domcontentloaded" });
+    await page.waitForSelector('button[data-lesson="1"]');
+  }
+  await load("full");
+  await expect(page.locator('button[data-lesson="1"]')).toHaveClass(/node-done/);
+  await expect(page.locator('button[data-lesson="20"]')).toHaveClass(/node-done/);
+  await expect(page.locator(".node-current")).toHaveCount(0);
+  const fullOnce = await page.evaluate(() => ({
+    found: JSON.parse(localStorage.getItem("wqa-conj-session")).found,
+    score: JSON.parse(localStorage.getItem("wqa-conj-session")).score,
+    unlocked: JSON.parse(localStorage.getItem("wqa-conj-session")).unlocked,
+    best: JSON.parse(localStorage.getItem("wqa-conj-best")),
+    kept: JSON.parse(localStorage.getItem("wqa-conj-lesson-kept")).lessons,
+    backup: JSON.parse(localStorage.getItem("wqa-conj-cycle-backup")).session.found.length,
+    version: JSON.parse(localStorage.getItem("wqa-conj-cycle-migration")).version,
+  }));
+  expect(fullOnce.found.length).toBe(100);
+  expect(new Set(fullOnce.found).size).toBe(100);
+  expect(fullOnce.score).toBe(4200);
+  expect(fullOnce.unlocked).toEqual([1, 2, 3, 4, 5, 6]);
+  expect(fullOnce.best).toBe(4200);
+  expect(fullOnce.kept).toHaveLength(20);
+  expect(fullOnce.backup).toBe(100);
+  expect(fullOnce.version).toBe(1);
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.waitForSelector('button[data-lesson="20"]');
+  const fullTwice = await page.evaluate(() => JSON.parse(localStorage.getItem("wqa-conj-session")).found);
+  expect(fullTwice).toEqual(fullOnce.found);
+
+  await load("partial");
+  await expect(page.locator('button[data-lesson="1"]')).toHaveClass(/node-done/);
+  await expect(page.locator('button[data-lesson="2"]')).toHaveClass(/node-done/);
+  await expect(page.locator('button[data-lesson="3"]')).not.toHaveClass(/node-done/);
+  await expect(page.locator('button[data-lesson="20"]')).not.toHaveClass(/node-done/);
+  const part = await page.evaluate(() => {
+    const session = JSON.parse(localStorage.getItem("wqa-conj-session"));
+    return {
+      found: session.found,
+      score: session.score,
+      unlocked: session.unlocked,
+      best: JSON.parse(localStorage.getItem("wqa-conj-best")),
+      kept: JSON.parse(localStorage.getItem("wqa-conj-lesson-kept")).lessons,
+      missed: session.missed,
+    };
+  });
+  expect(part.found.length).toBe(13);
+  expect(new Set(part.found).size).toBe(13);
+  expect(part.score).toBe(800);
+  expect(part.unlocked).toEqual([1]);
+  expect(part.best).toBe(900);
+  expect(part.kept).toEqual([1, 2]);
+  expect(part.missed).toEqual(["C002"]);
+  expect(part.found).toContain("C001");
+  expect(part.found).not.toContain("C040");
+  const snap = JSON.stringify(part.found);
+  await page.reload({ waitUntil: "domcontentloaded" });
+  const again = await page.evaluate(() => JSON.stringify(JSON.parse(localStorage.getItem("wqa-conj-session")).found));
+  expect(again).toBe(snap);
+
+  await page.goto("/index.html?mig=home#home", { waitUntil: "domcontentloaded" });
+  await expect(page.locator('button[data-type="conj"][data-lecon="1"]')).toHaveClass(/node-done/);
+  await expect(page.locator('button[data-type="conj"][data-lecon="2"]')).toHaveClass(/node-done/);
+  await expect(page.locator('button[data-type="conj"][data-lecon="3"]')).not.toHaveClass(/node-done/);
   assertQuiet(errors);
 });

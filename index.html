@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wizard's Quiz Academy</title>
 <meta name="description" content="Wizard's Quiz Academy is a quiz for curious minds: US states, French regions, Japanese prefectures, advanced English and French vocabulary, and number-pattern logic. Earn house points and collect magical relics.">
 <meta name="theme-color" content="#1a1024">
@@ -43,7 +43,7 @@
 :root[data-academy="azurequill"] { --house: #1e4d8c; --house-ink: #f3f7ff; }
 :root[data-academy="amberkeep"] { --house: #8a5a08; --house-ink: #fff8e8; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { min-height: 100%; background: var(--night); color: var(--parchment); font-family: var(--font-body); overflow-x: hidden; }
+html, body { min-height: 100%; background: var(--night); color: var(--parchment); font-family: var(--font-body); overflow-x: clip; }
 body {
   background:
     radial-gradient(circle at 12% 8%, #ffd78a22 0 2px, transparent 3px),
@@ -347,20 +347,15 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
   padding: .9rem 1rem calc(.9rem + env(safe-area-inset-bottom));
 }
 .feedback {
-  display: flex; flex-direction: column;
-  max-height: min(56vh, calc(100dvh - 150px));
-  padding: 0; opacity: 1;
+  position: static; display: flex; flex-direction: column;
+  max-height: none; margin: .85rem 0 0; padding: 0; opacity: 1;
   background: #fff6ee; color: #2c2118;
-  border-top: 4px solid transparent;
-  box-shadow: 0 -12px 28px #140e1ce8;
-  animation: sheet .22s ease;
+  border: 3px solid #c8b48a; border-top: 4px solid transparent; border-radius: 1.2rem;
+  box-shadow: 0 8px 0 #0002;
 }
 .feedback-ok { background: #d9f5e4; color: #0e3d24; border-top-color: #1f8a4d; }
 .feedback-no { background: #ffd9d4; color: #5c1020; border-top-color: #c43838; }
-.feedback-scroll {
-  overflow-y: auto; overscroll-behavior: contain; min-height: 0;
-  padding: .9rem 1rem 1rem;
-}
+.feedback-scroll { overflow: visible; padding: .9rem 1rem .4rem; }
 .feedback-row { display: flex; gap: .8rem; align-items: flex-start; max-width: 640px; margin: 0 auto; }
 .feedback-owl { width: 64px; flex: none; }
 .feedback-owl svg { width: 64px; height: auto; }
@@ -377,7 +372,10 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
 .feedback .big-btn { flex: 0 0 auto; color: #fff8ea; margin: 0 auto; }
 .feedback-ok .big-btn { background: #146c43; }
 .feedback-no .big-btn { background: #9d2432; }
-@keyframes sheet { from { transform: translateY(100%); } }
+.info-btn, #continueBtn, .choice, .info-pop {
+  scroll-margin-top: 7.5rem;
+  scroll-margin-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+}
 .bottom-nav {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
   display: flex; justify-content: space-around; gap: .3rem;
@@ -415,7 +413,7 @@ body.lesson-mode .brand-kicker,
 body.lesson-mode .game-subtitle,
 body.lesson-mode #ask,
 body.lesson-mode #practiceBtn { display: none !important; }
-body.lesson-mode .game-root { padding-bottom: 7rem; max-width: 760px; }
+body.lesson-mode .game-root { padding-bottom: calc(8rem + env(safe-area-inset-bottom, 0px)); max-width: 760px; }
 body.lesson-mode .prompt-row { margin-bottom: 0; }
 body.lesson-mode .quiz-banner { position: sticky; top: 0; z-index: 8; }
 body.lesson-mode #progress { padding: .35rem .65rem; }
@@ -425,7 +423,6 @@ body.lesson-mode .progress-rule { display: none; }
 body.feedback-open #progress { display: none !important; }
 @media (max-width: 640px) {
   body.lesson-mode .quiz-banner { height: 112px; }
-  .feedback { max-height: min(50vh, calc(100dvh - 180px)); }
   .game-title { font-size: 1.55rem; }
   .activity-stats { gap: .35rem .8rem; }
   .home-owl { width: 96px; }
@@ -504,6 +501,21 @@ body.feedback-open #progress { display: none !important; }
       <div id="map"><p class="map-loading">Rowan is unrolling the map…</p></div>
     </div>
     <div class="quiz-card" id="quizCard" hidden></div>
+    <div class="feedback" id="feedback" hidden role="status">
+      <div class="feedback-scroll">
+        <div class="feedback-row">
+          <div class="feedback-owl" id="feedbackOwl"></div>
+          <div class="feedback-copy">
+            <p class="feedback-title" id="feedbackTitle"></p>
+            <p class="feedback-body" id="feedbackBody"></p>
+            <p class="feedback-example" id="feedbackExample" hidden></p>
+          </div>
+        </div>
+      </div>
+      <div class="feedback-actions">
+        <button class="big-btn" id="continueBtn" type="button">Continue</button>
+      </div>
+    </div>
     <div class="shelf-card">
       <h2 class="shelf-title">Your relic shelf</h2>
       <div class="shelf-row" id="shelf"></div>
@@ -550,21 +562,6 @@ body.feedback-open #progress { display: none !important; }
 <div class="check-bar" id="checkBar" hidden>
   <button class="big-btn" id="checkBtn" type="button">Check</button>
 </div>
-<div class="feedback" id="feedback" hidden role="status">
-  <div class="feedback-scroll">
-    <div class="feedback-row">
-      <div class="feedback-owl" id="feedbackOwl"></div>
-      <div class="feedback-copy">
-        <p class="feedback-title" id="feedbackTitle"></p>
-        <p class="feedback-body" id="feedbackBody"></p>
-        <p class="feedback-example" id="feedbackExample" hidden></p>
-      </div>
-    </div>
-  </div>
-  <div class="feedback-actions">
-    <button class="big-btn" id="continueBtn" type="button">Continue</button>
-  </div>
-</div>
 <div id="modal"></div>
 
 <script src="lib/d3.min.js"></script>
@@ -580,6 +577,7 @@ body.feedback-open #progress { display: none !important; }
 <script src="vocab-fr.js"></script>
 <script src="logic.js"></script>
 <script src="conj-fr.js"></script>
+<script src="scripts/conj-progress.js"></script>
 <script src="vocab-en-lex.js"></script>
 <script src="vocab-fr-lex.js"></script>
 <script src="relics.js"></script>
@@ -1996,6 +1994,14 @@ function typeSession(key) {
 function typeLessonIds(key, lesson) {
   return catalogFor(key).filter(p => p.lesson === lesson).map(p => p.id);
 }
+function conjKeptLessons() {
+  const rec = store.get("wqa-conj-lesson-kept", null);
+  return new Set((rec && rec.lessons) || []);
+}
+function slotDone(type, lessonNumber, ids, foundSet) {
+  if (type === "conj" && conjKeptLessons().has(lessonNumber)) return true;
+  return ids.length > 0 && ids.every(id => foundSet.has(id));
+}
 function updatePills() {
   const day = store.get("wqa-day-streak", { n: 0 });
   const streak = $("streakPill"), xp = $("xpPill"), hearts = $("heartsPill");
@@ -2052,7 +2058,7 @@ function homeNodes() {
     MIX_SOURCES.forEach((type, i) => {
       const ids = typeLessonIds(type, lesson);
       const found = typeSession(type).found;
-      const done = ids.length === 5 && ids.every(id => found.has(id));
+      const done = slotDone(type, lesson, ids, found);
       nodes.push({ lesson, niveau: i + 1, type, ids, done });
     });
   }
@@ -2100,14 +2106,14 @@ function renderPath() {
   const stars = store.get(`wqa-${test.key}-lesson-stars`, {});
   const flat = [];
   plan.forEach(u => u.lessons.forEach(ls => flat.push(ls)));
-  let currentIndex = flat.findIndex(ls => !ls.ids.every(id => S.found.has(id)));
+  let currentIndex = flat.findIndex(ls => !slotDone(test.key, ls.number || ls.index, ls.ids, S.found));
   if (currentIndex < 0) currentIndex = flat.length;
   let html = `<div class="path-hero"><div class="home-owl" id="homeOwl" role="img" aria-label="Rowan the academy owl"></div></div>`;
   let i = 0;
   plan.forEach(unit => {
     html += `<section class="unit"><h2 class="unit-title">${esc(unit.title)}</h2>${unit.sub ? `<p class="unit-sub">${esc(unit.sub)}</p>` : ""}<div class="path">`;
     unit.lessons.forEach(ls => {
-      const done = ls.ids.every(id => S.found.has(id));
+      const done = slotDone(test.key, ls.number || ls.index, ls.ids, S.found);
       const isCurrent = i === currentIndex;
       const locked = !done && i > currentIndex;
       const st = stars[ls.number] || stars[ls.index] || 0;
@@ -2506,6 +2512,7 @@ window.addEventListener("hashchange", () => {
 applyHouse(store.get("wqa-house", "emberwyck"));
 refreshBests();
 migrateMixed();
+if (window.applyConjMigration) applyConjMigration(store, window.CONJ_FR || []);
 const boot = location.hash.slice(1);
 if (TESTS[boot] && boot !== "mixed") selectTest(boot);
 else showAcademy();
