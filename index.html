@@ -336,6 +336,11 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
 .lesson-track { flex: 1; height: 16px; background: #2a2033; border-radius: 999px; overflow: hidden; border: 2px solid #5c4a32; }
 .lesson-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--house), var(--gold)); transition: width .35s ease; }
 .lesson-prompt { font-family: var(--font-display); font-size: clamp(1.25rem, 4vw, 1.7rem); text-align: center; color: var(--candle); }
+.question-count {
+  font-family: var(--font-display); font-weight: 800; text-align: center;
+  color: var(--candle); font-size: clamp(1.05rem, 3.4vw, 1.35rem); letter-spacing: .02em;
+}
+.quiz-card .question-count { color: var(--house); font-size: 1rem; margin-bottom: .15rem; }
 .choice { min-height: 64px; border-radius: 16px; font-size: 1.12rem; }
 .choice-selected { border-color: var(--gold-deep); box-shadow: 0 0 0 3px var(--gold); background: #fff4d2; }
 .state-selected { stroke: #a67c2d !important; stroke-width: 3.5px; fill: var(--state-hover) !important; }
@@ -468,6 +473,7 @@ body.feedback-open #progress { display: none !important; }
     <button class="quit-btn" id="quitLesson" type="button" aria-label="Leave lesson">✕</button>
     <div class="lesson-track" aria-hidden="true"><div class="lesson-fill" id="lessonFill"></div></div>
   </div>
+  <p class="question-count" id="questionCount" hidden>Question 1/5</p>
   <p class="lesson-prompt" id="lessonPrompt" hidden></p>
   <dl class="activity-stats" aria-label="Quiz progress" id="stats" hidden></dl>
 
@@ -1218,6 +1224,19 @@ function setSubtitle(text) {
   el.textContent = text || "";
   el.hidden = !text;
 }
+function setBrand(text) {
+  const el = $("brand");
+  if (!el) return;
+  el.textContent = text || "";
+  el.hidden = !text;
+}
+function questionPosition() {
+  if (!S.lesson || !S.lesson.ids || !S.lesson.ids.length) return null;
+  const total = S.lesson.ids.length;
+  const left = (S.lesson.queue && S.lesson.queue.length) || 0;
+  const pos = left ? Math.min(total, total - left + 1) : total;
+  return { pos, total, text: "Question " + pos + "/" + total };
+}
 function showBanner(key) {
   const img = $("quizBanner");
   if (!img) return;
@@ -1240,7 +1259,7 @@ function showAcademy() {
   }
   document.body.classList.remove("lesson-mode", "feedback-open");
   document.title = "Wizard's Quiz Academy";
-  $("brand").textContent = "Wizard's Quiz Academy";
+  setBrand("");
   $("title").textContent = "Wizard's Quiz Academy";
   setSubtitle("");
   showBanner("home");
@@ -1250,6 +1269,7 @@ function showAcademy() {
   $("stats").hidden = true;
   $("lessonHead").hidden = true;
   $("lessonPrompt").hidden = true;
+  if ($("questionCount")) $("questionCount").hidden = true;
   $("checkBar").hidden = true;
   $("feedback").hidden = true;
   $("bottomNav").hidden = false;
@@ -1391,6 +1411,7 @@ function selectTest(key) {
   $("stats").hidden = true;
   $("lessonHead").hidden = true;
   $("lessonPrompt").hidden = true;
+  if ($("questionCount")) $("questionCount").hidden = true;
   $("checkBar").hidden = true;
   $("feedback").hidden = true;
   $("bottomNav").hidden = false;
@@ -1754,7 +1775,7 @@ function render() {
   const house = HOUSES[currentHouse].name;
 
   document.title = test.title + " · Wizard's Quiz Academy";
-  $("brand").textContent = "Wizard's Quiz Academy";
+  setBrand("Wizard's Quiz Academy");
   $("title").textContent = test.title;
   setSubtitle(test.subtitle);
   showBanner(test.key);
@@ -1841,6 +1862,8 @@ function renderQuiz() {
   const langCode = q.contentLang || test.contentLang;
   const lang = langCode === "fr" ? ` lang="fr"` : "";
   const kicker = esc(q.label || "Question");
+  const place = questionPosition();
+  const count = place ? `<p class="question-count">${esc(place.text)}</p>` : "";
   let head;
   if (q.seq) {
     const levelName = q.level === "archmage" ? "Archmage" : q.level === "scholar" ? "Scholar" : "Apprentice";
@@ -1865,7 +1888,7 @@ function renderQuiz() {
     return `<div class="choice-wrap"><div class="choice-line"><button class="${cls.join(" ")}" type="button" data-choice="${i}"${S.locked || gone ? " disabled" : ""}><span class="choice-key">${i + 1}</span><span${lang}>${esc(c)}</span></button>${infoBtn}</div>${infoPop}</div>`;
   }).join("");
   const ask = q.ask || test.ask || "";
-  card.innerHTML = `${head}${ask ? `<p class="quiz-ask">${esc(ask)}</p>` : ""}<div class="choice-grid">${choices}</div>`;
+  card.innerHTML = `${count}${head}${ask ? `<p class="quiz-ask">${esc(ask)}</p>` : ""}<div class="choice-grid">${choices}</div>`;
 }
 
 function renderMap() {
@@ -2098,7 +2121,7 @@ function showTab(name) {
 function renderPath() {
   if (!test) return;
   document.title = test.title + " · Wizard's Quiz Academy";
-  $("brand").textContent = "Wizard's Quiz Academy";
+  setBrand("Wizard's Quiz Academy");
   $("title").textContent = test.title;
   setSubtitle(test.subtitle);
   showBanner(test.key);
@@ -2140,7 +2163,7 @@ function renderPath() {
 function renderHomePath() {
   migrateMixed();
   const nodes = homeNodes();
-  let html = `<div class="path-hero"><div class="home-owl" id="homeOwl" role="img" aria-label="Rowan the academy owl"></div></div>`;
+  let html = "";
   let lesson = 0;
   nodes.forEach((nd, i) => {
     if (nd.lesson !== lesson) {
@@ -2251,6 +2274,7 @@ function quitLesson() {
   $("feedback").hidden = true;
   $("lessonHead").hidden = true;
   $("lessonPrompt").hidden = true;
+  if ($("questionCount")) $("questionCount").hidden = true;
   $("bottomNav").hidden = false;
   persist();
   if (pathHome) return showAcademy();
@@ -2286,6 +2310,7 @@ function finishLesson() {
   $("feedback").hidden = true;
   $("lessonHead").hidden = true;
   $("lessonPrompt").hidden = true;
+  if ($("questionCount")) $("questionCount").hidden = true;
   $("bottomNav").hidden = false;
   $("summaryOwl").innerHTML = owlSVG({ scarf: HOUSES[currentHouse].scarf });
   $("summaryTitle").textContent = heartsOut ? "Out of hearts" : (complete ? "Lesson complete" : "Keep practicing");
@@ -2304,18 +2329,25 @@ function syncLessonChrome() {
   document.body.classList.toggle("lesson-mode", !!lesson);
   document.body.classList.toggle("feedback-open", !!(lesson && S.locked && !S.practice));
   const head = $("lessonHead"), bar = $("checkBar"), fb = $("feedback"), prompt = $("lessonPrompt");
+  const countEl = $("questionCount");
   if (head) head.hidden = !lesson;
   if ($("bottomNav")) $("bottomNav").hidden = !!lesson;
   if (!lesson) {
     if (bar) bar.hidden = true;
     if (fb) fb.hidden = true;
     if (prompt) prompt.hidden = true;
+    if (countEl) countEl.hidden = true;
     updatePills();
     return;
   }
   const total = S.lesson.ids.length || 1;
+  const place = questionPosition();
+  if (countEl && place) {
+    countEl.textContent = place.text;
+    countEl.hidden = questionKind() === "mcq";
+  }
   const fill = $("lessonFill");
-  if (fill) fill.style.width = Math.min(100, S.lesson.answered / total * 100) + "%";
+  if (fill) fill.style.width = Math.min(100, (place ? place.pos - 1 : S.lesson.answered) / total * 100) + "%";
   const t = current();
   const mapQ = questionKind() === "map";
   if (prompt) {

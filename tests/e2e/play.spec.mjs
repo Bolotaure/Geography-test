@@ -346,6 +346,42 @@ test("synonym feedback shows an example sentence", async ({ page }) => {
   assertQuiet(errors);
 });
 
+test("question count follows the lesson and the home title is single", async ({ page }) => {
+  const errors = await fresh(page, "#home");
+  await expect(page.locator("#brand")).toBeHidden();
+  await expect(page.locator("#title")).toHaveText("Wizard's Quiz Academy");
+  await expect(page.locator("#homeOwl")).toHaveCount(0);
+  await expect(page.locator(".node-current .node-owl")).toHaveCount(1);
+
+  await page.locator(".node-current").click({ force: true });
+  await expect(page.locator("#questionCount")).toBeVisible();
+  await expect(page.locator("#questionCount")).toHaveText("Question 1/5");
+  await answerCurrent(page);
+  await page.click("#continueBtn");
+  await expect(page.locator("#questionCount")).toHaveText("Question 2/5");
+  await page.click("#quitLesson");
+
+  await page.goto("/index.html?count=en#vocab-en", { waitUntil: "domcontentloaded" });
+  await page.waitForSelector(".node-current");
+  await page.locator(".node-current").click({ force: true });
+  await expect(page.locator("#quizCard .question-count")).toHaveText("Question 1/5");
+  await answerCurrent(page, { wrong: true });
+  await expect(page.locator("#questionCount")).toHaveText("Question 1/5");
+  await page.click("#continueBtn");
+  await expect(page.locator("#quizCard .question-count")).toHaveText("Question 2/5");
+
+  await page.click("#quitLesson");
+  await page.goto("/index.html?count=fr#fr", { waitUntil: "domcontentloaded" });
+  await page.waitForSelector(".node-current");
+  await page.locator(".node-current").click({ force: true });
+  await expect(page.locator("#questionCount")).toHaveText("Question 1/5");
+  await expect(page.locator("#lessonPrompt")).toContainText("Find ");
+  await page.click("#quitLesson");
+  await expect(page.locator("#brand")).toBeVisible();
+  await expect(page.locator("#title")).toHaveText("Regions of France");
+  assertQuiet(errors);
+});
+
 test("each single-subject course plays lesson 1", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "subject courses are played on desktop");
   test.setTimeout(300_000);
