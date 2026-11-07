@@ -321,7 +321,8 @@ body.lesson-mode .menu-wrap { display: none !important; }
 }
 .unit-title { font-family: var(--font-display); color: var(--candle); text-align: center; font-size: 1.25rem; }
 .unit-sub { text-align: center; color: #cbbda6; font-size: .9rem; margin: .15rem 0 .4rem; }
-.path { display: flex; flex-direction: column; align-items: center; gap: 26px; padding: 62px 0 26px; position: relative; }
+.path { display: flex; flex-direction: column; align-items: center; gap: 26px; padding: 26px 0; position: relative; }
+.path.path-owl { padding-top: 62px; }
 .path-rail { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
 .path-rail path { fill: none; stroke: #3a2c22; stroke-width: 10; stroke-linecap: round; }
 .node {
@@ -2440,6 +2441,7 @@ function renderPath() {
   if (S.missed && S.missed.size) html += `<button class="path-review" id="reviewBtn" type="button">Practice missed (${S.missed.size})</button>`;
   $("path").innerHTML = html;
   paintMascots();
+  document.querySelectorAll(".path").forEach(el => el.classList.toggle("path-owl", !!el.querySelector(".node-current")));
   drawPathRails();
   const node = document.querySelector(".node-current");
   if (node) {
