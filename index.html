@@ -469,7 +469,9 @@ details.relic-group { margin-bottom: .6rem; }
   padding: .7rem .85rem; min-height: 76px;
 }
 .subject-card:hover, .subject-card:focus-visible { border-color: var(--gold); }
-.subject-ico { font-size: 1.7rem; width: 2.4rem; text-align: center; flex: 0 0 auto; }
+.subject-card { overflow: hidden; padding: 0; align-items: stretch; gap: 0; }
+.subject-card .subject-copy { flex: 1 1 50%; padding: .7rem .85rem; display: flex; flex-direction: column; justify-content: center; }
+.subject-img { flex: 1 1 50%; width: 50%; min-width: 0; object-fit: cover; object-position: center 42%; border-left: 2px solid #5c4a32; }
 .subject-copy { flex: 1; min-width: 0; }
 .subject-copy strong { display: block; font-family: var(--font-display); color: var(--candle); font-size: 1.05rem; }
 .subject-meta { color: #eadcc0; font-size: .92rem; font-weight: 700; }
@@ -785,7 +787,7 @@ const COPY = {
     check: "Check", continue: "Continue", leaveTitle: "Leave this lesson?",
     leaveBody: "Correct answers stay saved.", stay: "Stay", leave: "Leave",
     correct: "Correct!", wrong: "Not quite!", lessonDone: "Lesson complete",
-    keep: "Keep practicing", days: "days",
+    keep: "Keep practicing", days: "days", day: "day",
     lesson: "Lesson", ask: "Ask Rowan for a hint",
     exploreOn: "Exploring… tap to quiz", exploreOff: "Explore",
     tagsOn: "Hide name tags", tagsOff: "Name tags",
@@ -802,7 +804,7 @@ const COPY = {
     check: "Vérifier", continue: "Continuer", leaveTitle: "Quitter la leçon ?",
     leaveBody: "Les bonnes réponses restent enregistrées.", stay: "Rester", leave: "Quitter",
     correct: "Juste !", wrong: "Pas tout à fait.", lessonDone: "Leçon terminée",
-    keep: "À retravailler", days: "jours",
+    keep: "À retravailler", days: "jours", day: "jour",
     lesson: "Leçon", ask: "Demander un indice à Rowan",
     exploreOn: "Exploration… toucher pour le quiz", exploreOff: "Explorer",
     tagsOn: "Masquer les noms", tagsOff: "Noms",
@@ -2349,7 +2351,8 @@ function slotDone(type, lessonNumber, ids, foundSet) {
 function updatePills() {
   const day = store.get("wqa-day-streak", { n: 0 });
   const streak = $("streakPill"), xp = $("xpPill");
-  if (streak) streak.textContent = "🔥 " + (day.n || 0) + " " + (test && uiLang() === "fr" ? COPY.fr.days : COPY.en.days);
+  const words = test && uiLang() === "fr" ? COPY.fr : COPY.en;
+  if (streak) streak.textContent = "🔥 " + (day.n || 0) + " " + ((day.n || 0) === 1 ? words.day : words.days);
   if (xp) xp.textContent = "✦ " + totalXp();
 }
 function chunkIds(ids, n) {
@@ -2482,7 +2485,7 @@ function renderHomePath() {
     const prog = subjectProgress(type);
     const width = Math.round(prog.done / prog.total * 100);
     const meta = prog.done >= prog.total ? "Finished" : "Lesson " + prog.next + " of " + prog.total;
-    return `<button class="subject-card" type="button" data-course="${type}"><span class="subject-ico" aria-hidden="true">${TYPE_ICON[type] || "✨"}</span><span class="subject-copy"><strong>${esc(spec.title)}</strong><span class="subject-meta">${esc(meta)}</span><span class="subject-bar" aria-hidden="true"><span style="width:${width}%"></span></span></span></button>`;
+    return `<button class="subject-card" type="button" data-course="${type}"><span class="subject-copy"><strong>${esc(spec.title)}</strong><span class="subject-meta">${esc(meta)}</span><span class="subject-bar" aria-hidden="true"><span style="width:${width}%"></span></span></span><img class="subject-img" src="${(BANNERS[type] || BANNERS.home)[0]}" alt="" loading="lazy"></button>`;
   }).join("") + `</div>`;
   $("path").innerHTML = html;
   paintMascots();

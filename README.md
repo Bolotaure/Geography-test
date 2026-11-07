@@ -8,7 +8,7 @@ On a phone or tablet the app works only upright. Turn it sideways and a portrait
 
 ## Home
 
-The home screen is a list of eight quizzes. **Grand Quest** is first. Each card shows the next lesson: 1 to 21 for Grand Quest, 1 to 20 for the others. Tap a card and the screen fades through black into that quiz. The home icon fades back through black.
+The home screen is a list of eight quizzes. **Grand Quest** is first. Each card is split in two: on the left the title, the next lesson (1 to 21 for Grand Quest, 1 to 20 for the others) and a progress bar; on the right the same image as that quiz's banner. Tap a card and the screen fades through black into that quiz. The home icon fades back through black.
 
 The title stays pinned above the banner. Inside a quiz, the title and the banner both stay fixed and only the lesson path scrolls. The home icon sits on the banner, top right. The menu button sits to the right of the title, centred on its line. It opens three items:
 
