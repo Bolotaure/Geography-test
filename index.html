@@ -411,7 +411,7 @@ body.lesson-mode .menu-wrap { display: none !important; }
 }
 .node-locked { opacity: .42; }
 .node { margin: 0; }
-.node-owl { position: absolute; left: calc(100% + 6px); top: 50%; width: 60px; height: 60px; transform: translateY(-50%); pointer-events: none; filter: drop-shadow(0 6px 4px #0006); }
+.node-owl { position: absolute; left: calc(50% + 42px); top: 36px; width: 60px; height: 60px; transform: translateY(-50%); pointer-events: none; filter: drop-shadow(0 6px 4px #0006); }
 .node-owl img { display: block; width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--gold); background: #2a1830; object-fit: cover; }
 .profile-sub { font-family: var(--font-display); font-size: 1.1rem; font-weight: 800; margin: .9rem 0 .45rem; color: inherit; }
 .avatar-picker { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; }
@@ -2657,7 +2657,7 @@ function renderPath() {
       const lessonLabel = L("lesson") + " " + num;
       const subject = test.key === "mixed" ? TYPE_LABEL[GRAND_ORDER[(num - 1) % GRAND_ORDER.length]] : "";
       const caption = subject || lessonLabel;
-      html += `<div class="node-slot ${side}"><button class="${cls}" type="button" data-lesson="${ls.index}" data-replay="${done ? "1" : "0"}"${locked ? " disabled" : ""} aria-label="${esc(lessonLabel)}${subject ? ", " + esc(subject) : ""}${done ? ", complete" : isCurrent ? ", current" : ", locked"}">${owl}<span class="node-mark">${num}</span>${badge ? `<span class="node-badge">${badge}</span>` : ""}</button><span class="node-caption">${esc(caption)}</span></div>`;
+      html += `<div class="node-slot ${side}"><button class="${cls}" type="button" data-lesson="${ls.index}" data-replay="${done ? "1" : "0"}"${locked ? " disabled" : ""} aria-label="${esc(lessonLabel)}${subject ? ", " + esc(subject) : ""}${done ? ", complete" : isCurrent ? ", current" : ", locked"}"><span class="node-mark">${num}</span>${badge ? `<span class="node-badge">${badge}</span>` : ""}</button>${owl}<span class="node-caption">${esc(caption)}</span></div>`;
       i++;
     });
     html += `</div></section>`;
