@@ -186,6 +186,7 @@ body.lesson-mode .course-head { order: -1; width: calc(100% + 2 * var(--pad)); m
 }
 .mode-btn-active { background: var(--gold); border-color: var(--gold); color: var(--ink); }
 .ask-row { width: 100%; }
+.vanish-btn { flex: 0 0 auto; min-height: 44px; padding: .35rem 1rem; font-weight: 800; }
 .ask-panel {
   background: #2a2033; border: 2px dashed var(--gold); border-radius: 1rem;
   display: flex; flex-direction: column; gap: .5rem; padding: .75rem;
@@ -620,7 +621,6 @@ body.lesson-mode .progress-relic svg { width: 36px; height: 36px; flex-basis: 36
 body.lesson-mode .progress-rule { display: none; }
 body.feedback-open #progress { display: none !important; }
 @media (max-width: 640px) {
-  body.lesson-mode .quiz-banner { height: 112px; }
   .game-title { font-size: 1.55rem; }
   .activity-stats { gap: .35rem .8rem; }
   .home-owl { width: 96px; }
@@ -725,6 +725,7 @@ body.academy-home #pathBg, body.lesson-mode #pathBg { display: none; }
 <div class="lesson-head" id="lessonHead" hidden>
     <button class="quit-btn" id="quitLesson" type="button" aria-label="Leave lesson">✕</button>
     <div class="lesson-track" aria-hidden="true"><div class="lesson-fill" id="lessonFill"></div></div>
+    <button class="mode-btn vanish-btn" id="vanishBtn" type="button" hidden aria-label="Vanish one wrong answer">Vanish</button>
   </div>
   <p class="question-count" id="questionCount" hidden>Question 1/5</p>
   <p class="lesson-prompt" id="lessonPrompt" hidden></p>
@@ -2324,11 +2325,14 @@ function render() {
          ${S.askAnswer ? `<p class="ask-answer" aria-live="polite">${esc(S.askAnswer)}</p>` : ""}
          <button class="ask-close" type="button" data-ask="close">Close</button></div>`
       : `<button class="mode-btn ask-row" type="button" data-ask="open">${esc(L("ask"))}</button>`;
-  } else if (questionKind() === "mcq" && t && !S.won && !S.locked) {
-    $("ask").innerHTML = S.hintHide
-      ? ""
-      : `<button class="mode-btn ask-row" type="button" data-action="vanish">Vanish one wrong answer</button>`;
   } else $("ask").innerHTML = "";
+  const vb = $("vanishBtn");
+  if (vb) {
+    vb.hidden = !(questionKind() === "mcq" && t && !S.won && !S.locked && !S.hintHide);
+    const fr = uiLang() === "fr";
+    vb.textContent = fr ? "Effacer" : "Vanish";
+    vb.setAttribute("aria-label", fr ? "Effacer une mauvaise réponse" : "Vanish one wrong answer");
+  }
 
   const eb = $("exploreBtn"), tb = $("tagsBtn"), pb = $("practiceBtn");
   const mapNow = questionKind() === "map";
@@ -3077,6 +3081,7 @@ $("profilePane").addEventListener("click", e => {
   const h = e.target.closest("button[data-house]");
   if (h) { sfx.click(); applyHouse(h.dataset.house); }
 });
+$("vanishBtn").addEventListener("click", () => vanishOne());
 $("quitLesson").addEventListener("click", () => {
   if (view !== "lesson" || !S.lesson) return;
   $("quitTitle").textContent = L("leaveTitle");
