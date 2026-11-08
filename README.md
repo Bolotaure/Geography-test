@@ -14,7 +14,7 @@ The title stays pinned above the banner. Inside a quiz, the page itself does not
 
 - **Reset a quiz.** From home, pick which quiz to clear. Inside a quiz, it resets that quiz. Either way it asks first, and nothing behind the question can scroll or move while it is open. Score, progress, and relics for that quiz go back to the start. Other quizzes are left alone.
 - **Relics.** Opens as a sheet over the page, like Reset, with its own home icon.
-- **Profile.** Opens as a sheet over the page, with its own home icon. Choose a house. The house only changes the accent colour: Emberwyck, Verdant Hollow, Azure Quill, or Amberkeep.
+- **Profile.** Opens as a sheet over the page, with its own home icon. Choose an avatar (owl, wizard, witch, or dragon), shown on the lesson paths and saved as `wqa-avatar`. Choose a house. The house only changes the accent colour: Emberwyck, Verdant Hollow, Azure Quill, or Amberkeep.
 - **Display.** Opens Dark or Light. Dark is the default; the choice is kept in the browser (`wqa-theme`). The menu itself is dark in Dark and cream in Light.
 - **About.** A short sheet about the academy and where the map outlines come from, closed with the yellow ✕ or a tap outside.
 
@@ -32,7 +32,7 @@ Every quiz has lessons of 5 questions in three sections. Grand Quest has 21 less
 | Scholar | 8–14 |
 | Archmage | 15–20 (Grand Quest: 15–21) |
 
-The next lesson of a quiz opens only when the previous one is finished. Finishing a lesson in one quiz does not unlock or lock another. The owl stands just to the right of the current lesson.
+The next lesson of a quiz opens only when the previous one is finished. Finishing a lesson in one quiz does not unlock or lock another. The player's avatar stands just to the right of the current lesson.
 
 Tap a lesson, pick an answer, then **Check**. A banner shows the result and **Continue**. Leaving a lesson asks first. Correct answers stay saved. A day streak counts each local day you finish a lesson. Points and the day streak show under the banner.
 
@@ -97,4 +97,4 @@ Libraries in `lib/` (d3, topojson-client, canvas-confetti, all ISC licence) are 
 
 US map: `us-states.js`, from `us-atlas`. France map: `fr-regions.js`, simplified from [gregoiredavid/france-geojson](https://github.com/gregoiredavid/france-geojson) (Licence Ouverte / Etalab). Japan map: `jp-prefectures.js`, simplified from [dataofjapan/land](https://github.com/dataofjapan/land).
 
-The owl, the relics in `relics.js`, and the castle are original drawings. Each quiz's lesson path sits on its own background picture, `img/bg-<quiz>.webp`, generated for this project. The pictures are square and shown whole, fixed in the space under the banner. They show behind the path and the Relics and Profile screens of that quiz, not on home or during a lesson. No studio logos, film stills, or proprietary fonts. The interface uses [Nunito](https://fonts.google.com/specimen/Nunito).
+The owl, the relics in `relics.js`, and the castle are original drawings. The four avatars (`img/avatar-<name>.webp`) are short looping animations made for this project from generated portraits. Each quiz's lesson path sits on its own background picture, `img/bg-<quiz>.webp`, generated for this project. The pictures are square and shown whole, fixed in the space under the banner. They show behind the path and the Relics and Profile screens of that quiz, not on home or during a lesson. No studio logos, film stills, or proprietary fonts. The interface uses [Nunito](https://fonts.google.com/specimen/Nunito).

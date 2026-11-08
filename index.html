@@ -411,8 +411,14 @@ body.lesson-mode .menu-wrap { display: none !important; }
 }
 .node-locked { opacity: .42; }
 .node { margin: 0; }
-.node-owl { position: absolute; left: calc(100% + 4px); top: 50%; width: 58px; transform: translateY(-58%); pointer-events: none; filter: drop-shadow(0 6px 4px #0006); }
-.node-owl svg { width: 58px; height: auto; }
+.node-owl { position: absolute; left: calc(100% + 6px); top: 50%; width: 60px; height: 60px; transform: translateY(-50%); pointer-events: none; filter: drop-shadow(0 6px 4px #0006); }
+.node-owl img { display: block; width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--gold); background: #2a1830; object-fit: cover; }
+.profile-sub { font-family: var(--font-display); font-size: 1.1rem; font-weight: 800; margin: .9rem 0 .45rem; color: inherit; }
+.avatar-picker { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; }
+.avatar-btn { display: flex; flex-direction: column; align-items: center; gap: .3rem; padding: .35rem .1rem; border-radius: 16px; font-weight: 700; font-size: .85rem; color: inherit; }
+.avatar-btn img { width: 100%; max-width: 76px; height: auto; aspect-ratio: 1; border-radius: 50%; border: 3px solid transparent; object-fit: cover; }
+.avatar-btn[aria-checked="true"] img { border-color: var(--gold); box-shadow: 0 0 0 3px #e2b65755; }
+.avatar-btn[aria-checked="true"] { font-weight: 800; }
 @keyframes nodePulse { 50% { transform: scale(1.06); box-shadow: 0 0 0 8px color-mix(in srgb, var(--house) 40%, transparent); } }
 .path-review {
   display: block; margin: .4rem auto 1rem; min-height: 48px; padding: .6rem 1rem;
@@ -767,7 +773,10 @@ body.academy-home #pathBg, body.lesson-mode #pathBg { display: none; }
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg>
       </button>
       <button class="pane-back" id="profileBack" type="button" hidden>← Back</button>
-      <h2 class="summary-title">Your house</h2>
+      <h2 class="summary-title" id="profileTitle">Profile</h2>
+      <h3 class="profile-sub" id="avatarHeading">Avatar</h3>
+      <div class="avatar-picker" id="avatarPicker" role="radiogroup" aria-labelledby="avatarHeading"></div>
+      <h3 class="profile-sub" id="houseHeading">House</h3>
       <div class="house-picker" role="radiogroup" aria-label="Choose a house">
         <button class="house-btn" type="button" role="radio" data-house="emberwyck" aria-checked="false"><span class="swatch" style="background:#8c1c2c"></span>Emberwyck</button>
         <button class="house-btn" type="button" role="radio" data-house="verdant" aria-checked="false"><span class="swatch" style="background:#1f6b4a"></span>Verdant Hollow</button>
@@ -2644,7 +2653,7 @@ function renderPath() {
       const cls = ["node", done ? "node-done" : "", isCurrent ? "node-current" : "", locked ? "node-locked" : ""].filter(Boolean).join(" ");
       const num = ls.number || (i + 1);
       const badge = done ? (st >= 3 ? "♛" : "★".repeat(Math.max(st, 1))) : "";
-      const owl = isCurrent ? `<span class="node-owl">${owlSVG({ scarf: HOUSES[currentHouse].scarf })}</span>` : "";
+      const owl = isCurrent ? `<span class="node-owl"><img src="${AVATARS[currentAvatar()].src}" alt="" width="60" height="60"></span>` : "";
       const lessonLabel = L("lesson") + " " + num;
       const subject = test.key === "mixed" ? TYPE_LABEL[GRAND_ORDER[(num - 1) % GRAND_ORDER.length]] : "";
       const caption = subject || lessonLabel;
@@ -2737,7 +2746,29 @@ function renderRelics() {
     return `<details class="relic-group"><summary><h3>${esc(spec.title)}</h3><span class="relic-count">${count}</span></summary><div class="relic-grid">${cards}</div></details>`;
   }).join("");
 }
+const AVATARS = {
+  owl: { src: "img/avatar-owl.webp", en: "Owl", fr: "Chouette" },
+  wizard: { src: "img/avatar-wizard.webp", en: "Wizard", fr: "Sorcier" },
+  witch: { src: "img/avatar-witch.webp", en: "Witch", fr: "Sorcière" },
+  dragon: { src: "img/avatar-dragon.webp", en: "Dragon", fr: "Dragon" },
+};
+function currentAvatar() {
+  const a = store.get("wqa-avatar", "owl");
+  return AVATARS[a] ? a : "owl";
+}
+function renderAvatarPicker() {
+  const fr = uiLang() === "fr";
+  const cur = currentAvatar();
+  $("avatarPicker").innerHTML = Object.keys(AVATARS).map(k => `<button class="avatar-btn" type="button" role="radio" data-avatar="${k}" aria-checked="${k === cur}"><img src="${AVATARS[k].src}" alt="" width="76" height="76"><span>${esc(fr ? AVATARS[k].fr : AVATARS[k].en)}</span></button>`).join("");
+  const node = document.querySelector(".node-owl img");
+  if (node) node.src = AVATARS[cur].src;
+}
 function renderProfile() {
+  const fr = uiLang() === "fr";
+  $("profileTitle").textContent = fr ? "Profil" : "Profile";
+  $("avatarHeading").textContent = "Avatar";
+  $("houseHeading").textContent = fr ? "Maison" : "House";
+  renderAvatarPicker();
   const day = store.get("wqa-day-streak", { n: 0 });
   const rows = QUIZ_ORDER.map(key => TESTS[key]).map(x => {
     const live = test && x.key === test.key;
@@ -3009,6 +3040,8 @@ $("learnPane").addEventListener("click", e => {
   onTestClick(e);
 });
 $("profilePane").addEventListener("click", e => {
+  const a = e.target.closest("button[data-avatar]");
+  if (a) { sfx.click(); store.set("wqa-avatar", a.dataset.avatar); renderAvatarPicker(); return; }
   const h = e.target.closest("button[data-house]");
   if (h) { sfx.click(); applyHouse(h.dataset.house); }
 });
