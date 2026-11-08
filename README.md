@@ -30,7 +30,7 @@ Every quiz has lessons of 5 questions in three sections. Grand Quest has 21 less
 | Scholar | 8–14 |
 | Archmage | 15–20 (Grand Quest: 15–21) |
 
-The next lesson of a quiz opens only when the previous one is finished. Finishing a lesson in one quiz does not unlock or lock another. The owl sits on the current lesson, not above the path.
+The next lesson of a quiz opens only when the previous one is finished. Finishing a lesson in one quiz does not unlock or lock another. The owl stands just to the right of the current lesson.
 
 Tap a lesson, pick an answer, then **Check**. A banner shows the result and **Continue**. Leaving a lesson asks first. Correct answers stay saved. A day streak counts each local day you finish a lesson. Points and the day streak show under the banner.
 

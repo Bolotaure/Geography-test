@@ -335,7 +335,6 @@ body.lesson-mode .menu-wrap { display: none !important; }
 .unit-title { font-family: var(--font-display); color: var(--candle); text-align: center; font-size: 1.25rem; }
 .unit-sub { text-align: center; color: #cbbda6; font-size: .9rem; margin: .15rem 0 .4rem; }
 .path { display: flex; flex-direction: column; align-items: center; gap: 26px; padding: 26px 0; position: relative; }
-.path.path-owl { padding-top: 62px; }
 .path-rail { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
 .path-rail path { fill: none; stroke: #3a2c22; stroke-width: 10; stroke-linecap: round; }
 .node {
@@ -360,7 +359,7 @@ body.lesson-mode .menu-wrap { display: none !important; }
 }
 .node-locked { opacity: .42; }
 .node { margin: 0; }
-.node-owl { position: absolute; left: 50%; bottom: 78%; width: 58px; transform: translateX(-50%); pointer-events: none; filter: drop-shadow(0 6px 4px #0006); }
+.node-owl { position: absolute; left: calc(100% + 4px); top: 50%; width: 58px; transform: translateY(-58%); pointer-events: none; filter: drop-shadow(0 6px 4px #0006); }
 .node-owl svg { width: 58px; height: auto; }
 @keyframes nodePulse { 50% { transform: scale(1.06); box-shadow: 0 0 0 8px color-mix(in srgb, var(--house) 40%, transparent); } }
 .path-review {
