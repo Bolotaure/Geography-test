@@ -32,14 +32,28 @@
   --sky-top: #120c18;
   --font-display: "Nunito", "Trebuchet MS", sans-serif;
   --font-body: "Nunito", "Trebuchet MS", sans-serif;
-  --state-a: #d7e4cc;
-  --state-b: #f0ddb0;
-  --state-c: #d5e1f0;
-  --state-d: #f0d4cf;
-  --state-hover: #f0c36a;
-  --state-found: #7dba8a;
+  --state-a: #a9c99a;
+  --state-b: #e2c27a;
+  --state-c: #a3bfe0;
+  --state-d: #e0a89c;
+  --state-hover: #f0b648;
+  --state-found: #4f9f6a;
+  --map-bg: #efe2c4;
+  --map-line: #6b5438;
 }
 :root { --bg-veil: #0d081466; }
+:root:not([data-theme="light"]) {
+  --state-a: #3f6b4a; --state-b: #8a6a2c; --state-c: #3b5a86; --state-d: #864a44;
+  --state-hover: #d79a2e; --state-found: #2f9a63; --map-bg: #141009; --map-line: #0a0705;
+}
+:root:not([data-theme="light"]) #mapCard { border-color: #4d3f30; }
+:root:not([data-theme="light"]) .state-path { stroke-opacity: 1; stroke-width: 1px; }
+:root:not([data-theme="light"]) .state-label { fill: #f6ead2; }
+:root:not([data-theme="light"]) .state-star { fill: #ffd78a; }
+:root:not([data-theme="light"]) .inset-box { stroke: #4d3f30; }
+:root:not([data-theme="light"]) .inset-caption { fill: #c9b99c; }
+:root:not([data-theme="light"]) .zoom-btn { background: #2a231c; color: #f3e9d6; border-color: #4d3f30; }
+:root:not([data-theme="light"]) .state-selected { stroke: #ffd78a !important; }
 :root[data-academy="verdant"] { --house: #1f6b4a; --house-ink: #f4fff8; }
 :root[data-academy="azurequill"] { --house: #1e4d8c; --house-ink: #f3f7ff; }
 :root[data-academy="amberkeep"] { --house: #8a5a08; --house-ink: #fff8e8; }
@@ -242,7 +256,7 @@ body.lesson-mode .course-head { order: -1; width: calc(100% + 2 * var(--pad)); m
 }
 .map-loading { text-align: center; padding: 4rem 1rem; font-weight: 700; color: var(--muted); }
 .state-path {
-  stroke: #fffaf0; stroke-width: 1.2px; cursor: pointer;
+  stroke: var(--map-line); stroke-width: .9px; stroke-opacity: .75; cursor: pointer;
   transition: fill .15s; transform-box: fill-box; transform-origin: center;
 }
 .state-a { fill: var(--state-a); } .state-b { fill: var(--state-b); }
@@ -260,9 +274,10 @@ body.lesson-mode .course-head { order: -1; width: calc(100% + 2 * var(--pad)); m
 .state-star { text-anchor: middle; dominant-baseline: middle; fill: #a67c2d; font-size: 15px; }
 .state-label {
   text-anchor: middle; dominant-baseline: middle; fill: var(--ink);
-  paint-order: stroke; stroke: #fffaf0; stroke-width: 3px; font-size: 13px; font-weight: 800;
+  paint-order: stroke; stroke: var(--map-bg); stroke-width: 3px; font-size: 13px; font-weight: 800;
 }
-.inset-box { fill: #fffaf0; stroke: #c8b48a; stroke-width: 1.5px; stroke-dasharray: 5 4; }
+#mapCard { background: var(--map-bg); }
+.inset-box { fill: var(--map-bg); stroke: var(--map-line); stroke-width: 1.5px; stroke-dasharray: 5 4; }
 .inset-hit { fill: transparent; cursor: pointer; }
 .inset-caption { font-size: 12px; font-weight: 700; fill: var(--muted); text-anchor: middle; }
 .quiz-kicker { color: var(--house); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: .78rem; }
