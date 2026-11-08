@@ -454,6 +454,24 @@ body.lesson-mode #resetQuiz { display: none !important; }
 .profile-list { list-style: none; text-align: left; margin-top: .8rem; display: flex; flex-direction: column; gap: .45rem; }
 .profile-list li { display: flex; justify-content: space-between; gap: .6rem; background: #efe4cc; border-radius: 12px; padding: .55rem .7rem; }
 .profile-list span { color: var(--muted); font-weight: 700; white-space: nowrap; }
+/* Dialog and sheet cards: cream card, gold band along the top edge,
+   left-aligned warm title and plain body text. */
+.reward-modal, .relic-board, .profile-card {
+  background: #f6efe2; color: #3a2e22; border: none; border-radius: 28px; text-align: left;
+  box-shadow: inset 0 10px 0 #e9c46a, 0 22px 50px #0009;
+  padding: 2rem 1.5rem 1.6rem;
+}
+.reward-modal { align-items: stretch; gap: .6rem; }
+.reward-name, .relic-board .summary-title, .profile-card .summary-title {
+  font-family: var(--font-display); color: #b4542a; font-size: 1.9rem; font-weight: 800; line-height: 1.15; text-align: left;
+}
+.reward-tagline, .relic-rule, .profile-line {
+  color: #3a2e22; font-weight: 500; font-size: 1.05rem; line-height: 1.55; text-align: left;
+}
+.reward-banner, .reward-img { align-self: center; text-align: center; }
+.relic-board .pane-back, .profile-card .pane-back { display: block; margin: 0 0 .3rem; padding: 0; color: #b4542a; }
+.relic-home { left: auto; right: 1rem; top: 1.4rem; }
+.profile-card .house-picker { justify-content: flex-start; }
 .relic-group { margin: 0 0 1.15rem; }
 details.relic-group { margin-bottom: .6rem; }
 .relic-group summary {
