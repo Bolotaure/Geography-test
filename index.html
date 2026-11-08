@@ -524,6 +524,7 @@ body.lesson-mode #resetQuiz { display: none !important; }
 }
 .relic-board .pane-back, .profile-card .pane-back { display: block; margin: 0 0 .3rem; padding: 0; color: #b4542a; }
 .relic-home { left: auto; right: 1rem; top: 1.4rem; }
+.relic-board .summary-title, .profile-card .summary-title { padding-right: 3.4rem; min-height: 44px; }
 .profile-card { position: relative; }
 .profile-card .house-picker { justify-content: flex-start; }
 .relic-group { margin: 0 0 1.15rem; }
@@ -753,7 +754,7 @@ body.academy-home #pathBg, body.lesson-mode #pathBg { display: none; }
       <button class="back-btn relic-home" id="relicsHome" type="button" aria-label="Home">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg>
       </button>
-      <button class="pane-back" id="relicsBack" type="button">← Back</button>
+      <button class="pane-back" id="relicsBack" type="button" hidden>← Back</button>
       <h2 class="summary-title">Relic shelf</h2>
       <p class="relic-rule" id="relicRule"></p>
       <div id="relicGrid"></div>
@@ -765,7 +766,7 @@ body.academy-home #pathBg, body.lesson-mode #pathBg { display: none; }
       <button class="back-btn relic-home" id="profileHome" type="button" aria-label="Home">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg>
       </button>
-      <button class="pane-back" id="profileBack" type="button">← Back</button>
+      <button class="pane-back" id="profileBack" type="button" hidden>← Back</button>
       <h2 class="summary-title">Your house</h2>
       <div class="house-picker" role="radiogroup" aria-label="Choose a house">
         <button class="house-btn" type="button" role="radio" data-house="emberwyck" aria-checked="false"><span class="swatch" style="background:#8c1c2c"></span>Emberwyck</button>
@@ -2694,9 +2695,9 @@ function syncMenuLabels() {
     b.querySelector(".menu-label").textContent = fr ? (dark ? "Sombre" : "Clair") : (dark ? "Dark" : "Light");
   });
   const back = !test || pathHome ? (fr ? "← Accueil" : "← Home") : (fr ? "← Retour" : "← Back");
-  if ($("relicsBack")) { $("relicsBack").textContent = back; $("relicsBack").hidden = !test || pathHome; }
+  if ($("relicsBack")) { $("relicsBack").textContent = back; $("relicsBack").hidden = true; }
   if ($("relicsHome")) $("relicsHome").setAttribute("aria-label", fr ? "Accueil" : "Home");
-  if ($("profileBack")) { $("profileBack").textContent = back; $("profileBack").hidden = !test || pathHome; }
+  if ($("profileBack")) { $("profileBack").textContent = back; $("profileBack").hidden = true; }
   if ($("profileHome")) $("profileHome").setAttribute("aria-label", fr ? "Accueil" : "Home");
 }
 function closeAppMenu() {
@@ -3087,6 +3088,7 @@ $("displayOptions").addEventListener("click", e => {
 $("menuProfile").addEventListener("click", () => { closeAppMenu(); showTab("profile"); });
 $("relicsBack").addEventListener("click", () => showTab("learn"));
 $("relicsHome").addEventListener("click", () => switchTo("home"));
+["relicsPane", "profilePane"].forEach(id => $(id).addEventListener("click", e => { if (e.target.id === id) showTab("learn"); }));
 $("profileHome").addEventListener("click", () => switchTo("home"));
 $("profileBack").addEventListener("click", () => showTab("learn"));
 document.addEventListener("click", e => { if (!e.target.closest(".menu-wrap")) closeAppMenu(); });
