@@ -53,7 +53,6 @@
 :root:not([data-theme="light"]) .inset-box { stroke: #4d3f30; }
 :root:not([data-theme="light"]) .inset-caption { fill: #c9b99c; }
 :root:not([data-theme="light"]) .zoom-btn { background: #2a231c; color: #f3e9d6; border-color: #4d3f30; }
-:root:not([data-theme="light"]) .state-selected { stroke: #ffd78a !important; }
 :root[data-academy="verdant"] { --house: #1f6b4a; --house-ink: #f4fff8; }
 :root[data-academy="azurequill"] { --house: #1e4d8c; --house-ink: #f3f7ff; }
 :root[data-academy="amberkeep"] { --house: #8a5a08; --house-ink: #fff8e8; }
@@ -499,7 +498,14 @@ body.lesson-mode #resetQuiz, body:not(.academy-home) .topbar { display: none !im
 .quiz-card .question-count { color: var(--house); font-size: 1rem; margin-bottom: .15rem; }
 .choice { min-height: 64px; border-radius: 16px; font-size: 1.12rem; }
 .choice-selected { border-color: var(--gold-deep); box-shadow: 0 0 0 3px var(--gold); background: #fff4d2; }
-.state-selected { stroke: #a67c2d !important; stroke-width: 3.5px; fill: var(--state-hover) !important; }
+.state-selected { fill: var(--state-hover) !important; }
+.state-outline { fill: none; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.outline-selected { stroke: #7a4f12; stroke-width: 3px; }
+.outline-answer { stroke: #146c43; stroke-width: 3px; }
+.outline-wrong { stroke: #6d1020; stroke-width: 3px; }
+:root:not([data-theme="light"]) .outline-selected { stroke: #ffe39a; }
+:root:not([data-theme="light"]) .outline-answer { stroke: #8ff0b8; }
+:root:not([data-theme="light"]) .outline-wrong { stroke: #ff9aa0; }
 .check-bar, .feedback {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
 }
@@ -2708,6 +2714,15 @@ function renderMap() {
       !S.lesson && !S.explore && S.misses >= 2 && isTargetGeo(s.id) ? "state-hint" : "",
       S.explore && S.peekId === s.id ? "state-peek" : ""].join(" ");
     svg += `<path d="${s.d}" class="${cls}" data-id="${s.id}" role="button" aria-label="${esc(p.name)}"/>`;
+  });
+  // Outline the picked / answered place on top of its neighbours, so its
+  // whole contour shows instead of being half covered by their borders.
+  shapes.forEach(s => {
+    let kind = "";
+    if (!S.locked && S.selectedGeo === s.id) kind = "outline-selected";
+    else if (S.locked && isTargetGeo(s.id)) kind = "outline-answer";
+    else if (S.locked && S.selectedGeo === s.id) kind = "outline-wrong";
+    if (kind) svg += `<path d="${s.d}" class="state-outline ${kind}" pointer-events="none"/>`;
   });
   insets.forEach(b => {
     const p = geoPlace(b.id);
