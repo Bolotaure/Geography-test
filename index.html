@@ -310,15 +310,18 @@ button:focus-visible, .topic-btn:focus-visible { outline: 3px solid var(--gold);
   color: var(--gold); display: inline-flex; align-items: center; justify-content: center;
 }
 .app-menu {
-  position: absolute; right: 0; top: calc(100% + 6px); z-index: 40;
-  background: var(--parchment); color: var(--ink); border: 1px solid var(--gold-deep); border-radius: 14px;
-  min-width: 210px; padding: .35rem; box-shadow: 0 16px 40px #0008;
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 40;
+  background: #fbf6ea; color: var(--ink); border: 1px solid #e6d8b8; border-radius: 26px;
+  min-width: 250px; padding: .55rem; box-shadow: 0 18px 48px #0009;
   display: flex; flex-direction: column;
 }
 .app-menu button {
-  text-align: left; font-weight: 800; min-height: 44px; padding: .45rem .75rem; border-radius: 10px;
+  display: flex; align-items: center; gap: .95rem; text-align: left;
+  font-size: 1.12rem; font-weight: 600; min-height: 54px; padding: .55rem .9rem; border-radius: 16px;
 }
-.app-menu button:hover, .app-menu button:focus-visible { background: #efe4cc; }
+.app-menu .menu-ico { flex: 0 0 auto; color: var(--gold-deep); }
+.app-menu .menu-sep { border: none; border-top: 1px solid #e3d6b9; margin: .3rem .7rem; }
+.app-menu button:hover, .app-menu button:focus-visible { background: #f1e7d0; }
 body.lesson-mode .menu-wrap { display: none !important; }
 .pane-back { color: var(--gold-deep); font-weight: 800; min-height: 44px; margin-bottom: .4rem; }
 .pills { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem; }
@@ -581,9 +584,10 @@ body.academy-home #pathBg, body.lesson-mode #pathBg { display: none; }
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
       <div class="app-menu" id="appMenu" role="menu" hidden>
-        <button type="button" role="menuitem" id="menuReset">Reset a quiz</button>
-        <button type="button" role="menuitem" id="menuRelics">Relics</button>
-        <button type="button" role="menuitem" id="menuProfile">Profile</button>
+        <button type="button" role="menuitem" id="menuReset"><svg class="menu-ico" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span class="menu-label">Reset a quiz</span></button>
+        <hr class="menu-sep">
+        <button type="button" role="menuitem" id="menuRelics"><svg class="menu-ico" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12l3 6-9 12L3 9z"/><path d="M3 9h18M9 3l3 6 3-6M12 9v12"/></svg><span class="menu-label">Relics</span></button>
+        <button type="button" role="menuitem" id="menuProfile"><svg class="menu-ico" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg><span class="menu-label">Profile</span></button>
       </div>
     </div>
   </div>
@@ -2573,9 +2577,10 @@ function renderHomePath() {
 function syncMenuLabels() {
   const fr = uiLang() === "fr";
   const reset = $("menuReset");
-  if (reset) reset.textContent = !test || pathHome ? (fr ? "Réinitialiser un quiz" : "Reset a quiz") : L("reset");
-  if ($("menuRelics")) $("menuRelics").textContent = fr ? "Reliques" : "Relics";
-  if ($("menuProfile")) $("menuProfile").textContent = fr ? "Profil" : "Profile";
+  const label = (id, text) => { const el = $(id) && $(id).querySelector(".menu-label"); if (el) el.textContent = text; };
+  if (reset) label("menuReset", !test || pathHome ? (fr ? "Réinitialiser un quiz" : "Reset a quiz") : L("reset"));
+  label("menuRelics", fr ? "Reliques" : "Relics");
+  label("menuProfile", fr ? "Profil" : "Profile");
   const back = !test || pathHome ? (fr ? "← Accueil" : "← Home") : (fr ? "← Retour" : "← Back");
   if ($("relicsBack")) { $("relicsBack").textContent = back; $("relicsBack").hidden = !test || pathHome; }
   if ($("relicsHome")) $("relicsHome").setAttribute("aria-label", fr ? "Accueil" : "Home");
