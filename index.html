@@ -230,12 +230,13 @@ body.lesson-mode .course-head { order: -1; width: calc(100% + 2 * var(--pad)); m
 .ask-chip { background: var(--parchment); color: var(--ink); border-radius: 999px; padding: .35rem .8rem; font-weight: 700; min-height: 44px; }
 .ask-answer { font-weight: 700; }
 .ask-panel { position: relative; }
-.ask-close {
-  position: absolute; top: -13px; right: -13px; width: 30px; height: 30px; border-radius: 50%;
-  display: inline-flex; align-items: center; justify-content: center;
-  background: var(--gold); color: #2c2118; box-shadow: 0 2px 6px #0006;
-}
-.ask-close::before { content: ""; position: absolute; inset: -7px; }
+.ask-close { color: #eadcc0; align-self: flex-end; text-decoration: underline; min-height: 44px; }
+:root:not([data-theme="light"]) .ask-panel { background: #2a231c; border-color: #a67c2d; }
+:root:not([data-theme="light"]) .ask-chip { background: #3a3026; color: #f3e9d6; border: 1px solid #5c4a32; }
+:root:not([data-theme="light"]) .ask-answer { color: #f3e9d6; }
+:root[data-theme="light"] .ask-panel { background: #fffaf0; border-color: #d9c49a; }
+:root[data-theme="light"] .ask-chip { background: #f1e6cf; color: #3a2e22; }
+:root[data-theme="light"] .ask-answer { color: #3a2e22; }
 .progress-card {
   background: var(--parchment); color: var(--ink); border: 2px dashed var(--gold-deep); border-radius: 1.1rem;
   display: flex; align-items: center; gap: .75rem; padding: .45rem .8rem;
@@ -586,10 +587,11 @@ body.lesson-mode.map-lesson .map-card { box-shadow: none; border-width: 2px; }
 :root:not([data-theme="light"]) .map-head .quiz-kicker { color: #eea24a; }
 :root:not([data-theme="light"]) .map-head .quiz-word { color: #f3e9d6; }
 :root:not([data-theme="light"]) body.lesson-mode.map-lesson .mode-btn,
-:root:not([data-theme="light"]) body.lesson-mode.map-lesson .ask-row { background: #2a231c; color: #f3e9d6; border-color: #4d3f30; }
+:root:not([data-theme="light"]) body.lesson-mode.map-lesson .ask-row:not(.mode-btn-active) { background: #2a231c; color: #f3e9d6; border-color: #4d3f30; }
 :root:not([data-theme="light"]) body.lesson-mode.map-lesson .mode-btn-active { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+:root[data-theme="light"] .mode-btn-active { background: var(--gold); color: var(--ink); border-color: var(--gold); }
 :root[data-theme="light"] body.lesson-mode.map-lesson .mode-btn:not(.mode-btn-active),
-:root[data-theme="light"] body.lesson-mode.map-lesson .ask-row { background: #fffaf0; color: #3a2e22; border-color: #d9c49a; }
+:root[data-theme="light"] body.lesson-mode.map-lesson .ask-row:not(.mode-btn-active) { background: #fffaf0; color: #3a2e22; border-color: #d9c49a; }
 body.lesson-mode.map-lesson #play { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: .45rem; }
 body.lesson-mode.map-lesson .prompt-row { flex: 0 0 auto; }
 /* Hint, Explore and Tags: three equal buttons on one row. */
@@ -601,7 +603,9 @@ body.lesson-mode.map-lesson .mode-row .mode-btn { width: 100%; min-width: 0; ove
 body.lesson-mode.map-lesson .ask-row { width: 100%; }
 body.lesson-mode.map-lesson .mode-btn, body.lesson-mode.map-lesson .ask-row { min-height: 36px; padding: .25rem .55rem; font-size: .8rem; white-space: nowrap; }
 body.lesson-mode.map-lesson .ask-row { overflow: hidden; text-overflow: ellipsis; }
-body.lesson-mode.map-lesson #ask:has(.ask-panel) { grid-column: 1 / -1; }
+/* Open hints: "Back to quiz" takes the Hint slot, the hints go under the row. */
+body.lesson-mode.map-lesson #ask:has(.ask-panel) { display: contents; }
+body.lesson-mode.map-lesson .ask-panel { grid-column: 1 / -1; order: 2; }
 body.lesson-mode.map-lesson .ask-panel { padding: .45rem; gap: .35rem; }
 body.lesson-mode.map-lesson .ask-quick { display: grid; grid-template-columns: 1fr 1fr; gap: .3rem; }
 body.lesson-mode.map-lesson .ask-chip { min-height: 34px; padding: .2rem .5rem; font-size: .8rem; }
@@ -2601,9 +2605,9 @@ function render() {
 
   if (questionKind() === "map" && t && !S.won && !S.explore && !S.locked) {
     $("ask").innerHTML = S.askOpen
-      ? `<div class="ask-panel"><div class="ask-quick">${HINTS.map((h, i) => `<button class="ask-chip" type="button" data-hint="${i}">${h.label}</button>`).join("")}</div>
-         ${S.askAnswer ? `<p class="ask-answer" aria-live="polite">${esc(S.askAnswer)}</p>` : ""}
-         <button class="ask-close" type="button" data-ask="close" aria-label="${uiLang() === "fr" ? "Fermer" : "Close"}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>`
+      ? `<button class="mode-btn mode-btn-active ask-row" type="button" data-ask="close">${esc(L("exploreOn"))}</button>
+         <div class="ask-panel"><div class="ask-quick">${HINTS.map((h, i) => `<button class="ask-chip" type="button" data-hint="${i}">${h.label}</button>`).join("")}</div>
+         ${S.askAnswer ? `<p class="ask-answer" aria-live="polite">${esc(S.askAnswer)}</p>` : ""}</div>`
       : `<button class="mode-btn ask-row" type="button" data-ask="open">${esc(L("ask"))}</button>`;
   } else $("ask").innerHTML = "";
   document.body.classList.toggle("mcq-lesson", !!(S.lesson && questionKind() === "mcq"));
