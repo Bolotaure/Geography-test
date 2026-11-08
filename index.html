@@ -411,8 +411,8 @@ body.lesson-mode .menu-wrap { display: none !important; }
 }
 .node-locked { opacity: .42; }
 .node { margin: 0; }
-.node-owl { position: absolute; left: calc(50% + 40px); top: 0; width: 72px; height: 72px; pointer-events: none; filter: drop-shadow(0 6px 4px #0006); }
-.node-owl img { display: block; width: 72px; height: 72px; object-fit: contain; object-position: center bottom; }
+.node-owl { position: absolute; left: calc(50% + 44px); top: 0; height: 68px; pointer-events: none; filter: drop-shadow(0 6px 4px #0006); }
+.node-owl img { display: block; width: auto; height: 68px; }
 .profile-sub { font-family: var(--font-display); font-size: 1.1rem; font-weight: 800; margin: .9rem 0 .45rem; color: inherit; }
 .avatar-picker { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; }
 .avatar-btn { display: flex; flex-direction: column; align-items: center; gap: .3rem; padding: .35rem .1rem; border-radius: 16px; font-weight: 700; font-size: .85rem; color: inherit; }
@@ -2654,7 +2654,7 @@ function renderPath() {
       const cls = ["node", done ? "node-done" : "", isCurrent ? "node-current" : "", locked ? "node-locked" : ""].filter(Boolean).join(" ");
       const num = ls.number || (i + 1);
       const badge = done ? (st >= 3 ? "♛" : "★".repeat(Math.max(st, 1))) : "";
-      const owl = isCurrent ? `<span class="node-owl"><img src="${AVATARS[currentAvatar()].src}" alt="" width="72" height="72"></span>` : "";
+      const owl = isCurrent ? `<span class="node-owl"><img src="${AVATARS[currentAvatar()].src}" alt="" height="68"></span>` : "";
       const lessonLabel = L("lesson") + " " + num;
       const subject = test.key === "mixed" ? TYPE_LABEL[GRAND_ORDER[(num - 1) % GRAND_ORDER.length]] : "";
       const caption = subject || lessonLabel;
@@ -2748,10 +2748,10 @@ function renderRelics() {
   }).join("");
 }
 const AVATARS = {
-  owl: { src: "img/avatar-owl.webp?v=2", en: "Owl", fr: "Chouette" },
-  wizard: { src: "img/avatar-wizard.webp?v=2", en: "Wizard", fr: "Sorcier" },
-  witch: { src: "img/avatar-witch.webp?v=2", en: "Witch", fr: "Sorcière" },
-  dragon: { src: "img/avatar-dragon.webp?v=2", en: "Dragon", fr: "Dragon" },
+  owl: { src: "img/avatar-owl.webp?v=3", en: "Owl", fr: "Chouette" },
+  wizard: { src: "img/avatar-wizard.webp?v=3", en: "Wizard", fr: "Sorcier" },
+  witch: { src: "img/avatar-witch.webp?v=3", en: "Witch", fr: "Sorcière" },
+  dragon: { src: "img/avatar-dragon.webp?v=3", en: "Dragon", fr: "Dragon" },
 };
 function currentAvatar() {
   const a = store.get("wqa-avatar", "owl");
