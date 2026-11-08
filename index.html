@@ -67,7 +67,7 @@ button:disabled:not(.choice-right):not(.choice-wrong) { opacity: .45; }
 body.academy-home .page-top, body.lesson-mode .page-top { display: contents; }
 .banner-wrap { position: relative; }
 .banner-avatar { display: none; position: absolute; right: var(--pad, 1rem); bottom: 6px; height: min(120px, 48%); width: auto; pointer-events: none; filter: drop-shadow(0 6px 6px #000a); }
-body.academy-home .banner-avatar { display: block; }
+body.academy-home .banner-avatar, body.lesson-mode .banner-avatar { display: block; }
 body.academy-home .banner-wrap, body.lesson-mode .banner-wrap { order: -1; margin-top: -1rem; width: calc(100% + 2 * var(--pad)); margin-left: calc(-1 * var(--pad)); }
 body.lesson-mode .banner-wrap { position: sticky; top: 0; z-index: 8; }
 .quiz-banner {
@@ -432,7 +432,7 @@ body.lesson-mode .menu-wrap { display: none !important; }
   border-radius: 999px; background: var(--parchment); color: var(--ink); font-weight: 800;
   border: 2px solid var(--gold-deep);
 }
-body.lesson-mode #resetQuiz { display: none !important; }
+body.lesson-mode #resetQuiz, body.lesson-mode .topbar { display: none !important; }
 .reset-pick { display: flex; flex-direction: column; gap: .35rem; margin-top: .6rem; }
 .reset-pick .path-reset { min-height: 40px; padding: .35rem 1rem; }
 .reset-pick .path-reset { width: 100%; }
@@ -2818,6 +2818,7 @@ function sittingIds(ids, replay) {
   return shuffle(todo.length ? todo : all);
 }
 function startLesson(index, ids, replay) {
+  syncBannerAvatar();
   if (!ids || !ids.length) return;
   const queue = sittingIds(ids, replay);
   if (!queue.length) return;
