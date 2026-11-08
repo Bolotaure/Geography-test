@@ -2252,15 +2252,10 @@ function relicRemaining(spec, foundCount) {
   return into === 0 ? every : every - into;
 }
 function relicHomeIntro() {
-  return "Each quiz keeps its own relics. Grand Quest has one relic for each of its twenty-one lessons. Every other quiz has one relic for each section: Apprentice, Scholar, and Archmage.";
+  return "Each quiz keeps its own relics: one when you finish each section, Apprentice, Scholar, and Archmage.";
 }
 function relicRuleSentence() {
   const fr = test && (test.key === "vocab-fr" || test.key === "conj");
-  if (test && test.key === "mixed") {
-    return fr
-      ? "Une relique à la fin de chaque leçon. Il y en a vingt et une, seulement pour ce quiz."
-      : "One relic at the end of each lesson. Twenty-one relics, only for this quiz.";
-  }
   if (test) {
     return fr
       ? "Une relique à la fin de chaque partie : Apprenti, Érudit, Archimage. Elles restent dans ce quiz."
@@ -2270,7 +2265,6 @@ function relicRuleSentence() {
 }
 function relicSummaryNote(earned) {
   if (!earned) return "";
-  if (test && test.key === "mixed") return uiLang() === "fr" ? "Relique de cette leçon." : "Relic for this lesson.";
   return uiLang() === "fr" ? "Relique de cette partie." : "Relic for this section.";
 }
 const SECTIONS = [
@@ -2282,13 +2276,13 @@ function sectionsFor(key) {
   return SECTIONS.map(b => b.to === LESSONS ? { ...b, to: lessonCount(key) } : b);
 }
 function sectionRelics(spec) {
-  return SECTIONS.map((band, i) => {
+  return sectionsFor(spec.key).map((band, i) => {
     const src = (spec.rewards || [])[i] || ACADEMY_RELICS[i];
     return { level: i + 1, name: src.name, kind: src.kind, accent: src.accent, tagline: band.title, to: band.to };
   });
 }
 function quizRelics(spec) {
-  return spec.key === "mixed" ? ACADEMY_RELICS : sectionRelics(spec);
+  return sectionRelics(spec);
 }
 function foundSetFor(key) {
   if (test && test.key === key && S && S.found) return S.found;
@@ -2303,9 +2297,8 @@ function sectionComplete(key, band, found) {
 }
 function ownedQuizRelics(key) {
   const found = foundSetFor(key);
-  if (key === "mixed") return relicOwnedLessons(key);
   const owned = new Set();
-  SECTIONS.forEach((band, i) => { if (sectionComplete(key, band, found)) owned.add(i + 1); });
+  sectionsFor(key).forEach((band, i) => { if (sectionComplete(key, band, found)) owned.add(i + 1); });
   return owned;
 }
 function relicOwnedLessons(key) {
@@ -3116,7 +3109,7 @@ function renderRelics() {
     const owned = ownedQuizRelics(key);
     const cards = quizRelics(spec).map(r => {
       const has = owned.has(r.level);
-      const locked = spec.key === "mixed" ? "Lesson " + r.level : r.tagline;
+      const locked = r.tagline;
       if (!has) return `<article class="relic-card relic-locked">${RELIC_MYSTERY}<h3>???</h3><p>${esc(locked)}</p></article>`;
       return `<article class="relic-card relic-owned">${relicSVG(r.kind, r.accent)}<h3>${esc(r.name)}</h3><p>${esc(r.tagline)}</p></article>`;
     }).join("");
@@ -3233,11 +3226,8 @@ function finishLesson() {
   if (complete) bumpDayStreak();
   let earned = null;
   if (complete && lesson.index >= 0 && !lesson.alreadyDone && !lesson.review) {
-    if (test.key === "mixed") earned = ACADEMY_RELICS.find(r => r.level === lesson.index) || null;
-    else {
-      const band = SECTIONS.find(b => b.to === lesson.index);
-      if (band && sectionComplete(test.key, band, S.found)) earned = sectionRelics(test).find(r => r.to === lesson.index) || null;
-    }
+    const band = sectionsFor(test.key).find(b => b.to === lesson.index);
+    if (band && sectionComplete(test.key, band, S.found)) earned = sectionRelics(test).find(r => r.to === lesson.index) || null;
   }
   const xp = lesson.xp || 0;
   S.lesson = null;

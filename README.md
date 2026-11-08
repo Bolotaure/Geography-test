@@ -60,10 +60,7 @@ A hard word, four choices, one real synonym. English and French each have 100 wo
 
 ## Relics
 
-Relics are not shared between quizzes.
-
-- **Grand Quest** has twenty-one relics, one when you finish each of its lessons.
-- **Every other quiz** has three relics, one when you finish a whole section: Apprentice, Scholar, or Archmage.
+Relics are not shared between quizzes. Every quiz, Grand Quest included, has three relics, one when you finish a whole section: Apprentice, Scholar, or Archmage. A relic you have not earned stays hidden as a sealed medallion until you do.
 
 A question you already got right does not count again. The relic shelf in the menu shows only the relics for the quiz you are in, or every quiz when you open it from home.
 
