@@ -1190,7 +1190,7 @@ const COPY = {
     leaveBody: "Correct answers stay saved.", stay: "Stay", leave: "Leave",
     correct: "Correct!", wrong: "Not quite!", lessonDone: "Lesson complete",
     keep: "Keep practicing", days: "days", day: "day",
-    lesson: "Lesson", ask: "Hint",
+    lesson: "Lesson", ask: "Hint", askOn: "Hide hints",
     exploreOn: "Back to quiz", exploreOff: "Explore",
     tagsOn: "Hide tags", tagsOff: "Tags",
     missedNote: "Missed questions stay on this lesson until you land them.",
@@ -1207,7 +1207,7 @@ const COPY = {
     leaveBody: "Les bonnes réponses restent enregistrées.", stay: "Rester", leave: "Quitter",
     correct: "Juste !", wrong: "Pas tout à fait.", lessonDone: "Leçon terminée",
     keep: "À retravailler", days: "jours", day: "jour",
-    lesson: "Leçon", ask: "Indice",
+    lesson: "Leçon", ask: "Indice", askOn: "Masquer",
     exploreOn: "Retour au quiz", exploreOff: "Explorer",
     tagsOn: "Masquer les noms", tagsOff: "Noms",
     missedNote: "Les questions manquées restent dans cette leçon.",
@@ -2605,7 +2605,7 @@ function render() {
 
   if (questionKind() === "map" && t && !S.won && !S.explore && !S.locked) {
     $("ask").innerHTML = S.askOpen
-      ? `<button class="mode-btn mode-btn-active ask-row" type="button" data-ask="close">${esc(L("exploreOn"))}</button>
+      ? `<button class="mode-btn mode-btn-active ask-row" type="button" data-ask="close">${esc(L("askOn"))}</button>
          <div class="ask-panel"><div class="ask-quick">${HINTS.map((h, i) => `<button class="ask-chip" type="button" data-hint="${i}">${h.label}</button>`).join("")}</div>
          ${S.askAnswer ? `<p class="ask-answer" aria-live="polite">${esc(S.askAnswer)}</p>` : ""}</div>`
       : `<button class="mode-btn ask-row" type="button" data-ask="open">${esc(L("ask"))}</button>`;
