@@ -434,7 +434,7 @@ body.lesson-mode .menu-wrap { display: none !important; }
 .node-owl { position: absolute; left: calc(50% + 44px); top: -5px; height: 68px; pointer-events: none; filter: drop-shadow(0 6px 4px #0006); }
 .node-owl img { display: block; width: auto; height: 68px; }
 .profile-sub { font-family: var(--font-display); font-size: 1.1rem; font-weight: 800; margin: .9rem 0 .45rem; color: inherit; }
-.avatar-picker { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; }
+.avatar-picker { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; }
 .avatar-btn { display: flex; flex-direction: column; align-items: center; gap: .3rem; padding: .35rem .1rem; border-radius: 16px; font-weight: 700; font-size: .85rem; color: inherit; }
 .avatar-btn img { width: 100%; max-width: 76px; height: auto; aspect-ratio: 1; object-fit: contain; }
 .avatar-btn { border: 2px solid transparent; }
@@ -591,13 +591,13 @@ body.lesson-mode .feedback-owl, body.lesson-mode .feedback-owl svg { width: 48px
 .relic-home { left: auto; right: 1rem; top: 1.4rem; }
 .relic-board .summary-title, .profile-card .summary-title { padding-right: 3.4rem; min-height: 44px; }
 .profile-card { position: relative; }
-.profile-card .house-picker { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; margin-top: 0; }
+.profile-card .house-picker { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; margin-top: 0; }
 #profilePane .profile-card .house-btn {
   flex-direction: column; justify-content: flex-start; gap: .3rem; padding: .4rem .15rem; border-radius: 16px;
   background: transparent; border: 2px solid transparent; color: inherit; box-shadow: none;
   font-size: .78rem; line-height: 1.15; text-align: center;
 }
-.house-crest { width: 100%; max-width: 64px; height: auto; filter: drop-shadow(0 4px 4px #0005); }
+.house-crest { width: 56px; max-width: 100%; height: auto; filter: drop-shadow(0 4px 4px #0005); }
 #profilePane .profile-card .house-btn.house-on, #profilePane .profile-card .house-btn[aria-checked="true"] { border-color: var(--gold); background: #e2b6571f; box-shadow: none; font-weight: 800; }
 .relic-group { margin: 0 0 1.15rem; }
 details.relic-group { margin-bottom: .6rem; }
@@ -665,14 +665,14 @@ details.relic-group { margin-bottom: .6rem; }
 .subject-bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--house), var(--gold)); }
 /* Sparkle at the leading edge of every progress bar (animated, generated
    with Grok Imagine and cut out to a transparent loop). */
-.lesson-track, .subject-bar, .progress-track { overflow: visible; }
+.lesson-track, .subject-bar, .progress-track { overflow: hidden; }
 .lesson-fill, .subject-bar span, .progress-fill { position: relative; border-radius: 999px; }
 .lesson-fill:not([style*="width: 0"])::after, .subject-bar span:not([style*="width:0%"])::after, .progress-fill::after {
-  content: ""; position: absolute; right: -10px; top: 50%; width: 20px; height: 20px; margin-top: -10px; opacity: .85; pointer-events: none;
+  content: ""; position: absolute; right: -7px; top: 50%; width: 14px; height: 14px; margin-top: -7px; opacity: .85; pointer-events: none;
   background: url("img/sparkle.webp?v=3") center / contain no-repeat;
   filter: drop-shadow(0 0 2px #ffd86bcc);
 }
-.subject-bar span::after { width: 15px; height: 15px; margin-top: -7.5px; right: -7.5px; }
+.subject-bar span::after { width: 10.5px; height: 10.5px; margin-top: -5.25px; right: -5.25px; }
 
 
 .quit-actions { display: flex; gap: .6rem; justify-content: center; align-items: center; margin-top: 1rem; }
@@ -2923,7 +2923,7 @@ const AVATARS = {
 function avatarSrc(k) {
   if (k === "dragon" || !AVATARS[k]) return AVATARS[k] ? AVATARS[k].src : AVATARS.owl.src;
   const house = typeof currentHouse === "string" && HOUSES[currentHouse] ? currentHouse : "emberwyck";
-  return `img/avatar-${k}-${house}.webp?v=2`;
+  return `img/avatar-${k}-${house}.webp?v=3`;
 }
 function currentAvatar() {
   const a = store.get("wqa-avatar", "owl");
