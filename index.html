@@ -1965,6 +1965,7 @@ function selectTest(key) {
     return;
   }
   pathHome = false;
+  centerOnOpen = true;
   view = "learn";
   tab = "learn";
   sessionToState(readSession());
@@ -2826,12 +2827,33 @@ function renderPath() {
   paintMascots();
   document.querySelectorAll(".path").forEach(el => el.classList.toggle("path-owl", !!el.querySelector(".node-current")));
   drawPathRails();
-  const node = document.querySelector(".node-current");
-  if (node) {
-    const top = node.getBoundingClientRect().top;
-    if (top < 70 || top > window.innerHeight - 140) node.scrollIntoView({ block: "center", behavior: "auto" });
+  if (centerOnOpen) {
+    centerOnOpen = false;
+    centerCurrentLesson();
+    requestAnimationFrame(centerCurrentLesson);
+    const img = $("quizBanner");
+    if (img && !img.complete) img.addEventListener("load", centerCurrentLesson, { once: true });
+  } else {
+    const node = document.querySelector(".node-current");
+    if (node) {
+      const top = node.getBoundingClientRect().top;
+      if (top < 70 || top > window.innerHeight - 140) centerCurrentLesson();
+    }
   }
   updatePills();
+}
+// Scroll the path so the current lesson sits in the middle of the area
+// under the fixed title and banner.
+let centerOnOpen = false;
+function centerCurrentLesson() {
+  const node = document.querySelector(".node-current");
+  const root = document.querySelector(".game-root");
+  if (!node || !root) return;
+  syncPathTop();
+  const top = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--path-top")) || 0;
+  const r = node.getBoundingClientRect();
+  const want = top + (window.innerHeight - top) / 2;
+  root.scrollTop += r.top + r.height / 2 - want;
 }
 function syncBannerAvatar() {
   const img = $("bannerAvatar");
