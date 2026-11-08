@@ -66,6 +66,27 @@ button:disabled:not(.choice-right):not(.choice-wrong) { opacity: .45; }
 }
 body.academy-home .page-top, body.lesson-mode .page-top { display: contents; }
 .banner-wrap { position: relative; }
+.banner-flames { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.flame {
+  position: absolute; border-radius: 50% 50% 45% 45% / 62% 62% 38% 38%;
+  background: radial-gradient(ellipse 50% 60% at 50% 66%, #fffdf2 0 22%, #ffe9a8 38%, #ffb648b0 62%, #ff8a2000 80%);
+  mix-blend-mode: screen; transform-origin: 50% 85%;
+  animation: flameFlicker 1.1s ease-in-out infinite alternate;
+}
+.flame::after {
+  content: ""; position: absolute; left: 50%; top: 55%; width: 380%; height: 260%; transform: translate(-50%, -50%);
+  border-radius: 50%; background: radial-gradient(circle, #ffcf6a55, #ffb34a00 65%);
+  animation: flameGlow 1.7s ease-in-out infinite alternate;
+}
+@keyframes flameFlicker {
+  0% { transform: scale(1, 1) skewX(0deg); opacity: .9; }
+  25% { transform: scale(.94, 1.1) skewX(-4deg); opacity: 1; }
+  50% { transform: scale(1.04, .9) skewX(3deg); opacity: .8; }
+  75% { transform: scale(.96, 1.08) skewX(-2deg); opacity: 1; }
+  100% { transform: scale(1.02, .95) skewX(2deg); opacity: .88; }
+}
+@keyframes flameGlow { 0% { opacity: .55; } 50% { opacity: .9; } 100% { opacity: .65; } }
+@media (prefers-reduced-motion: reduce) { .flame, .flame::after { animation: none; } }
 .banner-avatar { display: none; position: absolute; right: var(--pad, 1rem); bottom: 6px; height: min(120px, 48%); width: auto; pointer-events: none; filter: drop-shadow(0 6px 6px #000a); }
 body.academy-home .banner-avatar, body.lesson-mode .banner-avatar { display: block; }
 body.academy-home .banner-wrap, body.lesson-mode .banner-wrap { order: -1; margin-top: -1rem; width: calc(100% + 2 * var(--pad)); margin-left: calc(-1 * var(--pad)); }
@@ -787,6 +808,7 @@ body.academy-home #pathBg, body.lesson-mode #pathBg { display: none; }
   </div>
     <div class="banner-wrap">
     <img class="quiz-banner" id="quizBanner" alt="" hidden>
+    <div class="banner-flames" id="bannerFlames" aria-hidden="true"></div>
     <img class="banner-avatar" id="bannerAvatar" alt="" height="120">
   </div>
   </div>
@@ -1099,6 +1121,8 @@ function syncPathTop() {
   if (top) document.documentElement.style.setProperty("--path-top", Math.round(top.getBoundingClientRect().bottom) + "px");
 }
 if (window.ResizeObserver) new ResizeObserver(syncPathTop).observe(document.querySelector(".page-top"));
+if (window.ResizeObserver) new ResizeObserver(placeFlames).observe($("quizBanner"));
+$("quizBanner").addEventListener("load", placeFlames);
 // In a quiz, a pull past the top or bottom of the path must not drag the
 // whole page (iOS bounce and pull-to-refresh), so the title and banner stay put.
 (function lockQuizPull() {
@@ -1742,6 +1766,37 @@ function questionPosition() {
   const pos = left ? answered + 1 : total;
   return { pos, total, text: "Question " + pos + "/" + total };
 }
+// Candle flames painted in each banner, as [x %, y % of the flame's centre, flame height in % of width].
+const BANNER_FLAMES = {
+  home: [[48.4, 62.5, .9], [57.6, 53.5, .8], [37.8, 71, .8], [7.6, 81, 1], [85, 70, .9], [87.8, 73, .8], [91.6, 73, .8], [19, 43, 1], [37, 47, .9]],
+  mixed: [[92.4, 12.5, 2.2]],
+  us: [[30.2, 27.5, 2], [36.5, 25.5, 1.8], [1.6, 37, 2], [5.2, 66, 2.2], [92.7, 66.5, 2.2]],
+  fr: [[90.1, 4.5, 2.8]],
+  "vocab-en": [[11.2, 24.5, 2.6]],
+  "vocab-fr": [[69.8, 14.5, 2.6]],
+  logic: [[18.4, 63, 2.4]],
+  conj: [[93.8, 48, 3]],
+};
+let bannerKey = "home";
+function placeFlames() {
+  const box = $("bannerFlames"), img = $("quizBanner");
+  if (!box || !img || img.hidden) return;
+  const W = img.clientWidth, H = img.clientHeight;
+  const sc = Math.max(W / 1280, H / 720), dw = 1280 * sc, dh = 720 * sc;
+  const ox = (W - dw) * 0.5, oy = (H - dh) * 0.42;
+  const list = BANNER_FLAMES[bannerKey] || [];
+  if (box.childElementCount !== list.length) {
+    box.innerHTML = list.map((_, i) => `<span class="flame" style="animation-duration:${(0.9 + (i * 37 % 7) / 10).toFixed(2)}s;animation-delay:-${(i * 0.31 % 1).toFixed(2)}s"></span>`).join("");
+  }
+  [...box.children].forEach((el, i) => {
+    const [x, y, h] = list[i];
+    const fh = Math.max(6, h / 100 * dw);
+    el.style.width = (fh * 0.55).toFixed(1) + "px";
+    el.style.height = fh.toFixed(1) + "px";
+    el.style.left = (ox + x / 100 * dw - fh * 0.275).toFixed(1) + "px";
+    el.style.top = (oy + y / 100 * dh - fh * 0.5).toFixed(1) + "px";
+  });
+}
 function showBanner(key) {
   const img = $("quizBanner");
   if (!img) return;
@@ -1749,6 +1804,9 @@ function showBanner(key) {
   if (img.getAttribute("src") !== row[0]) img.setAttribute("src", row[0]);
   img.alt = row[1];
   img.hidden = false;
+  bannerKey = BANNERS[key] ? key : "home";
+  if ($("bannerFlames")) $("bannerFlames").innerHTML = "";
+  placeFlames();
 }
 function showAcademy() {
   migrateMixed();
