@@ -439,6 +439,10 @@ body.lesson-mode .menu-wrap { display: none !important; }
 .avatar-btn img { width: 100%; max-width: 76px; height: auto; aspect-ratio: 1; object-fit: contain; }
 .avatar-btn { border: 2px solid transparent; }
 .avatar-btn[aria-checked="true"] { border-color: var(--gold); background: #e2b6571f; }
+/* Avatar and house tiles share one size, so the selection frames match. */
+.avatar-btn, #profilePane .profile-card .house-btn { height: 108px; box-sizing: border-box; justify-content: flex-start; overflow: hidden; }
+.avatar-btn img { max-height: 66px; width: auto; max-width: 100%; }
+#profilePane .profile-card .house-btn { font-size: .68rem; line-height: 1.1; padding-left: .2rem; padding-right: .2rem; }
 .avatar-btn[aria-checked="true"] { font-weight: 800; }
 @keyframes nodePulse { 50% { transform: scale(1.06); box-shadow: 0 0 0 8px color-mix(in srgb, var(--house) 40%, transparent); } }
 .path-review {
@@ -597,7 +601,7 @@ body.lesson-mode .feedback-owl, body.lesson-mode .feedback-owl svg { width: 48px
   background: transparent; border: 2px solid transparent; color: inherit; box-shadow: none;
   font-size: .78rem; line-height: 1.15; text-align: center;
 }
-.house-crest { width: 56px; max-width: 100%; height: auto; filter: drop-shadow(0 4px 4px #0005); }
+.house-crest { width: auto; height: 60px; max-width: 100%; filter: drop-shadow(0 4px 4px #0005); }
 #profilePane .profile-card .house-btn.house-on, #profilePane .profile-card .house-btn[aria-checked="true"] { border-color: var(--gold); background: #e2b6571f; box-shadow: none; font-weight: 800; }
 .relic-group { margin: 0 0 1.15rem; }
 details.relic-group { margin-bottom: .6rem; }
