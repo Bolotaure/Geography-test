@@ -2941,11 +2941,12 @@ const AVATARS = {
   witch: { src: "img/avatar-witch.webp?v=3", en: "Witch", fr: "Sorcière" },
   dragon: { src: "img/avatar-dragon.webp?v=3", en: "Dragon", fr: "Dragon" },
 };
-// Owl, wizard and witch wear the selected house's colour; the dragon has no clothes.
+// Each avatar takes the colour of the selected house's crest (clothes and
+// hats; the dragon's scales).
 function avatarSrc(k) {
-  if (k === "dragon" || !AVATARS[k]) return AVATARS[k] ? AVATARS[k].src : AVATARS.owl.src;
+  if (!AVATARS[k]) k = "owl";
   const house = typeof currentHouse === "string" && HOUSES[currentHouse] ? currentHouse : "emberwyck";
-  return `img/avatar-${k}-${house}.webp?v=3`;
+  return `img/avatar-${k}-${house}.webp?v=4`;
 }
 function currentAvatar() {
   const a = store.get("wqa-avatar", "owl");
