@@ -280,8 +280,16 @@ body.lesson-mode .course-head { order: -1; width: calc(100% + 2 * var(--pad)); m
 .shelf-locked svg { filter: grayscale(1) brightness(.6) opacity(.45); }
 .shelf-owned { background: #e5f3e4; border: 2px solid var(--found); animation: pop .5s; }
 .shelf-name { text-align: center; font-size: .8rem; font-weight: 700; }
+#relicsPane, #profilePane {
+  position: fixed; top: 0; left: 0; right: 0; height: 100vh; height: 100dvh; z-index: 50; background: #140e1ccc;
+  display: flex; justify-content: center; align-items: center;
+  padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom));
+}
+#relicsPane .relic-board, #profilePane .profile-card {
+  width: 100%; max-height: 100%; overflow-y: auto; overscroll-behavior: contain; margin: 0;
+}
 .modal-backdrop {
-  position: fixed; inset: 0; z-index: 50; background: #140e1ccc;
+  position: fixed; top: 0; left: 0; right: 0; bottom: auto; height: 100vh; height: 100dvh; z-index: 50; background: #140e1ccc;
   display: flex; justify-content: center; align-items: center; padding: 1rem;
 }
 body.modal-open, body.modal-open .game-root { overflow: hidden; }
@@ -377,7 +385,8 @@ body.lesson-mode .menu-wrap { display: none !important; }
   border: 2px solid var(--gold-deep);
 }
 body.lesson-mode #resetQuiz { display: none !important; }
-.reset-pick { display: flex; flex-direction: column; gap: .45rem; margin-top: .85rem; }
+.reset-pick { display: flex; flex-direction: column; gap: .35rem; margin-top: .6rem; }
+.reset-pick .path-reset { min-height: 40px; padding: .35rem 1rem; }
 .reset-pick .path-reset { width: 100%; }
 .lesson-head { display: flex; align-items: center; gap: .7rem; }
 .quit-btn {
@@ -471,6 +480,7 @@ body.lesson-mode #resetQuiz { display: none !important; }
 .reward-banner, .reward-img { align-self: center; text-align: center; }
 .relic-board .pane-back, .profile-card .pane-back { display: block; margin: 0 0 .3rem; padding: 0; color: #b4542a; }
 .relic-home { left: auto; right: 1rem; top: 1.4rem; }
+.profile-card { position: relative; }
 .profile-card .house-picker { justify-content: flex-start; }
 .relic-group { margin: 0 0 1.15rem; }
 details.relic-group { margin-bottom: .6rem; }
@@ -686,6 +696,9 @@ body.academy-home #pathBg, body.lesson-mode #pathBg { display: none; }
 
   <section id="profilePane" hidden aria-label="Profile">
     <div class="profile-card">
+      <button class="back-btn relic-home" id="profileHome" type="button" aria-label="Home">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg>
+      </button>
       <button class="pane-back" id="profileBack" type="button">← Back</button>
       <h2 class="summary-title">Your house</h2>
       <div class="house-picker" role="radiogroup" aria-label="Choose a house">
@@ -914,7 +927,7 @@ if (window.ResizeObserver) new ResizeObserver(syncPathTop).observe(document.quer
     // While a dialog is open, nothing underneath may move; only a dialog
     // taller than the screen scrolls inside itself.
     if (document.body.classList.contains("modal-open")) {
-      const box = e.target.closest && e.target.closest(".reward-modal");
+      const box = e.target.closest && e.target.closest(".reward-modal, .relic-board, .profile-card");
       if (!box || box.scrollHeight <= box.clientHeight || edgeBlock(box, dy)) e.preventDefault();
       return;
     }
@@ -929,11 +942,11 @@ if (window.ResizeObserver) new ResizeObserver(syncPathTop).observe(document.quer
 })();
 (function trackOpenDialogs() {
   const sync = () => {
-    const open = !$("resetAsk").hidden || !$("quitAsk").hidden || !!$("modal").firstElementChild;
+    const open = !$("resetAsk").hidden || !$("quitAsk").hidden || !$("relicsPane").hidden || !$("profilePane").hidden || !!$("modal").firstElementChild;
     document.body.classList.toggle("modal-open", open);
   };
   const mo = new MutationObserver(sync);
-  ["resetAsk", "quitAsk"].forEach(id => mo.observe($(id), { attributes: true, attributeFilter: ["hidden"] }));
+  ["resetAsk", "quitAsk", "relicsPane", "profilePane"].forEach(id => mo.observe($(id), { attributes: true, attributeFilter: ["hidden"] }));
   mo.observe($("modal"), { childList: true });
   sync();
 })();
@@ -2508,18 +2521,18 @@ function lessonByIndex(index) {
 function showTab(name) {
   tab = name;
   const inLesson = view === "lesson";
-  $("learnPane").hidden = inLesson || name !== "learn";
+  $("learnPane").hidden = inLesson;
   $("relicsPane").hidden = inLesson || name !== "relics";
   $("profilePane").hidden = inLesson || name !== "profile";
   $("play").hidden = view !== "lesson";
   $("summary").hidden = view !== "summary";
-  if (!inLesson && name === "learn" && view !== "summary") {
+  if (!inLesson && view !== "summary" && (name === "learn" || !$("path").firstChild)) {
     if (pathHome) renderHomePath();
     else renderPath();
   }
   if (name === "relics") renderRelics();
   if (name === "profile") renderProfile();
-  if (name === "relics" || name === "profile") { document.querySelector(".game-root").scrollTop = 0; window.scrollTo(0, 0); }
+  if (name === "relics" || name === "profile") document.querySelectorAll(".relic-board, .profile-card").forEach(c => { c.scrollTop = 0; });
   updatePills();
 }
 function renderPath() {
@@ -2602,7 +2615,8 @@ function syncMenuLabels() {
   const back = !test || pathHome ? (fr ? "← Accueil" : "← Home") : (fr ? "← Retour" : "← Back");
   if ($("relicsBack")) { $("relicsBack").textContent = back; $("relicsBack").hidden = !test || pathHome; }
   if ($("relicsHome")) $("relicsHome").setAttribute("aria-label", fr ? "Accueil" : "Home");
-  if ($("profileBack")) $("profileBack").textContent = back;
+  if ($("profileBack")) { $("profileBack").textContent = back; $("profileBack").hidden = !test || pathHome; }
+  if ($("profileHome")) $("profileHome").setAttribute("aria-label", fr ? "Accueil" : "Home");
 }
 function closeAppMenu() {
   const menu = $("appMenu");
@@ -2948,6 +2962,7 @@ $("menuRelics").addEventListener("click", () => { closeAppMenu(); showTab("relic
 $("menuProfile").addEventListener("click", () => { closeAppMenu(); showTab("profile"); });
 $("relicsBack").addEventListener("click", () => showTab("learn"));
 $("relicsHome").addEventListener("click", () => switchTo("home"));
+$("profileHome").addEventListener("click", () => switchTo("home"));
 $("profileBack").addEventListener("click", () => showTab("learn"));
 document.addEventListener("click", e => { if (!e.target.closest(".menu-wrap")) closeAppMenu(); });
 $("checkBtn").addEventListener("click", checkAnswer);
