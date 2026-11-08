@@ -586,12 +586,16 @@ body.lesson-mode.map-lesson .map-card { box-shadow: none; border-width: 2px; }
 :root[data-theme="light"] body.lesson-mode.map-lesson .ask-row { background: #fffaf0; color: #3a2e22; border-color: #d9c49a; }
 body.lesson-mode.map-lesson #play { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: .45rem; }
 body.lesson-mode.map-lesson .prompt-row { flex: 0 0 auto; }
-body.lesson-mode.map-lesson .speech-area { flex-direction: row; flex-wrap: wrap; align-items: center; gap: .35rem; }
-body.lesson-mode.map-lesson #ask { flex: 1 1 140px; min-width: 0; }
-body.lesson-mode.map-lesson .mode-row { flex: 0 0 auto; gap: .35rem; flex-wrap: nowrap; }
+/* Hint, Explore and Tags: three equal buttons on one row. */
+body.lesson-mode.map-lesson .speech-area { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; gap: .35rem; }
+body.lesson-mode.map-lesson #ask { min-width: 0; }
+body.lesson-mode.map-lesson #ask:empty { display: none; }
+body.lesson-mode.map-lesson .mode-row { display: contents; }
+body.lesson-mode.map-lesson .mode-row .mode-btn { width: 100%; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+body.lesson-mode.map-lesson .ask-row { width: 100%; }
 body.lesson-mode.map-lesson .mode-btn, body.lesson-mode.map-lesson .ask-row { min-height: 36px; padding: .25rem .55rem; font-size: .8rem; white-space: nowrap; }
 body.lesson-mode.map-lesson .ask-row { overflow: hidden; text-overflow: ellipsis; }
-body.lesson-mode.map-lesson #ask:has(.ask-panel) { flex-basis: 100%; }
+body.lesson-mode.map-lesson #ask:has(.ask-panel) { grid-column: 1 / -1; }
 body.lesson-mode.map-lesson .ask-panel { padding: .45rem; gap: .35rem; }
 body.lesson-mode.map-lesson .ask-quick { display: grid; grid-template-columns: 1fr 1fr; gap: .3rem; }
 body.lesson-mode.map-lesson .ask-chip { min-height: 34px; padding: .2rem .5rem; font-size: .8rem; }
@@ -1178,7 +1182,7 @@ const COPY = {
     correct: "Correct!", wrong: "Not quite!", lessonDone: "Lesson complete",
     keep: "Keep practicing", days: "days", day: "day",
     lesson: "Lesson", ask: "Hint",
-    exploreOn: "Exploring… tap to quiz", exploreOff: "Explore",
+    exploreOn: "Back to quiz", exploreOff: "Explore",
     tagsOn: "Hide tags", tagsOff: "Tags",
     missedNote: "Missed questions stay on this lesson until you land them.",
     accurate: "accurate", back: "← Academy",
@@ -1195,7 +1199,7 @@ const COPY = {
     correct: "Juste !", wrong: "Pas tout à fait.", lessonDone: "Leçon terminée",
     keep: "À retravailler", days: "jours", day: "jour",
     lesson: "Leçon", ask: "Indice",
-    exploreOn: "Exploration… toucher pour le quiz", exploreOff: "Explorer",
+    exploreOn: "Retour au quiz", exploreOff: "Explorer",
     tagsOn: "Masquer les noms", tagsOff: "Noms",
     missedNote: "Les questions manquées restent dans cette leçon.",
     accurate: "de justes", back: "← Académie",
