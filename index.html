@@ -533,6 +533,30 @@ body.lesson-mode.mcq-lesson .game-root { height: 100vh; height: 100dvh; min-heig
 body.lesson-mode.mcq-lesson .game-root > * { flex-shrink: 0; }
 body.lesson-mode.mcq-lesson .banner-wrap { flex: 0 1 auto; min-height: 70px; overflow: hidden; }
 body.lesson-mode.mcq-lesson .quiz-banner { height: 100%; max-height: clamp(150px, 32vw, 280px); }
+/* Map lessons fit one screen too: compact controls, the map takes the rest. */
+body.lesson-mode.map-lesson .game-root { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; gap: .45rem; }
+body.lesson-mode.map-lesson .game-root > * { flex-shrink: 0; }
+body.lesson-mode.map-lesson .banner-wrap { flex: 0 1 auto; min-height: 60px; overflow: hidden; }
+body.lesson-mode.map-lesson .quiz-banner { height: 100%; max-height: clamp(110px, 24vw, 200px); }
+body.lesson-mode.map-lesson #questionCount { font-size: .85rem; line-height: 1.2; margin: 0; }
+body.lesson-mode.map-lesson #lessonPrompt { font-size: 1.15rem; line-height: 1.2; margin-top: -.3rem; }
+body.lesson-mode.map-lesson #play { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: .45rem; }
+body.lesson-mode.map-lesson .prompt-row { flex: 0 0 auto; }
+body.lesson-mode.map-lesson .speech-area { flex-direction: row; flex-wrap: wrap; align-items: center; gap: .35rem; }
+body.lesson-mode.map-lesson #ask { flex: 1 1 140px; min-width: 0; }
+body.lesson-mode.map-lesson .mode-row { flex: 0 0 auto; gap: .35rem; flex-wrap: nowrap; }
+body.lesson-mode.map-lesson .mode-btn, body.lesson-mode.map-lesson .ask-row { min-height: 38px; padding: .25rem .7rem; font-size: .85rem; }
+body.lesson-mode.map-lesson #ask:has(.ask-panel) { flex-basis: 100%; }
+body.lesson-mode.map-lesson .ask-panel { padding: .45rem; gap: .35rem; }
+body.lesson-mode.map-lesson .ask-quick { display: grid; grid-template-columns: 1fr 1fr; gap: .3rem; }
+body.lesson-mode.map-lesson .ask-chip { min-height: 34px; padding: .2rem .5rem; font-size: .8rem; }
+body.lesson-mode.map-lesson .ask-answer { font-size: .88rem; margin: 0; }
+body.lesson-mode.map-lesson .ask-close { min-height: 30px; font-size: .85rem; }
+body.lesson-mode.map-lesson .map-card { flex: 1 1 auto; min-height: 120px; display: flex; padding: .4rem; }
+body.lesson-mode.map-lesson #map { flex: 1; min-height: 0; display: flex; }
+body.lesson-mode.map-lesson .game-map { width: 100%; height: 100%; }
+body.lesson-mode.map-lesson .zoom-btn { min-height: 36px; width: 36px; height: 36px; }
+body.lesson-mode.map-lesson .zoom-controls { position: absolute; top: .45rem; right: .45rem; margin: 0; }
 body.lesson-mode .feedback-scroll { padding: .65rem .9rem .3rem; }
 body.lesson-mode .feedback-title { font-size: 1.1rem; }
 body.lesson-mode .feedback-body { font-size: .92rem; line-height: 1.3; }
@@ -1867,7 +1891,7 @@ function showAcademy() {
   if (location.hash !== "#home") {
     try { history.replaceState(null, "", location.href.split("#")[0] + "#home"); } catch {}
   }
-  document.body.classList.remove("lesson-mode", "feedback-open", "mcq-lesson");
+  document.body.classList.remove("lesson-mode", "feedback-open", "mcq-lesson", "map-lesson");
   document.title = "Wizard's Quiz Academy";
   setBrand("");
   $("title").textContent = "Wizard's Quiz Academy";
@@ -2030,7 +2054,7 @@ function selectTest(key) {
   if (location.hash !== "#" + key) {
     try { history.replaceState(null, "", location.href.split("#")[0] + "#" + key); } catch {}
   }
-  document.body.classList.remove("lesson-mode", "feedback-open", "mcq-lesson");
+  document.body.classList.remove("lesson-mode", "feedback-open", "mcq-lesson", "map-lesson");
   $("play").hidden = true;
   $("summary").hidden = true;
   $("backBtn").hidden = true;
@@ -2511,6 +2535,7 @@ function render() {
       : `<button class="mode-btn ask-row" type="button" data-ask="open">${esc(L("ask"))}</button>`;
   } else $("ask").innerHTML = "";
   document.body.classList.toggle("mcq-lesson", !!(S.lesson && questionKind() === "mcq"));
+  document.body.classList.toggle("map-lesson", !!(S.lesson && questionKind() === "map"));
   const vb = $("vanishBtn");
   if (vb) {
     vb.hidden = !(questionKind() === "mcq" && t && !S.won && !S.locked && !S.hintHide);
@@ -3073,7 +3098,7 @@ function quitLesson() {
   S.lesson = null;
   S.locked = false; S.selected = null; S.selectedGeo = null; S.picked = null;
   view = "learn";
-  document.body.classList.remove("lesson-mode", "feedback-open", "mcq-lesson");
+  document.body.classList.remove("lesson-mode", "feedback-open", "mcq-lesson", "map-lesson");
   $("play").hidden = true;
   $("checkBar").hidden = true;
   $("feedback").hidden = true;
@@ -3110,7 +3135,7 @@ function finishLesson() {
   S.locked = false; S.selected = null; S.selectedGeo = null;
   view = "summary";
   tab = "learn";
-  document.body.classList.remove("lesson-mode", "feedback-open", "mcq-lesson");
+  document.body.classList.remove("lesson-mode", "feedback-open", "mcq-lesson", "map-lesson");
   $("play").hidden = true;
   $("learnPane").hidden = true;
   $("relicsPane").hidden = true;
