@@ -658,6 +658,13 @@ body.lesson-mode .feedback-owl, body.lesson-mode .feedback-owl svg { width: 48px
 .relic-card svg, .relic-card .relic-img { width: 100%; max-width: 120px; height: auto; }
 .relic-card h3 { font-family: var(--font-display); font-size: 1rem; }
 .relic-card p { color: var(--muted); font-size: .85rem; }
+.relic-mystery {
+  display: flex; align-items: center; justify-content: center; width: 72%; max-width: 96px; aspect-ratio: 1; margin: .3rem auto .5rem;
+  border-radius: 50%; background: radial-gradient(circle at 50% 40%, #3a3026, #1a1510); border: 2px dashed #6b5438;
+  color: #a67c2d; font-family: var(--font-display); font-weight: 800; font-size: 2.2rem;
+}
+:root[data-theme="light"] .relic-mystery { background: radial-gradient(circle at 50% 40%, #f6ead2, #e3d2ad); border-color: #c8b48a; }
+.relic-locked h3 { color: #8a7a62 !important; letter-spacing: .1em; }
 .relic-locked svg, .relic-locked .relic-img { filter: grayscale(1) brightness(.55); }
 .profile-line { font-size: 1.15rem; margin: .25rem 0; }
 .profile-list { list-style: none; text-align: left; margin-top: .8rem; display: flex; flex-direction: column; gap: .45rem; }
@@ -2653,7 +2660,9 @@ function render() {
   const ownedRelics = ownedQuizRelics(test.key);
   $("shelf").innerHTML = badges.map(r => {
     const owned = ownedRelics.has(r.level);
-    return `<div class="shelf-item ${owned ? "shelf-owned" : "shelf-locked"}">${relicSVG(r.kind, r.accent)}<span class="shelf-name">${esc(r.name)}</span></div>`;
+    return owned
+      ? `<div class="shelf-item shelf-owned">${relicSVG(r.kind, r.accent)}<span class="shelf-name">${esc(r.name)}</span></div>`
+      : `<div class="shelf-item shelf-locked">${RELIC_MYSTERY}<span class="shelf-name">???</span></div>`;
   }).join("");
 
   renderModal();
@@ -3094,6 +3103,8 @@ function openHomeLevel(type, lesson, replay) {
   const ids = places.filter(p => p.lesson === lesson).map(p => p.id);
   startLesson(lesson, ids, replay);
 }
+// A relic not yet earned stays a secret: a sealed medallion with a question mark.
+const RELIC_MYSTERY = `<span class="relic-mystery" aria-label="Not found yet"><span>?</span></span>`;
 function renderRelics() {
   const grid = $("relicGrid");
   const rule = $("relicRule");
@@ -3106,7 +3117,8 @@ function renderRelics() {
     const cards = quizRelics(spec).map(r => {
       const has = owned.has(r.level);
       const locked = spec.key === "mixed" ? "Lesson " + r.level : r.tagline;
-      return `<article class="relic-card ${has ? "relic-owned" : "relic-locked"}">${relicSVG(r.kind, r.accent)}<h3>${esc(r.name)}</h3><p>${has ? esc(r.tagline) : esc(locked)}</p></article>`;
+      if (!has) return `<article class="relic-card relic-locked">${RELIC_MYSTERY}<h3>???</h3><p>${esc(locked)}</p></article>`;
+      return `<article class="relic-card relic-owned">${relicSVG(r.kind, r.accent)}<h3>${esc(r.name)}</h3><p>${esc(r.tagline)}</p></article>`;
     }).join("");
     if (keys.length === 1) return `<section class="relic-group"><div class="relic-grid">${cards}</div></section>`;
     const count = `${owned.size} ${uiLang() === "fr" ? "sur" : "of"} ${quizRelics(spec).length}`;
