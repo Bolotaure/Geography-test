@@ -66,6 +66,8 @@ button:disabled:not(.choice-right):not(.choice-wrong) { opacity: .45; }
 }
 body.academy-home .page-top, body.lesson-mode .page-top { display: contents; }
 .banner-wrap { position: relative; }
+.banner-avatar { display: none; position: absolute; right: var(--pad, 1rem); bottom: 6px; height: min(120px, 48%); width: auto; pointer-events: none; filter: drop-shadow(0 6px 6px #000a); }
+body.academy-home .banner-avatar { display: block; }
 body.academy-home .banner-wrap, body.lesson-mode .banner-wrap { order: -1; margin-top: -1rem; width: calc(100% + 2 * var(--pad)); margin-left: calc(-1 * var(--pad)); }
 body.lesson-mode .banner-wrap { position: sticky; top: 0; z-index: 8; }
 .quiz-banner {
@@ -695,6 +697,7 @@ body.academy-home #pathBg, body.lesson-mode #pathBg { display: none; }
   </div>
     <div class="banner-wrap">
     <img class="quiz-banner" id="quizBanner" alt="" hidden>
+    <img class="banner-avatar" id="bannerAvatar" alt="" height="120">
   </div>
   </div>
 <div class="lesson-head" id="lessonHead" hidden>
@@ -2675,7 +2678,12 @@ function renderPath() {
   }
   updatePills();
 }
+function syncBannerAvatar() {
+  const img = $("bannerAvatar");
+  if (img) img.src = AVATARS[currentAvatar()].src;
+}
 function renderHomePath() {
+  syncBannerAvatar();
   document.body.classList.add("academy-home");
   migrateMixed();
   const html = `<div class="subject-list">` + QUIZ_ORDER.map(type => {
@@ -3042,7 +3050,7 @@ $("learnPane").addEventListener("click", e => {
 });
 $("profilePane").addEventListener("click", e => {
   const a = e.target.closest("button[data-avatar]");
-  if (a) { sfx.click(); store.set("wqa-avatar", a.dataset.avatar); renderAvatarPicker(); return; }
+  if (a) { sfx.click(); store.set("wqa-avatar", a.dataset.avatar); renderAvatarPicker(); syncBannerAvatar(); return; }
   const h = e.target.closest("button[data-house]");
   if (h) { sfx.click(); applyHouse(h.dataset.house); }
 });
