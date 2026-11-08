@@ -229,7 +229,13 @@ body.lesson-mode .course-head { order: -1; width: calc(100% + 2 * var(--pad)); m
 .ask-quick { display: flex; flex-wrap: wrap; gap: .4rem; }
 .ask-chip { background: var(--parchment); color: var(--ink); border-radius: 999px; padding: .35rem .8rem; font-weight: 700; min-height: 44px; }
 .ask-answer { font-weight: 700; }
-.ask-close { color: #eadcc0; align-self: flex-end; text-decoration: underline; min-height: 44px; }
+.ask-panel { position: relative; }
+.ask-close {
+  position: absolute; top: -13px; right: -13px; width: 30px; height: 30px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--gold); color: #2c2118; box-shadow: 0 2px 6px #0006;
+}
+.ask-close::before { content: ""; position: absolute; inset: -7px; }
 .progress-card {
   background: var(--parchment); color: var(--ink); border: 2px dashed var(--gold-deep); border-radius: 1.1rem;
   display: flex; align-items: center; gap: .75rem; padding: .45rem .8rem;
@@ -600,7 +606,6 @@ body.lesson-mode.map-lesson .ask-panel { padding: .45rem; gap: .35rem; }
 body.lesson-mode.map-lesson .ask-quick { display: grid; grid-template-columns: 1fr 1fr; gap: .3rem; }
 body.lesson-mode.map-lesson .ask-chip { min-height: 34px; padding: .2rem .5rem; font-size: .8rem; }
 body.lesson-mode.map-lesson .ask-answer { font-size: .88rem; margin: 0; }
-body.lesson-mode.map-lesson .ask-close { min-height: 30px; font-size: .85rem; }
 body.lesson-mode.map-lesson .map-card { flex: 1 1 auto; min-height: 120px; display: flex; padding: .4rem; }
 body.lesson-mode.map-lesson #map { flex: 1; min-height: 0; display: flex; }
 body.lesson-mode.map-lesson .game-map { width: 100%; height: 100%; }
@@ -2598,7 +2603,7 @@ function render() {
     $("ask").innerHTML = S.askOpen
       ? `<div class="ask-panel"><div class="ask-quick">${HINTS.map((h, i) => `<button class="ask-chip" type="button" data-hint="${i}">${h.label}</button>`).join("")}</div>
          ${S.askAnswer ? `<p class="ask-answer" aria-live="polite">${esc(S.askAnswer)}</p>` : ""}
-         <button class="ask-close" type="button" data-ask="close">Close</button></div>`
+         <button class="ask-close" type="button" data-ask="close" aria-label="${uiLang() === "fr" ? "Fermer" : "Close"}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>`
       : `<button class="mode-btn ask-row" type="button" data-ask="open">${esc(L("ask"))}</button>`;
   } else $("ask").innerHTML = "";
   document.body.classList.toggle("mcq-lesson", !!(S.lesson && questionKind() === "mcq"));
