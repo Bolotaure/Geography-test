@@ -1083,6 +1083,7 @@ body.academy-home #pathBg, body.lesson-mode #pathBg { display: none; }
 <script src="vocab-en-lex.js"></script>
 <script src="vocab-fr-lex.js"></script>
 <script src="relics.js"></script>
+<script src="geo-facts.js"></script>
 <script>
 "use strict";
 
@@ -2184,7 +2185,14 @@ function onPlaceClick(id) {
   }
   render();
 }
+function placeFact(q) {
+  const row = q && q.kind === "map" && window.GEO_FACTS && (window.GEO_FACTS[q.map] || {})[q.abbr];
+  if (!row) return "";
+  const [capital, biggest, fact] = row;
+  return "Capital: " + capital + (biggest ? " · Biggest city: " + biggest : "") + ". " + fact;
+}
 function exampleSentence(q) {
+  if (q && q.kind === "map") return placeFact(q);
   if (!q || !q.word || !q.example) return "";
   const french = q.source === "vocab-fr" || q.contentLang === "fr" || (test && test.key === "vocab-fr");
   return (french ? "Exemple : " : "Example: ") + q.example;

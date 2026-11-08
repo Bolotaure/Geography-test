@@ -76,6 +76,7 @@ Vocabulary and logic follow the same pattern as the maps: a script that sets a g
 - `logic.js` — `window.LOGIC_QUESTIONS`, generated from the rules in `scripts/logic-rules.js`
 - `conj-fr.js` — `window.CONJ_FR`, generated from `scripts/conjugation-rules.js`
 - `us-questions.js`, `fr-questions.js`, `jp-questions.js` — 100 questions each, generated from `scripts/geo-questions.js`
+- `geo-facts.js` — `window.GEO_FACTS`: the capital, the biggest city when different, and one notable fact for every state, region and prefecture, shown after a map answer
 - `vocab-en-lex.js` and `vocab-fr-lex.js` — a definition and an example for every synonym choice
 
 Check the banks (100 each, four unique choices, the correct answer among them, logic recomputed from its rule):
