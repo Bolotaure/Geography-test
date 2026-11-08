@@ -880,10 +880,10 @@ body.academy-home #pathBg, body.lesson-mode #pathBg { display: none; }
       <div class="avatar-picker" id="avatarPicker" role="radiogroup" aria-labelledby="avatarHeading"></div>
       <h3 class="profile-sub" id="houseHeading">House</h3>
       <div class="house-picker" role="radiogroup" aria-label="Choose a house">
-        <button class="house-btn" type="button" role="radio" data-house="emberwyck" aria-checked="false"><img class="house-crest" src="img/house-emberwyck.webp" alt="" width="64" height="83">Emberwyck</button>
-        <button class="house-btn" type="button" role="radio" data-house="verdant" aria-checked="false"><img class="house-crest" src="img/house-verdant.webp" alt="" width="64" height="83">Verdant Hollow</button>
-        <button class="house-btn" type="button" role="radio" data-house="azurequill" aria-checked="false"><img class="house-crest" src="img/house-azurequill.webp" alt="" width="64" height="83">Azure Quill</button>
-        <button class="house-btn" type="button" role="radio" data-house="amberkeep" aria-checked="false"><img class="house-crest" src="img/house-amberkeep.webp" alt="" width="64" height="83">Amberkeep</button>
+        <button class="house-btn" type="button" role="radio" data-house="emberwyck" aria-checked="false"><img class="house-crest" src="img/house-emberwyck.webp?v=2" alt="" width="64" height="83">Emberwyck</button>
+        <button class="house-btn" type="button" role="radio" data-house="verdant" aria-checked="false"><img class="house-crest" src="img/house-verdant.webp?v=2" alt="" width="64" height="83">Verdant Hollow</button>
+        <button class="house-btn" type="button" role="radio" data-house="azurequill" aria-checked="false"><img class="house-crest" src="img/house-azurequill.webp?v=2" alt="" width="64" height="83">Azure Quill</button>
+        <button class="house-btn" type="button" role="radio" data-house="amberkeep" aria-checked="false"><img class="house-crest" src="img/house-amberkeep.webp?v=2" alt="" width="64" height="83">Amberkeep</button>
       </div>
       <div id="profileStats"></div>
     </div>
@@ -2923,7 +2923,7 @@ const AVATARS = {
 function avatarSrc(k) {
   if (k === "dragon" || !AVATARS[k]) return AVATARS[k] ? AVATARS[k].src : AVATARS.owl.src;
   const house = typeof currentHouse === "string" && HOUSES[currentHouse] ? currentHouse : "emberwyck";
-  return `img/avatar-${k}-${house}.webp`;
+  return `img/avatar-${k}-${house}.webp?v=1`;
 }
 function currentAvatar() {
   const a = store.get("wqa-avatar", "owl");
