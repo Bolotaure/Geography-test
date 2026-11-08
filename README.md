@@ -44,7 +44,7 @@ Three series of seven lessons, one per section. Each lesson is a single subject,
 
 ### Geography
 
-State Atlas, Regions of France, and Prefectures of Japan. The lesson names a place. Tap it, then Check. **Explore** names whatever you tap. **Name tags** shows short labels. **Ask Rowan for a hint** gives direction, neighbours, water, and spelling. A wrong tap says which region the answer is in and one place it touches. Zoom with **+ / −**, a two-finger pinch, or ctrl + mouse wheel.
+State Atlas, Regions of France, and Prefectures of Japan. The lesson names a place. Tap it, then Check. **Explore** names whatever you tap. **Tags** shows short labels. **Hint** gives direction, neighbours, water, and spelling. A wrong tap says which region the answer is in and one place it touches. Zoom with **+ / −**, a two-finger pinch, or ctrl + mouse wheel.
 
 ### Vocabulary
 
