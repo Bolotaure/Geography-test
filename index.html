@@ -668,11 +668,11 @@ details.relic-group { margin-bottom: .6rem; }
 .lesson-track, .subject-bar, .progress-track { overflow: visible; }
 .lesson-fill, .subject-bar span, .progress-fill { position: relative; border-radius: 999px; }
 .lesson-fill:not([style*="width: 0"])::after, .subject-bar span:not([style*="width:0%"])::after, .progress-fill::after {
-  content: ""; position: absolute; right: -17px; top: 50%; width: 34px; height: 34px; margin-top: -17px; pointer-events: none;
+  content: ""; position: absolute; right: -10px; top: 50%; width: 20px; height: 20px; margin-top: -10px; opacity: .85; pointer-events: none;
   background: url("img/sparkle.webp?v=3") center / contain no-repeat;
   filter: drop-shadow(0 0 2px #ffd86bcc);
 }
-.subject-bar span::after { width: 26px; height: 26px; margin-top: -13px; right: -13px; }
+.subject-bar span::after { width: 15px; height: 15px; margin-top: -7.5px; right: -7.5px; }
 
 
 .quit-actions { display: flex; gap: .6rem; justify-content: center; align-items: center; margin-top: 1rem; }
@@ -2923,7 +2923,7 @@ const AVATARS = {
 function avatarSrc(k) {
   if (k === "dragon" || !AVATARS[k]) return AVATARS[k] ? AVATARS[k].src : AVATARS.owl.src;
   const house = typeof currentHouse === "string" && HOUSES[currentHouse] ? currentHouse : "emberwyck";
-  return `img/avatar-${k}-${house}.webp?v=1`;
+  return `img/avatar-${k}-${house}.webp?v=2`;
 }
 function currentAvatar() {
   const a = store.get("wqa-avatar", "owl");
