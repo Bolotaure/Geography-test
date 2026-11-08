@@ -2507,7 +2507,9 @@ function renderPath() {
       const badge = done ? (st >= 3 ? "♛" : "★".repeat(Math.max(st, 1))) : "";
       const owl = isCurrent ? `<span class="node-owl">${owlSVG({ scarf: HOUSES[currentHouse].scarf })}</span>` : "";
       const lessonLabel = L("lesson") + " " + num;
-      html += `<div class="node-slot ${side}"><button class="${cls}" type="button" data-lesson="${ls.index}" data-replay="${done ? "1" : "0"}"${locked ? " disabled" : ""} aria-label="${esc(lessonLabel)}${done ? ", complete" : isCurrent ? ", current" : ", locked"}">${owl}<span class="node-mark">${num}</span>${badge ? `<span class="node-badge">${badge}</span>` : ""}</button><span class="node-caption">${esc(lessonLabel)}</span></div>`;
+      const subject = test.key === "mixed" ? TYPE_LABEL[GRAND_ORDER[(num - 1) % GRAND_ORDER.length]] : "";
+      const caption = subject || lessonLabel;
+      html += `<div class="node-slot ${side}"><button class="${cls}" type="button" data-lesson="${ls.index}" data-replay="${done ? "1" : "0"}"${locked ? " disabled" : ""} aria-label="${esc(lessonLabel)}${subject ? ", " + esc(subject) : ""}${done ? ", complete" : isCurrent ? ", current" : ", locked"}">${owl}<span class="node-mark">${num}</span>${badge ? `<span class="node-badge">${badge}</span>` : ""}</button><span class="node-caption">${esc(caption)}</span></div>`;
       i++;
     });
     html += `</div></section>`;
