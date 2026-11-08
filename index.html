@@ -395,7 +395,7 @@ body.lesson-mode .menu-wrap { display: none !important; }
 .node {
   position: relative; z-index: 1; width: 72px; height: 72px; border-radius: 50%;
   border: 4px solid #6b5438; background: #2a2033; color: var(--gold);
-  font-weight: 800; font-size: 1rem; box-shadow: 0 6px 0 #0005;
+  font-weight: 800; font-size: 1rem; box-shadow: 0 2px 8px #0005;
 }
 .node-slot { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: .2rem; }
 .node-slot.node-left { margin-right: 128px; }
@@ -682,7 +682,7 @@ body.feedback-open #progress { display: none !important; }
 #pathBg {
   background-image: linear-gradient(var(--bg-veil), var(--bg-veil)), var(--bg-url, none);
   position: fixed; top: var(--path-top, 0px); left: 0; right: 0; bottom: 0; z-index: 0; pointer-events: none;
-  background-color: var(--night); background-position: center; background-size: contain; background-repeat: no-repeat;
+  background-color: var(--night); background-position: center; background-size: cover; background-repeat: no-repeat;
 }
 /* In a quiz, only the path scrolls: the page itself stays put, so the
    browser bars never collapse and nothing above or behind the path moves. */
@@ -1680,15 +1680,15 @@ function migrateMixed() {
   store.set("wqa-mixed-migrated", true);
 }
 const BANNERS = {
-  home: ["img/banner-home.webp", "A candlelit path of lesson stones leading up to the academy"],
-  mixed: ["img/banner-mixed.webp", "A candlelit academy table with a map, a spellbook, and glowing runes"],
-  us: ["img/banner-us.webp", "A magical map of the United States by candlelight"],
-  fr: ["img/banner-fr.webp", "An enchanted map of France"],
-  jp: ["img/banner-jp.webp", "The islands of Japan under paper lanterns"],
-  "vocab-en": ["img/banner-vocab-en.webp", "An open spellbook of English words"],
-  "vocab-fr": ["img/banner-vocab-fr.webp", "A French grimoire and a quill"],
-  logic: ["img/banner-logic.webp", "Glowing number runes above a desk"],
-  conj: ["img/banner-conj.webp", "A quill writing glowing verb endings"],
+  home: ["img/banner-home.webp?v=2", "A candlelit path of lesson stones leading up to the academy"],
+  mixed: ["img/banner-mixed.webp?v=2", "A candlelit academy table with a map, a spellbook, and glowing runes"],
+  us: ["img/banner-us.webp?v=2", "A magical map of the United States by candlelight"],
+  fr: ["img/banner-fr.webp?v=2", "An enchanted map of France"],
+  jp: ["img/banner-jp.webp?v=2", "The islands of Japan under paper lanterns"],
+  "vocab-en": ["img/banner-vocab-en.webp?v=2", "An open spellbook of English words"],
+  "vocab-fr": ["img/banner-vocab-fr.webp?v=2", "A French grimoire and a quill"],
+  logic: ["img/banner-logic.webp?v=2", "Glowing number runes above a desk"],
+  conj: ["img/banner-conj.webp?v=2", "A quill writing glowing verb endings"],
 };
 function setSubtitle(text) {
   const el = $("subtitle");
