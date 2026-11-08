@@ -539,6 +539,20 @@ details.relic-group { margin-bottom: .6rem; }
 .relic-group summary h3 { flex: 1; text-align: left; margin: 0; }
 .relic-count { color: var(--muted); font-weight: 800; font-size: .9rem; }
 .relic-group h3 { font-family: var(--font-display); font-size: 1.05rem; color: var(--gold-deep); margin: .15rem 0 .45rem; }
+/* Sheets in Dark display: near-black card, orange band and title, cream text. */
+:root:not([data-theme="light"]) .reward-modal, :root:not([data-theme="light"]) .relic-board, :root:not([data-theme="light"]) .profile-card {
+  background: #1d1914; color: #f3e9d6; border: 1px solid #3d3328;
+  box-shadow: inset 0 10px 0 #eea24a, 0 22px 50px #000b;
+}
+:root:not([data-theme="light"]) .reward-name, :root:not([data-theme="light"]) .relic-board .summary-title, :root:not([data-theme="light"]) .profile-card .summary-title { color: #eea24a; }
+:root:not([data-theme="light"]) .reward-tagline, :root:not([data-theme="light"]) .relic-rule, :root:not([data-theme="light"]) .profile-line, :root:not([data-theme="light"]) .about-body p, :root:not([data-theme="light"]) .profile-card .profile-line b { color: #f3e9d6; }
+:root:not([data-theme="light"]) .about-close { background: transparent; color: var(--gold); }
+:root:not([data-theme="light"]) .relic-board .pane-back, :root:not([data-theme="light"]) .profile-card .pane-back { color: #eea24a; }
+:root:not([data-theme="light"]) .relic-card, :root:not([data-theme="light"]) .relic-group summary, :root:not([data-theme="light"]) .profile-list li { background: #2a231c; color: #f3e9d6; }
+:root:not([data-theme="light"]) .relic-card h3, :root:not([data-theme="light"]) .relic-group h3 { color: var(--gold); }
+:root:not([data-theme="light"]) .relic-card p, :root:not([data-theme="light"]) .relic-count, :root:not([data-theme="light"]) .profile-list span { color: #c9b99c; }
+:root:not([data-theme="light"]) .reset-pick .path-reset { background: #2a231c; color: #f3e9d6; border-color: #6b5438; }
+:root:not([data-theme="light"]) .modal-backdrop, :root:not([data-theme="light"]) #relicsPane, :root:not([data-theme="light"]) #profilePane { background: #000000b8; }
 .subject-list { display: flex; flex-direction: column; gap: .65rem; max-width: 440px; margin: 0 auto; }
 .subject-card {
   display: flex; align-items: center; gap: .75rem; width: 100%; text-align: left;
