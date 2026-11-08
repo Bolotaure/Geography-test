@@ -570,6 +570,8 @@ body.lesson-mode.map-lesson #play {
 .map-head .quiz-kicker { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; color: #b4542a; line-height: 1.4; }
 .map-count { font-family: var(--font-display); font-weight: 800; letter-spacing: 0; text-transform: none; font-size: .85rem; }
 .map-head .quiz-word { font-size: 1.5rem; line-height: 1.12; margin: .1rem 0 0; }
+.map-info { font-size: .88rem; line-height: 1.35; margin: .25rem 0 .1rem; color: #5a4632; }
+:root:not([data-theme="light"]) .map-info { color: #d9cbb0; }
 body.lesson-mode.map-lesson .map-card { box-shadow: none; border-width: 2px; }
 :root:not([data-theme="light"]) body.lesson-mode.map-lesson #play {
   background: #1d1914; color: #f3e9d6; border: 1px solid #3d3328;
@@ -938,6 +940,7 @@ body.academy-home #pathBg, body.lesson-mode #pathBg { display: none; }
     <div class="map-head" id="mapHead" hidden>
       <p class="quiz-kicker"><span id="mapKicker"></span><span class="map-count" id="mapCount"></span></p>
       <h2 class="quiz-word" id="mapWord"></h2>
+      <p class="map-info" id="mapInfo" hidden></p>
     </div>
     <div class="prompt-row">
       <div id="mascot" class="mascot mascot-bob" role="img" aria-label="Rowan the academy owl"></div>
@@ -2126,6 +2129,9 @@ function onPlaceClick(id) {
     sfx.click();
     S.peekId = id;
     S.peekName = place.name;
+    const map = activeMapKey() || (test && test.key);
+    const info = { kind: "map", map, geoId: id, name: place.name, abbr: place.abbr, region: place.region };
+    S.peekInfo = [mapCoach(info), placeFact(info)].filter(Boolean).join(" ");
     S.message = `That's ${place.name}. It sits in ${place.region}.`;
     later(() => { S.peekId = null; renderMap(); }, 1200);
     return render();
@@ -2469,6 +2475,7 @@ function toggleExplore() {
   S.explore = !S.explore;
   S.peekId = null;
   S.peekName = null;
+  S.peekInfo = "";
   S.selectedGeo = null;
   if (S.explore) S.practice = false;
   const t = current();
@@ -3264,6 +3271,8 @@ function syncLessonChrome() {
       $("mapWord").textContent = S.explore
         ? (S.peekName ? "That's " + S.peekName + "." : "Tap a place to learn its name.")
         : "Find " + t.name;
+      const mi = $("mapInfo");
+      if (mi) { mi.hidden = !(S.explore && S.peekName && S.peekInfo); mi.textContent = S.peekInfo || ""; }
     }
   }
   if ($("mapHead")) $("mapHead").hidden = !(mapQ && t);
