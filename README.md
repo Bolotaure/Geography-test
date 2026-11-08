@@ -14,7 +14,7 @@ The title stays pinned above the banner. Inside a quiz, the page itself does not
 
 - **Reset a quiz.** From home, pick which quiz to clear. Inside a quiz, it resets that quiz. Either way it asks first, and nothing behind the question can scroll or move while it is open. Score, progress, and relics for that quiz go back to the start. Other quizzes are left alone.
 - **Relics.** Opens as a sheet over the page, like Reset, with its own home icon.
-- **Profile.** Opens as a sheet over the page, with its own home icon. Choose an avatar (owl, wizard, witch, or dragon), shown on the lesson paths and saved as `wqa-avatar`. Choose a house. The house only changes the accent colour: Emberwyck, Verdant Hollow, Azure Quill, or Amberkeep.
+- **Profile.** Opens as a sheet over the page, with its own home icon. Choose an avatar (owl, wizard, witch, or dragon), shown on the lesson paths and saved as `wqa-avatar`. Choose a house by its crest (`img/house-<name>.webp`, generated for this project). The house only changes the accent colour: Emberwyck, Verdant Hollow, Azure Quill, or Amberkeep.
 - **Display.** Opens Dark or Light. Dark is the default; the choice is kept in the browser (`wqa-theme`). The menu itself is dark in Dark and cream in Light.
 - **About.** A short sheet about the academy and where the map outlines come from, closed with the yellow ✕ or a tap outside.
 
