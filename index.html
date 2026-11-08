@@ -54,6 +54,11 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 button:disabled { cursor: not-allowed; }
 button:disabled:not(.choice-right):not(.choice-wrong) { opacity: .45; }
 [hidden] { display: none !important; }
+/* Pictures are decoration: no long-press menu, no selection, no dragging.
+   Taps go through to the card or button around them. */
+img, svg, .flame, .banner-flames { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; -webkit-user-drag: none; }
+img { pointer-events: none; }
+body { -webkit-touch-callout: none; }
 .game-root {
   --pad: clamp(.8rem, 3vw, 2.2rem);
   max-width: 1100px; min-height: 100vh; margin: 0 auto;
@@ -3273,6 +3278,7 @@ $("menuReset").addEventListener("click", () => {
   if (pathHome || !test) openResetPicker();
   else openResetConfirm(test.key);
 });
+document.addEventListener("contextmenu", e => { if (e.target.closest("img, .game-root, #relicsPane, #profilePane")) e.preventDefault(); });
 $("menuRelics").addEventListener("click", () => { closeAppMenu(); showTab("relics"); });
 const ABOUT = {
   en: ["About", [
