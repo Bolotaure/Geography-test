@@ -433,7 +433,7 @@ body.lesson-mode .menu-wrap { display: none !important; }
   border-radius: 999px; background: var(--parchment); color: var(--ink); font-weight: 800;
   border: 2px solid var(--gold-deep);
 }
-body.lesson-mode #resetQuiz, body.lesson-mode .topbar { display: none !important; }
+body.lesson-mode #resetQuiz, body:not(.academy-home) .topbar { display: none !important; }
 .reset-pick { display: flex; flex-direction: column; gap: .35rem; margin-top: .6rem; }
 .reset-pick .path-reset { min-height: 40px; padding: .35rem 1rem; }
 .reset-pick .path-reset { width: 100%; }

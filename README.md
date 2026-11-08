@@ -34,7 +34,7 @@ Every quiz has lessons of 5 questions in three sections. Grand Quest has 21 less
 
 The next lesson of a quiz opens only when the previous one is finished. Finishing a lesson in one quiz does not unlock or lock another. The player's avatar stands just to the right of the current lesson.
 
-Tap a lesson, pick an answer, then **Check**. A banner shows the result and **Continue**. Leaving a lesson asks first. Correct answers stay saved. A day streak counts each local day you finish a lesson. Points and the day streak show under the banner.
+Tap a lesson, pick an answer, then **Check**. A banner shows the result and **Continue**. Leaving a lesson asks first. Correct answers stay saved. A day streak counts each local day you finish a lesson. Points and the day streak show under the banner on home only.
 
 Each quiz keeps its own score, found questions, and relics in the browser (`wqa-<quiz>-session` and the matching best, missed, and lesson-star keys). An older save keeps its score and any question it already knew.
 
