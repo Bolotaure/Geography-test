@@ -3129,7 +3129,7 @@ const AVATARS = {
 function avatarSrc(k) {
   if (!AVATARS[k]) k = "owl";
   const house = typeof currentHouse === "string" && HOUSES[currentHouse] ? currentHouse : "emberwyck";
-  return `img/avatar-${k}-${house}.webp?v=8`;
+  return `img/avatar-${k}-${house}.webp?v=9`;
 }
 function currentAvatar() {
   const a = store.get("wqa-avatar", "owl");
