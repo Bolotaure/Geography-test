@@ -1184,6 +1184,12 @@ function applyHouse(id) {
     btn.classList.toggle("house-on", on);
   });
   paintMascots();
+  if (typeof AVATARS !== "undefined") {
+    if ($("avatarPicker") && $("avatarPicker").firstChild) renderAvatarPicker();
+    if (typeof syncBannerAvatar === "function") syncBannerAvatar();
+    const node = document.querySelector(".node-owl img");
+    if (node) node.src = avatarSrc(currentAvatar());
+  }
 }
 function refreshBests() {
   document.querySelectorAll("[data-best]").forEach(el => {
@@ -2808,7 +2814,7 @@ function renderPath() {
       const cls = ["node", done ? "node-done" : "", isCurrent ? "node-current" : "", locked ? "node-locked" : ""].filter(Boolean).join(" ");
       const num = ls.number || (i + 1);
       const badge = done ? (st >= 3 ? "♛" : "★".repeat(Math.max(st, 1))) : "";
-      const owl = isCurrent ? `<span class="node-owl"><img src="${AVATARS[currentAvatar()].src}" alt="" height="68"></span>` : "";
+      const owl = isCurrent ? `<span class="node-owl"><img src="${avatarSrc(currentAvatar())}" alt="" height="68"></span>` : "";
       const lessonLabel = L("lesson") + " " + num;
       const subject = test.key === "mixed" ? TYPE_LABEL[GRAND_ORDER[(num - 1) % GRAND_ORDER.length]] : "";
       const caption = subject || lessonLabel;
@@ -2831,7 +2837,7 @@ function renderPath() {
 }
 function syncBannerAvatar() {
   const img = $("bannerAvatar");
-  if (img) img.src = AVATARS[currentAvatar()].src;
+  if (img) img.src = avatarSrc(currentAvatar());
 }
 function renderHomePath() {
   syncBannerAvatar();
@@ -2912,6 +2918,12 @@ const AVATARS = {
   witch: { src: "img/avatar-witch.webp?v=3", en: "Witch", fr: "Sorcière" },
   dragon: { src: "img/avatar-dragon.webp?v=3", en: "Dragon", fr: "Dragon" },
 };
+// Owl, wizard and witch wear the selected house's colour; the dragon has no clothes.
+function avatarSrc(k) {
+  if (k === "dragon" || !AVATARS[k]) return AVATARS[k] ? AVATARS[k].src : AVATARS.owl.src;
+  const house = typeof currentHouse === "string" && HOUSES[currentHouse] ? currentHouse : "emberwyck";
+  return `img/avatar-${k}-${house}.webp`;
+}
 function currentAvatar() {
   const a = store.get("wqa-avatar", "owl");
   return AVATARS[a] ? a : "owl";
@@ -2919,9 +2931,9 @@ function currentAvatar() {
 function renderAvatarPicker() {
   const fr = uiLang() === "fr";
   const cur = currentAvatar();
-  $("avatarPicker").innerHTML = Object.keys(AVATARS).map(k => `<button class="avatar-btn" type="button" role="radio" data-avatar="${k}" aria-checked="${k === cur}"><img src="${AVATARS[k].src}" alt="" width="76" height="76"><span>${esc(fr ? AVATARS[k].fr : AVATARS[k].en)}</span></button>`).join("");
+  $("avatarPicker").innerHTML = Object.keys(AVATARS).map(k => `<button class="avatar-btn" type="button" role="radio" data-avatar="${k}" aria-checked="${k === cur}"><img src="${avatarSrc(k)}" alt="" width="76" height="76"><span>${esc(fr ? AVATARS[k].fr : AVATARS[k].en)}</span></button>`).join("");
   const node = document.querySelector(".node-owl img");
-  if (node) node.src = AVATARS[cur].src;
+  if (node) node.src = avatarSrc(cur);
 }
 function renderProfile() {
   const fr = uiLang() === "fr";
