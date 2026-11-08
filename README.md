@@ -12,7 +12,7 @@ The home screen is a list of eight quizzes. **Grand Quest** is first. Each card 
 
 The title stays pinned above the banner. Inside a quiz, the page itself does not scroll: the title and the banner stay fixed and only the lesson path scrolls, so the browser bars never collapse. Inside a quiz the title is centred, with the home icon to its left and the menu button to its right. On home the title sits on the left and the menu button to its right. It opens three items:
 
-- **Reset a quiz.** From home, pick which quiz to clear. Inside a quiz, it resets that quiz. Either way it asks first. Score, progress, and relics for that quiz go back to the start. Other quizzes are left alone.
+- **Reset a quiz.** From home, pick which quiz to clear. Inside a quiz, it resets that quiz. Either way it asks first, and nothing behind the question can scroll or move while it is open. Score, progress, and relics for that quiz go back to the start. Other quizzes are left alone.
 - **Relics.** The relic card has its own home icon.
 - **Profile.** Choose a house. The house only changes the accent colour: Emberwyck, Verdant Hollow, Azure Quill, or Amberkeep.
 
