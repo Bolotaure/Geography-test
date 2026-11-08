@@ -637,6 +637,34 @@ details.relic-group { margin-bottom: .6rem; }
 .subject-meta { color: #eadcc0; font-size: .92rem; font-weight: 700; }
 .subject-bar { display: block; height: 8px; background: #120c18; border-radius: 99px; margin-top: .35rem; overflow: hidden; border: 1px solid #5c4a32; }
 .subject-bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--house), var(--gold)); }
+/* Sparkles at the leading edge of every progress bar. */
+.lesson-track, .subject-bar, .progress-track { overflow: visible; }
+.lesson-fill, .subject-bar span, .progress-fill { position: relative; border-radius: 999px; }
+.lesson-fill:not([style*="width: 0"])::after, .subject-bar span:not([style*="width:0%"])::after, .progress-fill::after {
+  content: ""; position: absolute; right: -8px; top: 50%; width: 18px; height: 18px; margin-top: -9px; pointer-events: none;
+  background: radial-gradient(circle, #fffbe8 0 18%, #ffe39a 30%, transparent 62%);
+  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+  animation: sparkTwinkle 1.4s ease-in-out infinite;
+}
+.lesson-fill:not([style*="width: 0"])::before, .subject-bar span:not([style*="width:0%"])::before, .progress-fill::before {
+  content: ""; position: absolute; right: -3px; top: 50%; width: 3px; height: 3px; border-radius: 50%; pointer-events: none;
+  background: #fff3c4; box-shadow: -6px -5px 0 #ffe39a, -11px 4px 0 #fff3c4, -4px 6px 0 #e2b657;
+  animation: sparkDrift 1.4s ease-out infinite;
+}
+.subject-bar span::after { width: 14px; height: 14px; margin-top: -7px; right: -6px; }
+@keyframes sparkTwinkle {
+  0%, 100% { transform: scale(.7) rotate(0deg); opacity: .75; }
+  50% { transform: scale(1.15) rotate(45deg); opacity: 1; }
+}
+@keyframes sparkDrift {
+  0% { transform: translate(0, 0); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translate(-10px, -6px); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lesson-fill::after, .lesson-fill::before, .subject-bar span::after, .subject-bar span::before,
+  .progress-fill::after, .progress-fill::before { animation: none; }
+}
 .quit-actions { display: flex; gap: .6rem; justify-content: center; align-items: center; margin-top: 1rem; }
 .quit-actions .big-btn, .quit-actions .mode-btn {
   min-width: 7.5rem; min-height: 48px; margin: 0; padding: .7rem 1.5rem; border-radius: 999px;
