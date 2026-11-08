@@ -538,8 +538,9 @@ body.lesson-mode.map-lesson .game-root { height: 100vh; height: 100dvh; min-heig
 body.lesson-mode.map-lesson .game-root > * { flex-shrink: 0; }
 body.lesson-mode.map-lesson .banner-wrap { flex: 0 1 auto; min-height: 60px; overflow: hidden; }
 body.lesson-mode.map-lesson .quiz-banner { height: 100%; max-height: clamp(110px, 24vw, 200px); }
-body.lesson-mode.map-lesson #questionCount { font-size: .85rem; line-height: 1.2; margin: 0; }
-body.lesson-mode.map-lesson #lessonPrompt { font-size: 1.15rem; line-height: 1.2; margin-top: -.3rem; }
+.head-count { flex: 0 0 auto; font-family: var(--font-display); font-weight: 800; font-size: .9rem; color: var(--candle); white-space: nowrap; }
+:root[data-theme="light"] .head-count { color: #b4542a; }
+body.lesson-mode.map-lesson #lessonPrompt { font-size: 1.15rem; line-height: 1.2; }
 body.lesson-mode.map-lesson #play { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: .45rem; }
 body.lesson-mode.map-lesson .prompt-row { flex: 0 0 auto; }
 body.lesson-mode.map-lesson .speech-area { flex-direction: row; flex-wrap: wrap; align-items: center; gap: .35rem; }
@@ -880,6 +881,7 @@ body.academy-home #pathBg, body.lesson-mode #pathBg { display: none; }
 <div class="lesson-head" id="lessonHead" hidden>
     <button class="quit-btn" id="quitLesson" type="button" aria-label="Leave lesson">✕</button>
     <div class="lesson-track" aria-hidden="true"><div class="lesson-fill" id="lessonFill"></div></div>
+    <span class="head-count" id="headCount" hidden></span>
     <button class="mode-btn vanish-btn" id="vanishBtn" type="button" hidden aria-label="Vanish one wrong answer">Vanish</button>
   </div>
   <p class="question-count" id="questionCount" hidden>Question 1/5</p>
@@ -3175,10 +3177,13 @@ function syncLessonChrome() {
   }
   const total = S.lesson.ids.length || 1;
   const place = questionPosition();
+  const mapNowCount = questionKind() === "map";
   if (countEl && place) {
     countEl.textContent = place.text;
-    countEl.hidden = questionKind() === "mcq";
+    countEl.hidden = questionKind() === "mcq" || mapNowCount;
   }
+  const hc = $("headCount");
+  if (hc) { hc.hidden = !(place && mapNowCount); if (place) hc.textContent = place.text; }
   const fill = $("lessonFill");
   if (fill) fill.style.width = Math.min(100, (place ? place.pos - 1 : S.lesson.answered) / total * 100) + "%";
   const t = current();
