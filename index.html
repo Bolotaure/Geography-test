@@ -412,12 +412,13 @@ body.lesson-mode .menu-wrap { display: none !important; }
 .node-locked { opacity: .42; }
 .node { margin: 0; }
 .node-owl { position: absolute; left: calc(50% + 42px); top: 36px; width: 60px; height: 60px; transform: translateY(-50%); pointer-events: none; filter: drop-shadow(0 6px 4px #0006); }
-.node-owl img { display: block; width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--gold); background: #2a1830; object-fit: cover; }
+.node-owl img { display: block; width: 60px; height: 60px; object-fit: contain; }
 .profile-sub { font-family: var(--font-display); font-size: 1.1rem; font-weight: 800; margin: .9rem 0 .45rem; color: inherit; }
 .avatar-picker { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; }
 .avatar-btn { display: flex; flex-direction: column; align-items: center; gap: .3rem; padding: .35rem .1rem; border-radius: 16px; font-weight: 700; font-size: .85rem; color: inherit; }
-.avatar-btn img { width: 100%; max-width: 76px; height: auto; aspect-ratio: 1; border-radius: 50%; border: 3px solid transparent; object-fit: cover; }
-.avatar-btn[aria-checked="true"] img { border-color: var(--gold); box-shadow: 0 0 0 3px #e2b65755; }
+.avatar-btn img { width: 100%; max-width: 76px; height: auto; aspect-ratio: 1; object-fit: contain; }
+.avatar-btn { border: 2px solid transparent; }
+.avatar-btn[aria-checked="true"] { border-color: var(--gold); background: #e2b6571f; }
 .avatar-btn[aria-checked="true"] { font-weight: 800; }
 @keyframes nodePulse { 50% { transform: scale(1.06); box-shadow: 0 0 0 8px color-mix(in srgb, var(--house) 40%, transparent); } }
 .path-review {
