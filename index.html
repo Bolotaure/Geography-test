@@ -3131,6 +3131,12 @@ function avatarSrc(k) {
   const house = typeof currentHouse === "string" && HOUSES[currentHouse] ? currentHouse : "emberwyck";
   return `img/avatar-${k}-${house}.webp?v=10`;
 }
+// The cheering version shown after a right answer.
+function avatarJoySrc(k) {
+  if (!AVATARS[k]) k = "owl";
+  const house = typeof currentHouse === "string" && HOUSES[currentHouse] ? currentHouse : "emberwyck";
+  return `img/avatar-joy-${k}-${house}.webp?v=1`;
+}
 function currentAvatar() {
   const a = store.get("wqa-avatar", "owl");
   return AVATARS[a] ? a : "owl";
@@ -3340,7 +3346,7 @@ function syncLessonChrome() {
       const ex = $("feedbackExample");
       const line = exampleSentence(t);
       if (ex) { ex.hidden = !line; ex.textContent = line; }
-      $("feedbackOwl").innerHTML = `<img class="avatar-figure" src="${avatarSrc(currentAvatar())}" alt="">`;
+      $("feedbackOwl").innerHTML = `<img class="avatar-figure" src="${ok ? avatarJoySrc(currentAvatar()) : avatarSrc(currentAvatar())}" alt="" onerror="this.onerror=null;this.src='${avatarSrc(currentAvatar())}'">`;
       const scroller = fb.querySelector(".feedback-scroll");
       if (scroller) scroller.scrollTop = 0;
       window.scrollTo(0, 0);
