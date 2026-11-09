@@ -3215,7 +3215,7 @@ function avatarSrc(k) {
 function avatarJoySrc(k) {
   if (!AVATARS[k]) k = "owl";
   const house = typeof currentHouse === "string" && HOUSES[currentHouse] ? currentHouse : "emberwyck";
-  return `img/avatar-joy-${k}-${house}.webp?v=1`;
+  return `img/avatar-joy-${k}-${house}.webp?v=2`;
 }
 function currentAvatar() {
   const a = store.get("wqa-avatar", "owl");
