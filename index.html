@@ -3159,11 +3159,13 @@ function renderProfile() {
   }).join("");
   $("profileStats").innerHTML = `<p class="profile-line">Day streak <b>${day.n || 0}</b></p><p class="profile-line">Total XP <b>${totalXp()}</b></p><ul class="profile-list">${rows}</ul>`;
 }
+// A lesson always asks its questions in the same, planned order (the
+// conjugation lessons rely on it); questions already answered right are skipped.
 function sittingIds(ids, replay) {
   const all = ids.slice();
-  if (replay) return shuffle(all);
+  if (replay) return all;
   const todo = all.filter(id => !S.found.has(id));
-  return shuffle(todo.length ? todo : all);
+  return todo.length ? todo : all;
 }
 function startLesson(index, ids, replay) {
   syncBannerAvatar();
