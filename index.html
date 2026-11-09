@@ -85,6 +85,24 @@ body { -webkit-touch-callout: none; }
 body.lesson-mode .page-top { display: contents; }
 .banner-wrap { position: relative; }
 .banner-flames { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+/* Golden motes drifting up through the banner. */
+.banner-motes { position: absolute; inset: 3px 0; overflow: hidden; pointer-events: none; }
+.mote {
+  position: absolute; bottom: -6px; width: 4px; height: 4px; border-radius: 50%;
+  background: radial-gradient(circle, #fffbe6 0 30%, #ffd86b 55%, #ffc04000 75%);
+  box-shadow: 0 0 8px 3px #ffd36acc; mix-blend-mode: screen; opacity: 0;
+  animation: moteRise var(--d, 7s) linear infinite; animation-delay: var(--delay, 0s);
+}
+.mote.twinkle { animation-name: moteRise, moteTwinkle; animation-duration: var(--d, 7s), 1.3s; animation-timing-function: linear, ease-in-out; animation-iteration-count: infinite, infinite; animation-delay: var(--delay, 0s), var(--delay, 0s); }
+@keyframes moteRise {
+  0% { transform: translate(0, 0) scale(.6); opacity: 0; }
+  12% { opacity: .95; }
+  60% { transform: translate(var(--sway, 12px), -60%) scale(1); }
+  85% { opacity: .7; }
+  100% { transform: translate(calc(var(--sway, 12px) * -.5), calc(-1 * var(--rise, 160px))) scale(.5); opacity: 0; }
+}
+@keyframes moteTwinkle { 50% { filter: brightness(1.8); } }
+@media (prefers-reduced-motion: reduce) { .mote { animation: none; display: none; } }
 .flame {
   position: absolute; border-radius: 50% 50% 45% 45% / 62% 62% 38% 38%;
   background: radial-gradient(ellipse 50% 60% at 50% 66%, #fffdf2 0 22%, #ffe9a8 38%, #ffb648b0 62%, #ff8a2000 80%);
@@ -940,6 +958,7 @@ body.academy-home #pathBg, body.lesson-mode #pathBg { display: none; }
     <div class="banner-wrap">
     <img class="quiz-banner" id="quizBanner" alt="" hidden>
     <div class="banner-flames" id="bannerFlames" aria-hidden="true"></div>
+    <div class="banner-motes" id="bannerMotes" aria-hidden="true"></div>
     <img class="banner-avatar" id="bannerAvatar" alt="" height="120">
   </div>
   </div>
@@ -1952,7 +1971,19 @@ function placeFlames() {
     el.style.top = (oy + y / 100 * dh - fh * 0.5).toFixed(1) + "px";
   });
 }
+function seedMotes() {
+  const box = $("bannerMotes");
+  if (!box || box.childElementCount) return;
+  let html = "";
+  for (let i = 0; i < 26; i++) {
+    const r = n => ((Math.sin(i * 12.9898 + n * 78.233) * 43758.5453) % 1 + 1) % 1;
+    const size = (3 + r(1) * 4).toFixed(1);
+    html += `<span class="mote${i % 3 === 0 ? " twinkle" : ""}" style="left:${(r(2) * 100).toFixed(1)}%;width:${size}px;height:${size}px;--d:${(5 + r(3) * 6).toFixed(1)}s;--delay:-${(r(4) * 10).toFixed(1)}s;--sway:${((r(5) - .5) * 40).toFixed(0)}px;--rise:${(110 + r(6) * 120).toFixed(0)}px"></span>`;
+  }
+  box.innerHTML = html;
+}
 function showBanner(key) {
+  seedMotes();
   const img = $("quizBanner");
   if (!img) return;
   const row = BANNERS[key] || BANNERS.home;
