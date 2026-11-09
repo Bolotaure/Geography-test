@@ -3159,13 +3159,30 @@ function renderProfile() {
   }).join("");
   $("profileStats").innerHTML = `<p class="profile-line">Day streak <b>${day.n || 0}</b></p><p class="profile-line">Total XP <b>${totalXp()}</b></p><ul class="profile-list">${rows}</ul>`;
 }
-// A lesson always asks its questions in the same, planned order (the
-// conjugation lessons rely on it); questions already answered right are skipped.
+// A lesson keeps its five questions but asks them in a new order each time;
+// questions already answered right are skipped. In conjugation the shuffle
+// avoids putting the same tense twice in a row.
+function conjTenseOf(id) {
+  const q = places.find(p => p.id === id);
+  const t = q && q.prompt || "";
+  return /passé composé/.test(t) ? "pc" : /imparfait/.test(t) ? "imp" : /futur/.test(t) ? "fut"
+    : /présent/.test(t) ? "pre" : /infinitif/i.test(t) ? "inf" : /articipe/.test(t) ? "pp" : t;
+}
+function lessonShuffle(list) {
+  if (!test || test.key !== "conj" || list.length < 2) return shuffle(list);
+  let best = shuffle(list);
+  for (let i = 0; i < 40; i++) {
+    const ok = best.every((id, k) => k === 0 || conjTenseOf(id) !== conjTenseOf(best[k - 1]));
+    if (ok) break;
+    best = shuffle(list);
+  }
+  return best;
+}
 function sittingIds(ids, replay) {
   const all = ids.slice();
-  if (replay) return all;
+  if (replay) return lessonShuffle(all);
   const todo = all.filter(id => !S.found.has(id));
-  return todo.length ? todo : all;
+  return lessonShuffle(todo.length ? todo : all);
 }
 function startLesson(index, ids, replay) {
   syncBannerAvatar();
