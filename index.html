@@ -3077,6 +3077,8 @@ function renderPath() {
     centerOnOpen = false;
     centerCurrentLesson();
     requestAnimationFrame(centerCurrentLesson);
+    setTimeout(centerCurrentLesson, 350);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(centerCurrentLesson);
     const img = $("quizBanner");
     if (img && !img.complete) img.addEventListener("load", centerCurrentLesson, { once: true });
   } else {
@@ -3098,8 +3100,20 @@ function centerCurrentLesson() {
   syncPathTop();
   const top = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--path-top")) || 0;
   const r = node.getBoundingClientRect();
-  const want = top + (window.innerHeight - top) / 2;
-  root.scrollTop += r.top + r.height / 2 - want;
+  const unit = node.closest(".unit");
+  const nodes = unit ? [...unit.querySelectorAll(".node")] : [];
+  const at = nodes.indexOf(node);
+  const margin = 12;
+  if (unit && at >= 0 && at < 2) {
+    // First lessons of a section: show the section from its top, not the one before.
+    root.scrollTop += unit.getBoundingClientRect().top - (top + margin);
+  } else if (unit && at >= 0 && at >= nodes.length - 2) {
+    // Last lessons of a section: show it down to its bottom, not the one after.
+    root.scrollTop += unit.getBoundingClientRect().bottom - (window.innerHeight - margin);
+  } else {
+    const want = top + (window.innerHeight - top) / 2;
+    root.scrollTop += r.top + r.height / 2 - want;
+  }
 }
 function syncBannerAvatar() {
   const img = $("bannerAvatar");
