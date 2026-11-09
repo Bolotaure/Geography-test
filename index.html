@@ -85,6 +85,9 @@ body { -webkit-touch-callout: none; }
 body.lesson-mode .page-top { display: contents; }
 .banner-wrap { position: relative; }
 .banner-flames { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.banner-anim { position: absolute; pointer-events: none; max-width: none; }
+.banner-wrap { overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .banner-anim { display: none; } }
 /* Golden motes drifting up through the banner. */
 .banner-motes { position: absolute; inset: 3px 0; overflow: hidden; pointer-events: none; }
 .mote {
@@ -721,6 +724,18 @@ body.lesson-mode .feedback-owl, body.lesson-mode .feedback-owl svg { width: 48px
   font-size: .78rem; line-height: 1.15; text-align: center;
 }
 .house-crest { width: auto; height: 60px; max-width: 100%; filter: drop-shadow(0 4px 4px #0005); }
+/* Crests hang and sway gently, each in its own rhythm; the chosen one glows. */
+.house-crest { transform-origin: 50% 4%; animation: crestSway 4.2s ease-in-out infinite; }
+.house-btn:nth-child(2) .house-crest { animation-duration: 4.8s; animation-delay: -1.1s; }
+.house-btn:nth-child(3) .house-crest { animation-duration: 4.5s; animation-delay: -2.3s; }
+.house-btn:nth-child(4) .house-crest { animation-duration: 5.1s; animation-delay: -3.2s; }
+.house-btn[aria-checked="true"] .house-crest { animation: crestSway 3.6s ease-in-out infinite, crestGlow 2.4s ease-in-out infinite; }
+@keyframes crestSway { 0%, 100% { transform: rotate(-3.5deg); } 50% { transform: rotate(3.5deg) translateY(-1px); } }
+@keyframes crestGlow {
+  0%, 100% { filter: drop-shadow(0 4px 4px #0005) drop-shadow(0 0 0 #ffd86b00); }
+  50% { filter: drop-shadow(0 4px 4px #0005) drop-shadow(0 0 7px #ffd86bcc) brightness(1.12); }
+}
+@media (prefers-reduced-motion: reduce) { .house-crest { animation: none !important; } }
 #profilePane .profile-card .house-btn.house-on, #profilePane .profile-card .house-btn[aria-checked="true"] { border-color: var(--gold); background: #e2b6571f; box-shadow: none; font-weight: 800; }
 .relic-group { margin: 0 0 1.15rem; }
 details.relic-group { margin-bottom: .6rem; }
@@ -957,6 +972,7 @@ body.academy-home #pathBg, body.lesson-mode #pathBg { display: none; }
   </div>
     <div class="banner-wrap">
     <img class="quiz-banner" id="quizBanner" alt="" hidden>
+    <img class="banner-anim" id="bannerAnim" alt="" hidden>
     <div class="banner-flames" id="bannerFlames" aria-hidden="true"></div>
     <div class="banner-motes" id="bannerMotes" aria-hidden="true"></div>
     <img class="banner-avatar" id="bannerAvatar" alt="" height="120">
@@ -1952,12 +1968,31 @@ const BANNER_FLAMES = {
   conj: [[93.8, 48, 3]],
 };
 let bannerKey = "home";
+// Animated parts laid exactly over the painting: [x0, y0, x1, y1] as fractions of the banner.
+const BANNER_ANIM = {
+  mixed: [0.58, 0.18, 1.0, 1.0],     // the book's pages turn, the quill rocks
+  "vocab-en": [0.14, 0.28, 1.0, 0.98], // the book's pages turn, the quill sways
+  conj: [0.28, 0.04, 0.9, 1.0],      // the quill writes glowing ink
+};
 function placeFlames() {
   const box = $("bannerFlames"), img = $("quizBanner");
   if (!box || !img || img.hidden) return;
   const W = img.clientWidth, H = img.clientHeight;
   const sc = Math.max(W / 1280, H / 720), dw = 1280 * sc, dh = 720 * sc;
   const ox = (W - dw) * 0.5, oy = (H - dh) * 0.42;
+  const anim = $("bannerAnim"), reg = BANNER_ANIM[bannerKey];
+  if (anim) {
+    anim.hidden = !reg;
+    if (reg) {
+      const want = `img/banner-anim-${bannerKey}.webp?v=1`;
+      if (anim.getAttribute("src") !== want) anim.setAttribute("src", want);
+      const top = img.offsetTop;
+      anim.style.left = (ox + reg[0] * dw).toFixed(1) + "px";
+      anim.style.top = (top + oy + reg[1] * dh).toFixed(1) + "px";
+      anim.style.width = ((reg[2] - reg[0]) * dw).toFixed(1) + "px";
+      anim.style.height = ((reg[3] - reg[1]) * dh).toFixed(1) + "px";
+    }
+  }
   const list = BANNER_FLAMES[bannerKey] || [];
   if (box.childElementCount !== list.length) {
     box.innerHTML = list.map((_, i) => `<span class="flame" style="animation-duration:${(0.9 + (i * 37 % 7) / 10).toFixed(2)}s;animation-delay:-${(i * 0.31 % 1).toFixed(2)}s"></span>`).join("");
