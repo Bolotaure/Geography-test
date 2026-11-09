@@ -24,9 +24,12 @@ function V(inf, aux, pp, present, imparfait, futur, note) {
 // Ending in -ir is not enough: partir and aller are 3rd group.
 const VERB_GROUP = {
   parler: 1, aimer: 1, jouer: 1, chanter: 1, regarder: 1, écouter: 1, travailler: 1,
-  finir: 2, choisir: 2, réussir: 2, grandir: 2, remplir: 2, obéir: 2,
+  manger: 1, commencer: 1, appeler: 1, acheter: 1, envoyer: 1,
+  arriver: 1, tomber: 1, rester: 1, entrer: 1,
+  finir: 2, choisir: 2, réussir: 2, grandir: 2, remplir: 2, obéir: 2, rougir: 2, réfléchir: 2,
   être: 3, avoir: 3, aller: 3, partir: 3, faire: 3, venir: 3,
   pouvoir: 3, vouloir: 3, prendre: 3, voir: 3, devoir: 3,
+  sortir: 3, dire: 3, mettre: 3, savoir: 3, lire: 3, écrire: 3, boire: 3, dormir: 3,
 };
 function groupOf(inf) {
   const g = VERB_GROUP[inf];
@@ -156,6 +159,101 @@ const VERBS = [
     ["partais", "partais", "partait", "partions", "partiez", "partaient"],
     ["partirai", "partiras", "partira", "partirons", "partirez", "partiront"],
     "Partir est du 3e groupe, malgré -ir : pas de -iss-. Le passé composé se forme avec être."),
+  V("manger", "avoir", "mangé",
+    ["mange", "manges", "mange", "mangeons", "mangez", "mangent"],
+    ["mangeais", "mangeais", "mangeait", "mangions", "mangiez", "mangeaient"],
+    ["mangerai", "mangeras", "mangera", "mangerons", "mangerez", "mangeront"],
+    "Verbe en -ger : on garde le e devant a et o pour que le g reste doux (nous mangeons, je mangeais)."),
+  V("commencer", "avoir", "commencé",
+    ["commence", "commences", "commence", "commençons", "commencez", "commencent"],
+    ["commençais", "commençais", "commençait", "commencions", "commenciez", "commençaient"],
+    ["commencerai", "commenceras", "commencera", "commencerons", "commencerez", "commenceront"],
+    "Verbe en -cer : le c devient ç devant a et o (nous commençons, il commençait)."),
+  V("appeler", "avoir", "appelé",
+    ["appelle", "appelles", "appelle", "appelons", "appelez", "appellent"],
+    ["appelais", "appelais", "appelait", "appelions", "appeliez", "appelaient"],
+    ["appellerai", "appelleras", "appellera", "appellerons", "appellerez", "appelleront"],
+    "Appeler double le l devant un e muet : j'appelle, ils appellent, j'appellerai ; mais nous appelons."),
+  V("acheter", "avoir", "acheté",
+    ["achète", "achètes", "achète", "achetons", "achetez", "achètent"],
+    ["achetais", "achetais", "achetait", "achetions", "achetiez", "achetaient"],
+    ["achèterai", "achèteras", "achètera", "achèterons", "achèterez", "achèteront"],
+    "Acheter prend un accent grave devant un e muet : j'achète, j'achèterai ; mais nous achetons."),
+  V("envoyer", "avoir", "envoyé",
+    ["envoie", "envoies", "envoie", "envoyons", "envoyez", "envoient"],
+    ["envoyais", "envoyais", "envoyait", "envoyions", "envoyiez", "envoyaient"],
+    ["enverrai", "enverras", "enverra", "enverrons", "enverrez", "enverront"],
+    "Envoyer change y en i devant un e muet (il envoie) et son futur est irrégulier : j'enverrai."),
+  V("arriver", "être", "arrivé",
+    ["arrive", "arrives", "arrive", "arrivons", "arrivez", "arrivent"],
+    ["arrivais", "arrivais", "arrivait", "arrivions", "arriviez", "arrivaient"],
+    ["arriverai", "arriveras", "arrivera", "arriverons", "arriverez", "arriveront"],
+    "Arriver est un verbe de mouvement : son passé composé se forme avec être."),
+  V("tomber", "être", "tombé",
+    ["tombe", "tombes", "tombe", "tombons", "tombez", "tombent"],
+    ["tombais", "tombais", "tombait", "tombions", "tombiez", "tombaient"],
+    ["tomberai", "tomberas", "tombera", "tomberons", "tomberez", "tomberont"],
+    "Tomber se conjugue avec être au passé composé."),
+  V("rester", "être", "resté",
+    ["reste", "restes", "reste", "restons", "restez", "restent"],
+    ["restais", "restais", "restait", "restions", "restiez", "restaient"],
+    ["resterai", "resteras", "restera", "resterons", "resterez", "resteront"],
+    "Rester se conjugue avec être au passé composé."),
+  V("entrer", "être", "entré",
+    ["entre", "entres", "entre", "entrons", "entrez", "entrent"],
+    ["entrais", "entrais", "entrait", "entrions", "entriez", "entraient"],
+    ["entrerai", "entreras", "entrera", "entrerons", "entrerez", "entreront"],
+    "Entrer se conjugue avec être au passé composé."),
+  V("rougir", "avoir", "rougi",
+    ["rougis", "rougis", "rougit", "rougissons", "rougissez", "rougissent"],
+    ["rougissais", "rougissais", "rougissait", "rougissions", "rougissiez", "rougissaient"],
+    ["rougirai", "rougiras", "rougira", "rougirons", "rougirez", "rougiront"],
+    "Verbe du 2e groupe, comme finir."),
+  V("réfléchir", "avoir", "réfléchi",
+    ["réfléchis", "réfléchis", "réfléchit", "réfléchissons", "réfléchissez", "réfléchissent"],
+    ["réfléchissais", "réfléchissais", "réfléchissait", "réfléchissions", "réfléchissiez", "réfléchissaient"],
+    ["réfléchirai", "réfléchiras", "réfléchira", "réfléchirons", "réfléchirez", "réfléchiront"],
+    "Verbe du 2e groupe : -iss- au pluriel du présent et à l'imparfait."),
+  V("sortir", "être", "sorti",
+    ["sors", "sors", "sort", "sortons", "sortez", "sortent"],
+    ["sortais", "sortais", "sortait", "sortions", "sortiez", "sortaient"],
+    ["sortirai", "sortiras", "sortira", "sortirons", "sortirez", "sortiront"],
+    "Sortir est du 3e groupe, comme partir. Son passé composé se forme avec être."),
+  V("dire", "avoir", "dit",
+    ["dis", "dis", "dit", "disons", "dites", "disent"],
+    ["disais", "disais", "disait", "disions", "disiez", "disaient"],
+    ["dirai", "diras", "dira", "dirons", "direz", "diront"],
+    "Dire est irrégulier : vous dites. Le participe passé est « dit »."),
+  V("mettre", "avoir", "mis",
+    ["mets", "mets", "met", "mettons", "mettez", "mettent"],
+    ["mettais", "mettais", "mettait", "mettions", "mettiez", "mettaient"],
+    ["mettrai", "mettras", "mettra", "mettrons", "mettrez", "mettront"],
+    "Mettre est irrégulier. Le participe passé est « mis »."),
+  V("savoir", "avoir", "su",
+    ["sais", "sais", "sait", "savons", "savez", "savent"],
+    ["savais", "savais", "savait", "savions", "saviez", "savaient"],
+    ["saurai", "sauras", "saura", "saurons", "saurez", "sauront"],
+    "Savoir est irrégulier : je sais, je saurai. Le participe passé est « su »."),
+  V("lire", "avoir", "lu",
+    ["lis", "lis", "lit", "lisons", "lisez", "lisent"],
+    ["lisais", "lisais", "lisait", "lisions", "lisiez", "lisaient"],
+    ["lirai", "liras", "lira", "lirons", "lirez", "liront"],
+    "Lire est irrégulier. Le participe passé est « lu »."),
+  V("écrire", "avoir", "écrit",
+    ["écris", "écris", "écrit", "écrivons", "écrivez", "écrivent"],
+    ["écrivais", "écrivais", "écrivait", "écrivions", "écriviez", "écrivaient"],
+    ["écrirai", "écriras", "écrira", "écrirons", "écrirez", "écriront"],
+    "Écrire prend un v au pluriel du présent et à l'imparfait : nous écrivons, ils écrivaient."),
+  V("boire", "avoir", "bu",
+    ["bois", "bois", "boit", "buvons", "buvez", "boivent"],
+    ["buvais", "buvais", "buvait", "buvions", "buviez", "buvaient"],
+    ["boirai", "boiras", "boira", "boirons", "boirez", "boiront"],
+    "Boire est irrégulier : nous buvons, ils boivent, je buvais. Le participe passé est « bu »."),
+  V("dormir", "avoir", "dormi",
+    ["dors", "dors", "dort", "dormons", "dormez", "dorment"],
+    ["dormais", "dormais", "dormait", "dormions", "dormiez", "dormaient"],
+    ["dormirai", "dormiras", "dormira", "dormirons", "dormirez", "dormiront"],
+    "Dormir est du 3e groupe, malgré -ir : pas de -iss- (tu dors, nous dormons)."),
 ];
 
 function joinPronoun(pronoun, rest) {
@@ -163,14 +261,14 @@ function joinPronoun(pronoun, rest) {
   return pronoun + " " + rest;
 }
 
-function ppFor(verb, person) {
+function ppFor(verb, person, fem) {
   if (verb.aux !== "être") return verb.pp;
-  // Masculine agreement only. vous is treated as masculine singular.
+  // Agreement with the subject. vous is treated as masculine singular.
   const plural = person === 3 || person === 5;
-  return plural ? verb.pp + "s" : verb.pp;
+  return verb.pp + (fem ? "e" : "") + (plural ? "s" : "");
 }
 
-function stemOf(verb, tense, person) {
+function stemOf(verb, tense, person, fem) {
   if (tense === "present") return verb.present[person];
   if (tense === "imparfait") return verb.imparfait[person];
   if (tense === "futur") return verb.futur[person];
@@ -178,13 +276,18 @@ function stemOf(verb, tense, person) {
     const aux = verb.aux === "être"
       ? ["suis", "es", "est", "sommes", "êtes", "sont"][person]
       : ["ai", "as", "a", "avons", "avez", "ont"][person];
-    return aux + " " + ppFor(verb, person);
+    return aux + " " + ppFor(verb, person, fem);
   }
   throw new Error("tense " + tense);
 }
 
-function fullForm(verb, tense, person) {
-  return joinPronoun(PRONOUNS[person], stemOf(verb, tense, person));
+function pronounOf(person, fem) {
+  if (fem && person === 2) return "elle";
+  if (fem && person === 5) return "elles";
+  return PRONOUNS[person];
+}
+function fullForm(verb, tense, person, fem) {
+  return joinPronoun(pronounOf(person, fem), stemOf(verb, tense, person, fem));
 }
 
 const TENSE_FR = {
@@ -194,16 +297,17 @@ const TENSE_FR = {
   pc: "au passé composé",
 };
 
-function personLabel(verb, tense, person) {
+function personLabel(verb, tense, person, fem) {
   let label = PERSON_LABEL[person];
+  if (fem) label += person === 2 ? ", féminin (elle)" : ", féminin (elles)";
   if (tense === "pc" && verb.aux === "être" && person === 4) label += ", masculin singulier";
   return label;
 }
 
-function explainConj(verb, tense, person, answer) {
-  const who = personLabel(verb, tense, person);
+function explainConj(verb, tense, person, answer, fem) {
+  const who = personLabel(verb, tense, person, fem);
   if (tense === "pc" && verb.aux === "être") {
-    return `« ${verb.inf} » se conjugue au passé composé avec être. ${who.charAt(0).toUpperCase() + who.slice(1)} : « ${answer} ». Le participe s'accorde avec le sujet masculin${person === 3 || person === 5 ? " pluriel" : ""}. ${verb.note}`;
+    return `« ${verb.inf} » se conjugue au passé composé avec être. ${who.charAt(0).toUpperCase() + who.slice(1)} : « ${answer} ». Le participe s'accorde avec le sujet ${fem ? "féminin" : "masculin"}${person === 3 || person === 5 ? " pluriel" : ""}. ${verb.note}`;
   }
   if (tense === "pc") {
     return `« ${verb.inf} » se conjugue au passé composé avec avoir. ${who.charAt(0).toUpperCase() + who.slice(1)} : « ${answer} ». Ici le participe ne s'accorde pas avec le sujet. ${verb.note}`;
@@ -321,122 +425,116 @@ function buildConjugationQuestions() {
     questions.push(q);
   }
 
-  VERBS.forEach((verb, vi) => {
-    // vous + futur, the shape of the owner's example.
-    const personFutur = 4;
-    const ansF = fullForm(verb, "futur", personFutur);
-    const poolF = [
-      fullForm(verb, "present", 4),
-      fullForm(verb, "imparfait", 4),
-      fullForm(verb, "futur", 0),
-      fullForm(verb, "pc", 4),
-    ];
-    add({
-      prompt: `Verbe ${verb.inf}, ${personLabel(verb, "futur", personFutur)}, au futur`,
-      ask: "Quelle est la forme correcte ?",
-      answer: ansF,
-      choices: seededShuffle([ansF, ...pickDistractors(ansF, poolF)], 1000 + vi),
-      explain: explainConj(verb, "futur", personFutur, ansF),
-    });
-
-    const pPres = (vi * 2 + 1) % 6;
-    const ansP = fullForm(verb, "present", pPres);
-    add({
-      prompt: `Verbe ${verb.inf}, ${personLabel(verb, "present", pPres)}, au présent`,
-      ask: "Quelle est la forme correcte ?",
-      answer: ansP,
-      choices: seededShuffle([ansP, ...pickDistractors(ansP, [
-        fullForm(verb, "present", (pPres + 1) % 6),
-        fullForm(verb, "imparfait", pPres),
-        fullForm(verb, "futur", pPres),
-        fullForm(verb, "present", (pPres + 3) % 6),
-      ])], 1100 + vi),
-      explain: explainConj(verb, "present", pPres, ansP),
-    });
-
-    const ansI = fullForm(verb, "imparfait", 2);
-    add({
-      prompt: `Verbe ${verb.inf}, ${personLabel(verb, "imparfait", 2)}, à l'imparfait`,
-      ask: "Quelle est la forme correcte ?",
-      answer: ansI,
-      choices: seededShuffle([ansI, ...pickDistractors(ansI, [
-        fullForm(verb, "present", 2),
-        fullForm(verb, "futur", 2),
-        fullForm(verb, "imparfait", 3),
-        fullForm(verb, "imparfait", 5),
-      ])], 1200 + vi),
-      explain: explainConj(verb, "imparfait", 2, ansI),
-    });
-
-    const pcPerson = vi % 2 === 0 ? 0 : 5;
-    const ansC = fullForm(verb, "pc", pcPerson);
-    const wrongAux = verb.aux === "être"
-      ? joinPronoun(PRONOUNS[pcPerson], ["ai", "as", "a", "avons", "avez", "ont"][pcPerson] + " " + verb.pp)
-      : joinPronoun(PRONOUNS[pcPerson], ["suis", "es", "est", "sommes", "êtes", "sont"][pcPerson] + " " + verb.pp);
-    add({
-      prompt: `Verbe ${verb.inf}, ${personLabel(verb, "pc", pcPerson)}, au passé composé`,
-      ask: "Quelle est la forme correcte ?",
-      answer: ansC,
-      choices: seededShuffle([ansC, ...pickDistractors(ansC, [
-        wrongAux,
-        fullForm(verb, "pc", (pcPerson + 2) % 6),
-        fullForm(verb, "present", pcPerson),
-        fullForm(verb, "imparfait", pcPerson),
-      ])], 1300 + vi),
-      explain: explainConj(verb, "pc", pcPerson, ansC),
-    });
-
-    // Infinitive from a distinctive form (nous, present — usually unique).
-    const shown = fullForm(verb, "present", 3);
-    const otherInfs = VERBS.map(v => v.inf).filter(x => x !== verb.inf);
-    add({
-      prompt: `Quel est l'infinitif de « ${shown} » ?`,
-      ask: "Choisis l'infinitif.",
-      answer: verb.inf,
-      choices: seededShuffle([verb.inf, otherInfs[vi % otherInfs.length], otherInfs[(vi + 3) % otherInfs.length], otherInfs[(vi + 7) % otherInfs.length]], 1400 + vi),
-      explain: `« ${shown} » est le présent, 1re personne du pluriel, de « ${verb.inf} ». L'infinitif est donc ${verb.inf}.`,
-    });
-
-    const ppWrongs = [
-      verb.pp.endsWith("é") ? verb.pp.slice(0, -1) + "er" : verb.pp + "e",
-      verb.pp + "s",
-      VERBS[(vi + 4) % VERBS.length].pp,
-    ];
-    add({
-      prompt: `Participe passé, masculin singulier, du verbe ${verb.inf}`,
-      ask: "Quel est le participe passé ?",
-      answer: verb.pp,
-      choices: seededShuffle([verb.pp, ...pickDistractors(verb.pp, ppWrongs)], 1500 + vi),
-      explain: verb.aux === "être"
-        ? `Le participe passé masculin singulier de « ${verb.inf} » est « ${verb.pp} ». Avec être, il s'accorde : « il est ${verb.pp} », « ils sont ${verb.pp}s ».`
-        : `Le participe passé masculin singulier de « ${verb.inf} » est « ${verb.pp} ». Avec avoir, et sans complément avant le verbe, il reste « ${verb.pp} » : « il a ${verb.pp} ».`,
-    });
-  });
-
-  // Ten extra irregular contrasts so the bank is not only one pattern per verb.
-  const extras = [
-    ["être", "present", 0],
-    ["être", "imparfait", 5],
-    ["avoir", "futur", 5],
-    ["aller", "present", 5],
-    ["faire", "present", 5],
-    ["venir", "futur", 4],
-    ["pouvoir", "present", 2],
-    ["vouloir", "present", 4],
-    ["prendre", "futur", 3],
-    ["voir", "present", 4],
+  // The bank, by hand: every tense at all six persons, all three groups,
+  // passé composé with être (some feminine), irregular participles, and the
+  // -cer / -ger / -eler / -eter / -yer spelling changes. [verb, tense, person, feminine]
+  const PLAN = [
+    // 1er groupe (34)
+    ["manger", "present", 3], ["commencer", "present", 3], ["appeler", "present", 5], ["acheter", "present", 0],
+    ["envoyer", "present", 2], ["parler", "present", 1], ["chanter", "present", 4],
+    ["appeler", "futur", 0], ["acheter", "futur", 3], ["envoyer", "futur", 1], ["jouer", "futur", 2],
+    ["travailler", "futur", 4], ["regarder", "futur", 5],
+    ["manger", "imparfait", 0], ["commencer", "imparfait", 2], ["écouter", "imparfait", 1], ["aimer", "imparfait", 3],
+    ["parler", "imparfait", 4], ["jouer", "imparfait", 5],
+    ["arriver", "pc", 2, true], ["tomber", "pc", 5, true], ["rester", "pc", 0], ["entrer", "pc", 3],
+    ["manger", "pc", 1], ["écouter", "pc", 4],
+    ["appeler", "inf", 0], ["acheter", "inf", 2], ["envoyer", "inf", 1], ["commencer", "inf", 3],
+    ["chanter", "pp"], ["tomber", "pp"], ["envoyer", "pp"], ["regarder", "pp"], ["commencer", "pp"],
+    // 2e groupe (33)
+    ["finir", "present", 0], ["choisir", "present", 1], ["grandir", "present", 2], ["obéir", "present", 3],
+    ["réfléchir", "present", 4], ["remplir", "present", 5], ["rougir", "present", 2],
+    ["finir", "futur", 3], ["réussir", "futur", 0], ["remplir", "futur", 1], ["choisir", "futur", 4],
+    ["grandir", "futur", 5], ["obéir", "futur", 2],
+    ["choisir", "imparfait", 0], ["grandir", "imparfait", 1], ["réussir", "imparfait", 2], ["remplir", "imparfait", 3],
+    ["finir", "imparfait", 4], ["réfléchir", "imparfait", 5],
+    ["finir", "pc", 2], ["obéir", "pc", 0], ["réussir", "pc", 3], ["choisir", "pc", 5], ["rougir", "pc", 1],
+    ["grandir", "inf", 3], ["obéir", "inf", 5], ["choisir", "inf", 4], ["réfléchir", "inf", 0],
+    ["finir", "pp"], ["remplir", "pp"], ["obéir", "pp"], ["réfléchir", "pp"], ["grandir", "pp"],
+    // 3e groupe (33)
+    ["être", "present", 3], ["avoir", "present", 5], ["aller", "present", 0], ["faire", "present", 4], ["dormir", "present", 1],
+    ["être", "futur", 0], ["avoir", "futur", 1], ["aller", "futur", 3], ["venir", "futur", 2], ["voir", "futur", 4], ["faire", "futur", 5],
+    ["être", "imparfait", 2], ["devoir", "imparfait", 0], ["dire", "imparfait", 4], ["boire", "imparfait", 3], ["écrire", "imparfait", 5],
+    ["aller", "pc", 2, true], ["venir", "pc", 5, true], ["partir", "pc", 0], ["sortir", "pc", 3],
+    ["faire", "pc", 1], ["prendre", "pc", 4], ["voir", "pc", 2],
+    ["aller", "inf", 5], ["pouvoir", "inf", 0], ["faire", "inf", 3], ["boire", "inf", 5], ["savoir", "inf", 1],
+    ["mettre", "pp"], ["lire", "pp"], ["être", "pp"], ["avoir", "pp"], ["vouloir", "pp"],
   ];
-  extras.forEach(([inf, tense, person], i) => {
-    const verb = VERBS.find(v => v.inf === inf);
-    const answer = fullForm(verb, tense, person);
-    const prompt = `Verbe ${inf}, ${personLabel(verb, tense, person)}, ${TENSE_FR[tense]}`;
-    if (usedPrompts.has(prompt)) return;
+  // Wrong participles a child really writes (a manger, il a finit, tu as fais).
+  const PP_WRONG = {
+    chanté: ["chanter", "chantez", "chantait"], tombé: ["tomber", "tombez", "tombait"],
+    envoyé: ["envoyer", "envoié", "envoyait"], regardé: ["regarder", "regardez", "regardait"],
+    commencé: ["commencer", "commençé", "commençait"], fini: ["finit", "finis", "finé"],
+    rempli: ["remplit", "remplis", "remplé"], obéi: ["obéit", "obéis", "obéissé"],
+    réfléchi: ["réfléchit", "réfléchis", "réfléchissé"], grandi: ["grandit", "grandis", "grandu"],
+    mis: ["mit", "mi", "mettu"], lu: ["lut", "lis", "lisé"], été: ["était", "étais", "êtu"],
+    eu: ["eut", "eus", "avu"], voulu: ["voulut", "voulus", "voulé"],
+  };
+  const slip = pp => (PP_WRONG[pp] && PP_WRONG[pp][0]) || { fait: "fais", pris: "prit", vu: "vus" }[pp]
+    || (pp.endsWith("é") ? pp.slice(0, -1) + "er" : pp.endsWith("i") ? pp + "t" : pp + "s");
+  const byInf = inf => {
+    const v = VERBS.find(x => x.inf === inf);
+    if (!v) throw new Error("no verb " + inf);
+    return v;
+  };
+  PLAN.forEach(([inf, tense, person, fem], k) => {
+    const verb = byInf(inf);
+    const seed = 2000 + k;
+    if (tense === "inf") {
+      const shown = fullForm(verb, "present", person);
+      const g = groupOf(inf);
+      const same = VERBS.map(v => v.inf).filter(x => x !== inf && groupOf(x) === g);
+      const other = VERBS.map(v => v.inf).filter(x => x !== inf && groupOf(x) !== g);
+      const wrong = [same[k % same.length], same[(k + 3) % same.length], other[k % other.length]];
+      add({
+        prompt: `Quel est l'infinitif de « ${shown} » ?`,
+        ask: "Choisis l'infinitif.",
+        answer: inf,
+        choices: seededShuffle([inf, ...pickDistractors(inf, wrong)], seed),
+        explain: `« ${shown} » est le présent, ${PERSON_LABEL[person]}, de « ${inf} ». L'infinitif est donc ${inf}.`,
+      });
+      return;
+    }
+    if (tense === "pp") {
+      const ppWrongs = PP_WRONG[verb.pp];
+      if (!ppWrongs) throw new Error("no participle distractors for " + verb.pp);
+      add({
+        prompt: `Participe passé, masculin singulier, du verbe ${inf}`,
+        ask: "Quel est le participe passé ?",
+        answer: verb.pp,
+        choices: seededShuffle([verb.pp, ...pickDistractors(verb.pp, ppWrongs)], seed),
+        explain: verb.aux === "être"
+          ? `Le participe passé masculin singulier de « ${inf} » est « ${verb.pp} ». Avec être, il s'accorde : « il est ${verb.pp} », « elle est ${verb.pp}e ».`
+          : `Le participe passé masculin singulier de « ${inf} » est « ${verb.pp} ». Avec avoir, il reste en général invariable : « il a ${verb.pp} ».`,
+      });
+      return;
+    }
+    const answer = fullForm(verb, tense, person, fem);
+    let pool;
+    if (tense === "pc") {
+      // With être, the classic slip is avoir (j'ai parti). With avoir, être
+      // would give a real passive (il est vu), so use a misspelt participle.
+      const auxAvoir = ["ai", "as", "a", "avons", "avez", "ont"][person];
+      pool = [
+        joinPronoun(pronounOf(person, fem), verb.aux === "être" ? auxAvoir + " " + verb.pp : auxAvoir + " " + slip(verb.pp)),
+        fem ? fullForm(verb, "pc", person, false).replace(/^il(s?) /, "elle$1 ") : fullForm(verb, "pc", (person + 3) % 6),
+        fullForm(verb, "imparfait", person, fem),
+        fullForm(verb, "present", person, fem),
+      ];
+    } else {
+      const others = ["present", "imparfait", "futur"].filter(t => t !== tense);
+      pool = [
+        fullForm(verb, others[0], person, fem),
+        fullForm(verb, others[1], person, fem),
+        fullForm(verb, tense, (person + 3) % 6),
+        fullForm(verb, tense, (person + 1) % 6),
+      ];
+    }
     add({
-      prompt,
+      prompt: `Verbe ${inf}, ${personLabel(verb, tense, person, fem)}, ${TENSE_FR[tense]}`,
       ask: "Quelle est la forme correcte ?",
       answer,
-      choices: seededShuffle([answer, ...pickDistractors(answer, allForms(verb))], 1600 + i),
-      explain: explainConj(verb, tense, person, answer),
+      choices: seededShuffle([answer, ...pickDistractors(answer, pool)], seed),
+      explain: explainConj(verb, tense, person, answer, fem),
     });
   });
 
@@ -595,7 +693,7 @@ function serializeConj(qs) {
   const body = qs.map(q => `  ${JSON.stringify(q)}`).join(",\n");
   return `// French conjugation questions for Wizard's Quiz Academy.
 // Generated by scripts/conjugation-rules.js — do not edit by hand.
-// Passé composé with être agrees in the masculine (vous = masculine singular).
+// Passé composé with être agrees with the subject (vous = masculine singular).
 window.CONJ_FR = [
 ${body}
 ];

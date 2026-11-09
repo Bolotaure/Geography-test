@@ -56,7 +56,7 @@ A hard word, four choices, one real synonym. English and French each have 100 wo
 
 ### French conjugation
 
-100 checked forms: présent, futur, imparfait, passé composé, infinitif, and participe passé. Consecutive questions change verb and do not repeat the same tense. A lesson uses at least three tenses. Ending in -ir is not the 2e groupe: partir and aller are 3e groupe. Passé composé with être agrees in the masculine, and vous is treated as masculine singular. The quiz chrome is in French.
+100 checked forms: présent, futur, imparfait, passé composé, infinitif, and participe passé, across 40 verbs of the three groups. Présent, futur, imparfait and passé composé are each asked at all six persons. A third of the passés composés use être, some with a feminine subject (elle est allée, elles sont venues). The bank includes the irregular participles (fait, pris, vu, mis, lu, été, eu, voulu) and the -cer, -ger, -eler, -eter and -yer spelling changes (nous commençons, nous mangeons, j'appelle, j'achète, j'enverrai). Consecutive questions change verb and do not repeat the same tense. A lesson uses at least three tenses. Ending in -ir is not the 2e groupe: partir, sortir and dormir are 3e groupe. Passé composé with être agrees with the subject, and vous is treated as masculine singular. The quiz chrome is in French.
 
 ## Relics
 

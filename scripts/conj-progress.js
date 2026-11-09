@@ -38,6 +38,9 @@ const VERB_GROUP = {
   finir: 2, choisir: 2, réussir: 2, grandir: 2, remplir: 2, obéir: 2,
   être: 3, avoir: 3, aller: 3, partir: 3, faire: 3, venir: 3,
   pouvoir: 3, vouloir: 3, prendre: 3, voir: 3, devoir: 3,
+  manger: 1, commencer: 1, appeler: 1, acheter: 1, envoyer: 1,
+  arriver: 1, tomber: 1, rester: 1, entrer: 1, rougir: 2, réfléchir: 2,
+  sortir: 3, dire: 3, mettre: 3, savoir: 3, lire: 3, écrire: 3, boire: 3, dormir: 3,
 };
 
 const DROPPED = {
